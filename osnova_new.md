@@ -1,5 +1,5 @@
 Cíl práce:
-Cílem bakalářské práce je navrhout a vytvořit aplikaci schopnou vyobrazit vývoj hodnot vybraných opcí, predikovat budoucí vývoj pomocí diskrétního markovovského řetezce a doporučit vhodnou opční strategii. Kvalita predikce aplikace bude hodnocena jako rozdíl čtverců od reálného vývoje hodnoty opce.
+Cílem bakalářské práce je navrhout a vytvořit aplikaci schopnou vyobrazit vývoj hodnot vybraných opcí, predikovat budoucí vývoj pomocí diskrétního markovovského řetezce a doporučit vhodnou opční strategii. K vytvoření markovského řetezce vybude využita analýza sentinentu a sentimentu opce, k ocenění bude využita Blackův-Scholesův model. Kvalita predikce aplikace bude hodnocena jako rozdíl čtverců od reálného vývoje hodnoty opce.
 
 Struktura práce:
 (Seznam:)
@@ -21,9 +21,11 @@ Struktura práce:
 Osnova:
 1. Úvod
 2. Teoretická část
-    2.1. Diskétní Markovovské řetezce
-    2.2. Opce a jejich oceňování
-    2.3. Markovovský model pro opce
+    2.1. Markovské procesy
+    2.2. Diskétní Markovovské řetezce
+    2.3. Opce a jejich oceňování
+    2.4. Markovovský model pro opce
+    2.5. Alternativní markovské procesy
 3. Praktická část
     3.1. Příprava dat
     3.2. Konstrukce a analýza matice přechodových pravděpodobností
