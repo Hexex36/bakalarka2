@@ -1,0 +1,5 @@
+- Přesný téma seminárky
+- Struktura práce
+- Hypotéza a takový
+- Seznam literatury
+- Rozhodni se jakej jazyk použít
