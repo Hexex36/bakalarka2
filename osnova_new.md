@@ -7,7 +7,7 @@ Struktura práce:
 - Rešerše 
     - Diskrétní markovské řetezce
     - Modelování časových řad jako markovské řetezce
-    - Semantická a sentimentová analýza
+    - Semantická a sentimentová analýza 
     - Blackův-Scholesův model
     - Opce a opční strategie
 - Architektura navrhováného řešení
@@ -15,6 +15,8 @@ Struktura práce:
     - Business vrstva
     - Aplikační úroveň
     - Technologická vrstva
+- Vývoj softwareu 
+    - Agilní přístup vs waterfall 
 * Praktická část
 - Získání dat 
     - Cena podkladových aktiv

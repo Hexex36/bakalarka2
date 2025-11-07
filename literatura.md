@@ -5,6 +5,13 @@ Markovské řetezce:
 - SKALSKÁ, Hana. Stochastické modelování. Hradec Králové: Gaudeamus, 1998. ISBN 80-7041-039-6.
 - LUKÁŠ, Ladislav. Pravděpodobnostní modely v managementu: Markovovy řetězce a systémy hromadné obsluhy. Lanna : knižnice České matice technické, sv. 2. Praha: Academia, 2009. ISBN 978-80-200-1704-8. 
 
+Semantická analýza:
+- LIU, Bing. Sentiment Analysis and Opinion Mining. 2012. Morgan & Claypool Publisher, 2012. ISBN 978-3-031-01017-0.
+
+Softwareový vývoj:
+- SOMMERVILLE, Ian. Softwarové inženýrství. Brno: Computer Press, 2013. ISBN 978-80-251-3826-7.
+- THESING, Theo; FELDMANN, Carsten a BURCHARDT, Martin. Agile versus Waterfall Project Management: Decision Model for Selecting the Appropriate Approach to a Project. Procedia Computer Science. 2021, vol. 2021, no. 181, s. 746-756. ISSN 1877-0509.
+
 
 Opce a takové:
 - https://skolainvestoru.cz/derivaty/

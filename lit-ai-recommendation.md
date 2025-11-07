@@ -43,3 +43,50 @@ Zdroje pro technické zpracování dat a programování modelu.
     * **Matplotlib / Seaborn:** Pro vizualizaci cenových řad, simulací a výsledků backtestingu.
 * **Odborné články/Studie:**
     * Vyhledat aktuální **akademické články** (např. v databázích jako JSTOR, Scopus) specificky na téma **"Markov Chain application in quantitative finance"** nebo **"Using Monte Carlo simulation with Markov Chains for option strategies"** pro ověření metodiky.
+
+---
+
+## IV. Doporučení z AI (Doplňková literatura)
+
+Tato sekce obsahuje doplňkovou literaturu doporučenou umělou inteligencí na základě dotazů na klíčová témata z osnovy práce.
+
+### 1. Sémantická a sentimentová analýza
+
+*   **Knihy:**
+    *   **Liu, Bing.** *Sentiment Analysis: Mining Opinions, Sentiments, and Emotions*. Cambridge University Press. (Považováno za jednu ze základních knih o sentimentální analýze).
+    *   **Jurafsky, D., & Martin, J. H.** *Speech and Language Processing*. Prentice Hall. (Základní kniha v oboru zpracování přirozeného jazyka, pokrývá sémantiku i sentiment).
+    *   **Goddard, Cliff.** *Semantic Analysis: A Practical Introduction*. Oxford University Press.
+
+*   **Akademické žurnály a konference (pro nejnovější výzkum):**
+    *   **Žurnály:** *Journal of Semantics*, *Computational Linguistics* (MIT Press).
+    *   **Klíčové konference:** *ACL (Annual Meeting of the Association for Computational Linguistics)*, *EMNLP (Conference on Empirical Methods in Natural Language Processing)*. Sborníky jsou obvykle volně dostupné online.
+
+### 2. Vývoj softwaru (Metodiky)
+
+*   **Knihy (Základy softwarového inženýrství):**
+    *   **Pressman, Roger S., & Maxim, Bruce R.** *Software Engineering: A Practitioner's Approach*. McGraw-Hill Education. (Komplexní "bible" softwarového inženýrství).
+    *   **Sommerville, Ian.** *Software Engineering*. Pearson. (Další klíčová a komplexní učebnice oboru).
+    *   **Brooks Jr., Frederick P.** *The Mythical Man-Month: Essays on Software Engineering*. Addison-Wesley Professional. (Klasické eseje o řízení softwarových projektů).
+
+*   **Knihy (Principy a "řemeslo"):**
+    *   **Martin, Robert C. (Uncle Bob).** *Clean Code: A Handbook of Agile Software Craftsmanship*. Prentice Hall.
+    *   **Fowler, Martin.** *Refactoring: Improving the Design of Existing Code*. Addison-Wesley Professional.
+
+*   **Akademické žurnály:**
+    *   *IEEE Transactions on Software Engineering* (TSE)
+    *   *ACM Transactions on Software Engineering and Methodology* (TOSEM)
+
+### 3. Agilní přístup vs. Vodopádový model
+
+Pro toto téma je nejlepší čerpat z akademických článků, které přímo srovnávají oba přístupy.
+
+*   **Akademické články a studie:**
+    *   *A Comparative Study of Agile and Waterfall Software Development Methodologies* (Razzak, M.A., et al., 2023).
+    *   *Comparative Analysis of Waterfall and Agile Software Development Models: A Comprehensive Review* (IJSDR, 2024).
+    *   *Agile vs. Waterfall: A Comprehensive Analysis of Methodologies for Effective Project Management* (IJNRD, 2025).
+    *   *Effectiveness of Agile Compared to Waterfall Implementation Methods in IT Projects* (Dostupné přes Semantic Scholar).
+
+*   **Případové studie (Case Studies):**
+    *   *Comparative Analysis of Waterfall and Agile Methodologies in Microsoft* (IJEAIS, 2024).
+
+*   **Klíčová témata v článcích:** Flexibilita vs. rigidita, role zpětné vazby, význam dokumentace, vhodnost pro různé typy projektů a hybridní přístupy. Pro plné texty hledejte názvy v databázích jako Google Scholar, IEEE Xplore, nebo ACM Digital Library.
