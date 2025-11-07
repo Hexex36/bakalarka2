@@ -10,6 +10,11 @@ Struktura práce:
     - Semantická a sentimentová analýza
     - Blackův-Scholesův model
     - Opce a opční strategie
+- Architektura navrhováného řešení
+    - Motivační úroveň
+    - Business vrstva
+    - Aplikační úroveň
+    - Technologická vrstva
 * Praktická část
 - Získání dat 
     - Cena podkladových aktiv
