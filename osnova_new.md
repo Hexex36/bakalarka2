@@ -1,15 +1,17 @@
 Cíl práce:
-Cílem bakalářské práce je navrhout a vytvořit aplikaci schopnou vyobrazit vývoj hodnot vybraných opcí, predikovat budoucí vývoj pomocí diskrétního markovovského řetezce a doporučit vhodnou opční strategii. K vytvoření markovského řetezce vybude využita analýza sentinentu a sentimentu opce, k ocenění bude využita Blackův-Scholesův model. Kvalita predikce aplikace bude hodnocena jako procento úspěšných uzavřených obchodů.
+Cílem bakalářské práce je navrhout a vytvořit aplikaci schopnou vyobrazit vývoj hodnot vybraných opcí, predikovat budoucí vývoj pomocí diskrétního markovovského řetezce a doporučit vhodnou opční strategii. K vytvoření markovského řetezce vybude využita analýza sentinentu a sentimentu opce, k ocenění bude využita Blackův-Scholesův model. Kvalita predikce aplikace bude hodnocena jako procento úspěšných uzavřených obchodů, vytvoření backtestů obchodních strategií.
 
 Struktura práce:
 (Seznam:)
-- Rešerše // Rozepsat (matematikářské detaily, opční strategie)
+* Teoretická část
+- Rešerše 
     - Diskrétní markovské řetezce
     - Modelování časových řad jako markovské řetezce
     - Semantická a sentimentová analýza
     - Blackův-Scholesův model
     - Opce a opční strategie
-- Získání dat // Zkonkretuzovat "relevantní" (cena podkladových aktiv, opční řetezce (option chains))
+* Praktická část
+- Získání dat 
     - Cena podkladových aktiv
     - Opční řetězce
 - Vytvoření vzoru webového rozhraní aplikace
