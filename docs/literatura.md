@@ -15,10 +15,12 @@ Softwareový vývoj:
 
 Opce a takové:
 - https://skolainvestoru.cz/derivaty/
+    * ŠKOLA INVESTORŮ. Deriváty. Online. ŠKOLA INVESTORŮ. Škola investorů. 2024, 7. 1. 2024. Dostupné z: https://skolainvestoru.cz/derivaty/. [cit. 2025-11-11].
 - ŠAFAŘÍK, Pavel. Denní obchodování na finančních trzích. 2. vydání (v Ekopressu 1.). Jesenice: Ekopress, 2019. ISBN 978-80-87865-56-9.
 - BLACK, Fischer a SCHOLES, Myron. The Pricing of Options and Corporate Liabilities. The Journal of Political Economy. 1973, vol. 81, no. 3, s. 637 - 654.
 - AMBROŽ, Luděk. Oceňování opcí. C.H. Beck pro praxi. Praha: C.H. Beck, 2002. ISBN 80-7179-531-3.
 - https://galton.uchicago.edu/~lalley/Courses/390/index.html
+    * UNIVERSITY OF CHICAGO. Statistics 390/ Mathematical Finance. Online. 2001. Dostupné z: https://galton.uchicago.edu/~lalley/Courses/390/index.html. [cit. 2025-11-11].
 
 
 
