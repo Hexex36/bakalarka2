@@ -1,0 +1,10 @@
+[database]
+dbname = "postgres"
+user = "postgres"
+password = "postgres"
+host = "localhost"
+port = 5432
+
+[tickers]
+ticker_list = ["IWM", "QQQ", "TQQQ", "NVDL", "NVD", "AAPL", "OPEN"]
+

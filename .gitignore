@@ -2,3 +2,6 @@
 docs/consult_notes.md
 Helpful
 options.db
+Database/conn_test.py
+Database/data_types.txt
+Database/yfin_test.py
