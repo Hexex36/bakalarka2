@@ -23,9 +23,9 @@ Struktura práce:
 - Vytvoření vzoru webového rozhraní aplikace
 - Vypracování funkčního modelu aplikace
 - Agilní vývoj aplikace
+    - Výběr a implementace nové funkcionality
     - Otestování
     - Zhodnocení
-    - Upravení modelu
 - Finální ohodnocení modelu
 
 Osnova:
