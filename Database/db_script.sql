@@ -68,3 +68,6 @@ CREATE INDEX IF NOT EXISTS idx_puts_contractSymbol ON puts("contractSymbol");
 
 CREATE INDEX IF NOT EXISTS idx_puts_itm ON puts USING HASH ("inTheMoney");
 
+CREATE TABLE IF NOT EXISTS "sentiment_pieces" (
+
+)

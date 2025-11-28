@@ -2,3 +2,8 @@ yfinance
 PyQt6
 sqlalchemy
 pandas
+transformers
+torch
+psycopg2-binary
+finnhub-python
+beautifulsoup4

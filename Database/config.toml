@@ -1,10 +1,17 @@
 [database]
-dbname = "postgres"
+dbname = "financedata"
 user = "postgres"
 password = "postgres"
 host = "localhost"
-port = 5432
+#host = "fin_db"
+port = 5431
 
 [tickers]
-ticker_list = ["IWM", "QQQ", "TQQQ", "NVDL", "NVD", "AAPL", "OPEN"]
+ticker_list = ["IWM", "QQQ", "TQQQ", "NVDL", "NVD", "AAPL", "OPEN", "NVDA"]
+clues = { IWM = ["iShares", "Russell 2000", "small-cap", "ETF"], QQQ = ["Invesco", "Nasdaq-100", "large-cap", "tech stocks", "ETF"], TQQQ = ["ProShares", "UltraPro", "leveraged ETF", "Nasdaq-100"], NVDL = ["GraniteShares", "leveraged ETF", "Nvidia", "NVDA"], NVD = ["GraniteShares", "inverse ETF", "short Nvidia", "NVDA short"], AAPL = ["Apple", "iPhone", "Mac", "iPad", "Tim Cook", "Cupertino"], OPEN = ["Opendoor", "real estate", "iBuyer", "proptech"], NVDA = ["Jensen", "Nvidia", "Graphics", "GPU", "AI", "Hopper", "Grace"] }
 
+
+[news_apis]
+marketaux = {}
+alpha_vantage = {key = "888OCZUN2Y3OVY3C"}
+#alpha_vantage = {key = "NPEM79QOLO8FGXPB"}
