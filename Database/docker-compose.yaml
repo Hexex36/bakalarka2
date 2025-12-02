@@ -12,6 +12,18 @@ services:
     volumes:
       - ./db_script.sql:/docker-entrypoint-initdb.d/db_script.sql
       - timescaledb:/var/lib/postgresql/data
+    networks:
+      - fin_net
+
+  option_fetcher:
+    build: .
+    depends_on:
+      - timescaledb
+    networks:
+      - fin_net
 
 volumes:
   timescaledb:
+
+networks:
+  fin_net:
