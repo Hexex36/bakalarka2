@@ -69,5 +69,24 @@ CREATE INDEX IF NOT EXISTS idx_puts_contractSymbol ON puts("contractSymbol");
 CREATE INDEX IF NOT EXISTS idx_puts_itm ON puts USING HASH ("inTheMoney");
 
 CREATE TABLE IF NOT EXISTS "sentiment_pieces" (
-
+  "id" INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  "title" TEXT NOT NULL,
+  "url" TEXT UNIQUE NOT NULL,
+  "source" TEXT NOT NULL, -- Maybe have a M:N relationship to be more sure?
+  "summary" TEXT,
+  "ticker" VARCHAR(4) NOT NULL,
+  "sentiment" DOUBLE PRECISION NOT NULL,
+  "date" TIMESTAMP WITH TIME ZONE NOT NULL
 )
+
+-- Recommended Indexes:
+
+-- Index for quick lookups by ticker symbol
+CREATE INDEX IF NOT EXISTS idx_sentiment_ticker ON sentiment_pieces(ticker);
+
+-- Index for filtering/sorting by date
+CREATE INDEX IF NOT EXISTS idx_sentiment_date ON sentiment_pieces(date);
+
+-- A composite index for finding sentiment for a specific ticker over time.
+CREATE INDEX IF NOT EXISTS idx_sentiment_ticker_date ON sentiment_pieces(ticker, date);
+

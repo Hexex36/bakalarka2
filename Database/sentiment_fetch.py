@@ -14,6 +14,7 @@ from redirect_resolver import get_final_url_from_google
 import json
 import zstd
 import logging
+import os.path
 
 logger = logging.getLogger(__name__)
 
@@ -232,14 +233,24 @@ def batch_process_sentiment(news: List[News]):
             results.append(result['label'])
     return results
 
-def av_test(config, tickers):
+DATA_WRITE_LOC = "alpha_vantage_data.csv"
+
+def av_test_read(config, tickers):
     print("Fetching news...")
     av_client = AlphaVantage(config["news_apis"]["alpha_vantage"]["key"])
     av_news = av_client.get_news_mt(tickers)
     assert av_news is not None
     data = av_to_pandas(av_news)
     print(data)
-    data.to_csv("alpha_vantage_data.csv", index = False)
+    data.to_csv(DATA_WRITE_LOC, index = False)
+
+def av_test_write(config, tickers):
+    if not os.path.isfile(DATA_WRITE_LOC):
+        print("No test file found, running read test first.")
+        av_test_read(config, tickers)
+    data = pd.read_csv(DATA_WRITE_LOC)
+
+    print(data.columns)
 
 def google_news_test(config, tickers):
     print("Fetching news...")
@@ -260,8 +271,8 @@ def main():
         config = tomllib.load(file)
 
     tickers = config["tickers"]["ticker_list"]
-    google_news_test(config, tickers)
-    #av_test(config, tickers)
+    #google_news_test(config, tickers)
+    av_test_write(config, tickers)
 
 if __name__ == "__main__":
     main()
