@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS "calls" (
   id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-  "ticker" VARCHAR(4),
+  "ticker" VARCHAR(16),
   "contractSymbol" TEXT,
   "lastTradeDate" TIMESTAMP WITH TIME ZONE,
   "strike" DOUBLE PRECISION,
@@ -35,7 +35,7 @@ CREATE INDEX IF NOT EXISTS idx_calls_itm ON calls USING HASH ("inTheMoney");
 
 CREATE TABLE IF NOT EXISTS "puts" (
   id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-  "ticker" VARCHAR(4),
+  "ticker" VARCHAR(16),
   "contractSymbol" TEXT,
   "lastTradeDate" TIMESTAMP WITH TIME ZONE,
   "strike" DOUBLE PRECISION,
@@ -74,10 +74,10 @@ CREATE TABLE IF NOT EXISTS "sentiment_pieces" (
   "url" TEXT UNIQUE NOT NULL,
   "source" TEXT NOT NULL, -- Maybe have a M:N relationship to be more sure?
   "summary" TEXT,
-  "ticker" VARCHAR(4) NOT NULL,
+  "ticker" VARCHAR(16) NOT NULL,
   "sentiment" DOUBLE PRECISION NOT NULL,
   "date" TIMESTAMP WITH TIME ZONE NOT NULL
-)
+);
 
 -- Recommended Indexes:
 

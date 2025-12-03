@@ -12,9 +12,9 @@ from transformers import pipeline
 import torch
 from redirect_resolver import get_final_url_from_google 
 import json
-import zstd
 import logging
 import os.path
+from sqlalchemy import create_engine
 
 logger = logging.getLogger(__name__)
 
@@ -84,6 +84,7 @@ class News:
                 score[clue] += 1
 
         kill_yourself = [key for key, val in score.items() if val > 0]
+        print(kill_yourself)
         if len(kill_yourself) == 0:
             return None
 
@@ -91,51 +92,67 @@ class News:
 
         return kill_yourself
 
+    def set_ticker(self, ticker):
+        self.tickers = [ticker]
+        return self
+
 class NewsAggregator(ABC):
     @abstractmethod
     def get_news(self, ticker: str, start_date: str = "2023-01-01") -> Optional[List[News]]:
         ...
 
     def get_news_mt(self, tickers: List[str], start_date: str = "2023-01-01") -> Optional[List[News]]:
-        res = [self.get_news(ticker, start_date) for ticker in tickers]
-        return list(itertools.chain.from_iterable(res))
+        res = []
+        for ticker in tickers:
+            preres = self.get_news(ticker, start_date) 
+            res.extend(prepres)
+        return res
+
+eval_correctness = lambda url: not any(part in url for part in ["google.com", "consent", "Consent", "guce.yahoo.com"])
 
 class GoogleNews(NewsAggregator):
     def __init__(self):
         self.client = GoogleNewsClient()
 
-    def get_news(self, ticker: str, start_date: str = "2023-01-01") -> List[News]: 
+    def get_news(self, ticker: str, start_date: str = "2023-01-01", ban_list: List[str] = []) -> List[News]: 
         with open("headers.json", "rb") as file:
             headers = json.load(file)
         news = self.client.search(ticker, after=start_date)
-        return [ self.build_news(new, headers) for new in news ]
+        if len(news) > 5:
+            max_len = 5
+        else:
+            max_len = len(news)
+        built_news = [ self.build_news(new, headers) for new in news[:max_len] if not any([word.lower() in new["title"] for word in ban_list]) ]
+        print(built_news)
+        return [bn for bn in built_news if bn is not None]
 
-    def build_news(self, article: Dict[str, Any], headers) -> News:
+    def get_news_mt(self, tickers: List[str], start_date: str = "2023-01-01", ban_list: Dict[str, List[str]] = dict()) -> Optional[List[News]]:
+        res = [self.get_news(ticker, start_date, ban_list.get(ticker, [])) for ticker in tickers]
+        return list(itertools.chain.from_iterable(res))
+
+    def build_news(self, article: Dict[str, Any], headers) -> Optional[News]:
         print(f"Building {article['title']}")
         url = article.get("link")
+        content = None
         assert url
-        url = get_final_url_from_google(url)
-        assert url
-        headers["Host"] = url.split('/')[2]
-        resp = requests.get(url, headers=headers)
-        resp.raise_for_status()
+        while not eval_correctness(url):
+            print("One of url conditions not met.")
+            url, content = get_final_url_from_google(url)
+            if content:
+                break
+            if not url:
+                raise ConnectionError("Could not resolve url")
 
-        content_encoding = resp.headers.get("Content-Encoding")
-        logger.info(f"URL: {url} | Encoding: {content_encoding}")
+        assert url
         
-        content = ""
-        if content_encoding == "zstd":
-            logger.info("Performing manual zstd decompression.")
-            try:
-                content = zstd.decompress(resp.content).decode(resp.encoding or 'utf-8', errors='replace')
-            except Exception as e:
-                logger.error(f"Zstd decompression failed for {url}: {e}")
-                content = resp.content # Fallback to text, which will likely be garbled
-        else:
-            # Let requests handle other encodings like gzip, deflate, brotli
-            logger.info("Using requests.text for automatic decompression and decoding.")
+        if content is None:
+            headers["Host"] = url.split('/')[2]
+            resp = requests.get(url, headers=headers)
+            resp.raise_for_status()
             content = resp.content
 
+        logger.info(f"URL: {url}")
+        
         #print(f"Content-Encoding: {content_encoding}")
         print(f"Content length after decompression: {len(content)}")
         logger.info(f"Post-compression: {content}")
@@ -145,7 +162,9 @@ class GoogleNews(NewsAggregator):
         to_get.parse()
         to_get.nlp()
 
-        assert len(to_get.text) > 0
+        if len(to_get.text) == 0:
+            print(f"Warning: newspaper could not extract text from {url}")
+            return None
         
         return News(
             title = article["title"],
@@ -162,7 +181,7 @@ class AlphaVantage(NewsAggregator):
 
     def get_news(self, ticker: str, start_date: str = "2023-01-01") -> Optional[List[News]]:
         start_date = start_date.replace('-', '') + "T0000"
-        url = self.link + f"&ticker={ticker}&time_from={start_date}"
+        url = self.link + f"&tickers={ticker}&time_from={start_date}"
         print(f"Getting news for query: {url}")
         response = requests.get(url) 
 
@@ -203,9 +222,14 @@ class AlphaVantage(NewsAggregator):
 
         return res
 
-def av_to_pandas(source: List[News]) -> pd.DataFrame:
+def av_to_pandas(source: List[News], tickers: List[str]) -> pd.DataFrame:
     records = [(record.title, record.url, record.source, record.description, ticker, val, record.publish_date) for record in source for ticker, val in record.sentiment_score.items()]
-    return pd.DataFrame.from_records(records, columns=["Title", "URL", "Source", "Summary", "Ticker", "Sentiment", "Date"])
+    data = pd.DataFrame.from_records(records, columns=["title", "url", "source", "summary", "ticker", "sentiment", "date"])
+    return data
+
+def gn_to_pandas(source: List[News]) -> pd.DataFrame:
+    records = [(record.title, record.url, record.source, record.description, record.content, record.publish_date) for record in source]
+    return pd.DataFrame.from_records(records, columns=["title", "url", "source", "summary", "text", "date"])
 
 def batch_process_sentiment(news: List[News]):
     batch_size = 8
@@ -223,15 +247,23 @@ def batch_process_sentiment(news: List[News]):
         device=0 if torch.cuda.is_available() else -1
     )
 
-    texts = [new.title for new in news]
+    texts = [new.content or "" for new in news]
     print(texts)
     results = []
     for i in range(0, len(texts), batch_size):
         batch = texts[i:i + batch_size]
-        batch_results = finbert_pipeline(batch)
+        batch_results = finbert_pipeline(batch, truncation=True)
         for result in batch_results:
-            results.append(result['label'])
+            sentiment_map = {"positive": "bullish", "negative": "bearish"}
+            label = result["label"]
+            sentiment = sentiment_map.get(label, label)
+            results.append({"sentiment": sentiment, "confidence": result["score"]})
     return results
+
+def remove_dupes(self: pd.DataFrame, other: pd.DataFrame) -> pd.DataFrame:
+    outer = self.merge(other, how = 'outer', on = "url", indicator = True)
+
+    return outer[(outer._merge=='left_only')].drop('_merge', axis=1)
 
 DATA_WRITE_LOC = "alpha_vantage_data.csv"
 
@@ -240,8 +272,9 @@ def av_test_read(config, tickers):
     av_client = AlphaVantage(config["news_apis"]["alpha_vantage"]["key"])
     av_news = av_client.get_news_mt(tickers)
     assert av_news is not None
-    data = av_to_pandas(av_news)
+    data = av_to_pandas(av_news,tickers)
     print(data)
+    data = data.drop_duplicates(subset=["url"])
     data.to_csv(DATA_WRITE_LOC, index = False)
 
 def av_test_write(config, tickers):
@@ -249,19 +282,41 @@ def av_test_write(config, tickers):
         print("No test file found, running read test first.")
         av_test_read(config, tickers)
     data = pd.read_csv(DATA_WRITE_LOC)
+    data = data[data["ticker"].isin(tickers)]
+    data = data.sort_values(by=["url"]).drop_duplicates(subset=["url"]).sort_values(by=["ticker"])
 
-    print(data.columns)
+    print(data)
+
+    conn_conf = config["database"]
+
+    sql_engine = create_engine(f'postgresql://{conn_conf["user"]}:{conn_conf["password"]}@{conn_conf["host"]}:{conn_conf["port"]}/{conn_conf["dbname"]}')
+
+    dupes = pd.read_sql("SELECT url FROM sentiment_pieces", sql_engine)
+    data = remove_dupes(data, dupes)
+    print(data)
+
+    data.to_sql("sentiment_pieces", sql_engine, if_exists = "append", index = False)
 
 def google_news_test(config, tickers):
     print("Fetching news...")
-    google = GoogleNews()
-    news = google.get_news(tickers[0])
-    assert news is not None
+    if not os.path.isfile("google_data.csv"):
+        google = GoogleNews()
+        news = google.get_news(tickers[0], ban_list = config["tickers"]["ban_list"]["IWM"])
+        assert news is not None
+
+        data = gn_to_pandas(news)
+        data.to_csv("google_data.csv", index = False)
+    else:
+        data = pd.read_csv("google_data.csv")
+        print(data)
+        to_news = lambda x: News(title = x[0], url = x[1], source = x[2], description = x[3], content = x[4], publish_date = x[5])
+        news = [to_news(record) for record in data.to_records(index = False)]
     #print(google.client.search("AAPL", after = "2023-01-01")[0])
     clue_dict = parse_clue_dict(config["tickers"]["clues"])
     news = [new for new in news if new.get_ticker_relevance(clue_dict) is not None]
     print("Done. Moving to sentiment processing.")
-    news = list(set(news))
+    #news = list(set(news))
+    print(news)
 
     print(batch_process_sentiment(news))
 
@@ -271,8 +326,8 @@ def main():
         config = tomllib.load(file)
 
     tickers = config["tickers"]["ticker_list"]
-    #google_news_test(config, tickers)
-    av_test_write(config, tickers)
+    google_news_test(config, tickers)
+    #av_test_write(config, tickers)
 
 if __name__ == "__main__":
     main()
