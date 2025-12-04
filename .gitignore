@@ -8,7 +8,6 @@ Database/yfin_test.py
 Database/alpha_vantage_data.csv
 Database/etf_scraper.py
 Database/foreign_key.pub
-Database
 bakalarka.aux
 bakalarka.bbl
 bakalarka.bcf
@@ -24,3 +23,8 @@ bakalarka.run.xml
 bakalarka.synctex.gz
 bakalarka.toc
 docs/literatura.bib
+Database/__pycache__
+Database/sample_data
+Database/reqs_full.txt
+Database/titles.txt
+Database/wtf.log

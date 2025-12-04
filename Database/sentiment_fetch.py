@@ -372,25 +372,25 @@ def get_google_headlines(tickers: List[str]):
     data = []
     for ticker in tickers:
         data_part = client.search(ticker, after = "2023-01-01")
-        if len(data_part) > 500:
-            data_part = data_part[:500]
 
         data_part = [new["title"] for new in data_part]
         data.extend(data_part)
 
-    write_out = '\n'.join(data)
+    print(len(data))
 
-    with open("titles.txt", "w") as file:
-        file.write(write_out)
+    #write_out = '\n'.join(data)
+
+    #with open("titles.txt", "w") as file:
+        #file.write(write_out)
 
 def main():
     with open("config.toml", "rb") as file:
         config = tomllib.load(file)
 
     tickers = config["tickers"]["ticker_list"]
-    google_news_test(config, tickers)
+    #google_news_test(config, tickers)
     #av_test_write(config, tickers)
-    #get_google_headlines(tickers)
+    get_google_headlines(tickers)
 
 if __name__ == "__main__":
     main()
