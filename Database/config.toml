@@ -2,14 +2,14 @@
 dbname = "financedata"
 user = "postgres"
 password = "postgres"
-#host = "localhost"
-host = "fin_db"
-port = 5432
+host = "localhost"
+#host = "fin_db"
+port = 5431
 
 [tickers]
 ticker_list = ["IWM", "QQQ", "TQQQ", "NVDL", "NVD", "AAPL", "OPEN", "NVDA"]
 clues = { IWM = ["IWM", "iShares", "Russell 2000", "small-cap", "ETF"], QQQ = ["QQQ", "Invesco", "Nasdaq-100", "large-cap", "tech stocks", "ETF"], TQQQ = ["TQQQ", "ProShares", "UltraPro", "leveraged ETF", "Nasdaq-100"], NVDL = ["NVDL", "GraniteShares", "leveraged ETF", "Nvidia", "NVDA"], NVD = ["NVD", "GraniteShares", "inverse ETF", "short Nvidia", "NVDA short"], AAPL = ["AAPL", "Apple", "iPhone", "Mac", "iPad", "Tim Cook", "Cupertino"], OPEN = ["OPEN", "Opendoor", "real estate", "iBuyer", "proptech"], NVDA = ["NVDA", "Jensen", "Nvidia", "Graphics", "GPU", "AI", "Hopper", "Grace"] }
-ban_list = { IWM = ["museum"] }
+ban_list = { IWM = ["museum", "Duxford", "Imperial", "Holocaust", "exhibition", "bomber", "spies", "espionage", "deception", "medal", "Renault", "war", "history"], NVD = ["basketball", "vulnerability", "NIST", "CVE", "voters", "display"], OPEN = ["Australian", "golf", "tennis", "swimming", "McIlroy", "basketball", "football", "Rory", "Toyota", "ice", "warming", "brewery", "championships", "sora", "houser"] }
 
 [news_apis]
 marketaux = {}

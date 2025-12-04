@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from typing import List, Optional, Dict, Any
 import itertools
 import tomllib
+import re
 from datetime import datetime
 import requests
 import pandas as pd
@@ -118,11 +119,11 @@ class GoogleNews(NewsAggregator):
         with open("headers.json", "rb") as file:
             headers = json.load(file)
         news = self.client.search(ticker, after=start_date)
-        if len(news) > 5:
-            max_len = 5
+        if ban_list:
+            banned_pattern = re.compile(r'\b(' + '|'.join(re.escape(word) for word in ban_list) + r')\b', re.IGNORECASE)
+            built_news = [ self.build_news(new, headers) for new in news if not banned_pattern.search(new["title"]) ]
         else:
-            max_len = len(news)
-        built_news = [ self.build_news(new, headers) for new in news[:max_len] if not any([word.lower() in new["title"] for word in ban_list]) ]
+            built_news = [ self.build_news(new, headers) for new in news]
         print(built_news)
         return [bn for bn in built_news if bn is not None]
 
@@ -228,8 +229,14 @@ def av_to_pandas(source: List[News], tickers: List[str]) -> pd.DataFrame:
     return data
 
 def gn_to_pandas(source: List[News]) -> pd.DataFrame:
-    records = [(record.title, record.url, record.source, record.description, record.content, record.publish_date) for record in source]
-    return pd.DataFrame.from_records(records, columns=["title", "url", "source", "summary", "text", "date"])
+    if source[0].sentiment is None:
+        records = [(record.title, record.url, record.source, record.description, record.content, record.publish_date) for record in source]
+        cols = ["title", "url", "source", "summary", "text", "date"]
+    else:
+        records = [(record.title, record.url, record.source, record.description, record.publish_date, record.tickers, record.sentiment) for record in source]
+        cols = ["title", "url", "source", "summary", "date", "ticker", "sentiment"]
+
+    return pd.DataFrame.from_records(records, columns=cols)
 
 def batch_process_sentiment(news: List[News]):
     batch_size = 8
@@ -252,12 +259,27 @@ def batch_process_sentiment(news: List[News]):
     results = []
     for i in range(0, len(texts), batch_size):
         batch = texts[i:i + batch_size]
-        batch_results = finbert_pipeline(batch, truncation=True)
-        for result in batch_results:
-            sentiment_map = {"positive": "bullish", "negative": "bearish"}
-            label = result["label"]
-            sentiment = sentiment_map.get(label, label)
-            results.append({"sentiment": sentiment, "confidence": result["score"]})
+        # The pipeline returns a list of lists of scores when return_all_scores=True
+        batch_scores = finbert_pipeline(batch, truncation=True, return_all_scores=True)
+
+        for score_list in batch_scores:
+            scores = {item['label']: item['score'] for item in score_list}
+            # The score is calculated as P(positive) - P(negative)
+            # FinBERT labels are 'positive', 'negative', 'neutral'
+            sentiment_score = scores.get('positive', 0.0) - scores.get('negative', 0.0)
+
+            if sentiment_score >= 0.35:
+                label = 'Bullish'
+            elif sentiment_score >= 0.15:
+                label = 'Somewhat-Bullish'
+            elif sentiment_score > -0.15:
+                label = 'Neutral'
+            elif sentiment_score > -0.35:
+                label = 'Somewhat-Bearish'
+            else:
+                label = 'Bearish'
+
+            results.append({'sentiment_score': sentiment_score, 'sentiment_label': label})
     return results
 
 def remove_dupes(self: pd.DataFrame, other: pd.DataFrame) -> pd.DataFrame:
@@ -301,7 +323,8 @@ def google_news_test(config, tickers):
     print("Fetching news...")
     if not os.path.isfile("google_data.csv"):
         google = GoogleNews()
-        news = google.get_news(tickers[0], ban_list = config["tickers"]["ban_list"]["IWM"])
+        print(ban_list := config["tickers"]["ban_list"]["IWM"])
+        news = google.get_news(tickers[0], ban_list = ban_list)
         assert news is not None
 
         data = gn_to_pandas(news)
@@ -309,7 +332,11 @@ def google_news_test(config, tickers):
     else:
         data = pd.read_csv("google_data.csv")
         print(data)
-        to_news = lambda x: News(title = x[0], url = x[1], source = x[2], description = x[3], content = x[4], publish_date = x[5])
+        records = data.to_records(index = False) 
+        if len(records[0]) == 6:
+            to_news = lambda x: News(title = x[0], url = x[1], source = x[2], description = x[3], content = x[4], publish_date = x[5])
+        else:
+            to_news = lambda x: News(title = x[0], url = x[1], source = x[2], description = x[3], content = x[4], publish_date = x[5], sentiment = x[6])
         news = [to_news(record) for record in data.to_records(index = False)]
     #print(google.client.search("AAPL", after = "2023-01-01")[0])
     clue_dict = parse_clue_dict(config["tickers"]["clues"])
@@ -318,8 +345,43 @@ def google_news_test(config, tickers):
     #news = list(set(news))
     print(news)
 
-    print(batch_process_sentiment(news))
+    scores = batch_process_sentiment(news)
 
+    for new, score in zip(news, scores):
+        score_num = score["sentiment_score"]
+        new.sentiment = score_num
+
+    data = gn_to_pandas(news)
+
+    data = data.sort_values(by=["url"]).drop_duplicates(subset=["url"]).sort_values(by=["ticker"])
+
+    print(data)
+
+    conn_conf = config["database"]
+
+    sql_engine = create_engine(f'postgresql://{conn_conf["user"]}:{conn_conf["password"]}@{conn_conf["host"]}:{conn_conf["port"]}/{conn_conf["dbname"]}')
+
+    dupes = pd.read_sql("SELECT url FROM sentiment_pieces", sql_engine)
+    data = remove_dupes(data, dupes)
+    print(data)
+
+    data.to_sql("sentiment_pieces", sql_engine, if_exists = "append", index = False)
+
+def get_google_headlines(tickers: List[str]):
+    client = GoogleNewsClient()
+    data = []
+    for ticker in tickers:
+        data_part = client.search(ticker, after = "2023-01-01")
+        if len(data_part) > 500:
+            data_part = data_part[:500]
+
+        data_part = [new["title"] for new in data_part]
+        data.extend(data_part)
+
+    write_out = '\n'.join(data)
+
+    with open("titles.txt", "w") as file:
+        file.write(write_out)
 
 def main():
     with open("config.toml", "rb") as file:
@@ -328,6 +390,7 @@ def main():
     tickers = config["tickers"]["ticker_list"]
     google_news_test(config, tickers)
     #av_test_write(config, tickers)
+    #get_google_headlines(tickers)
 
 if __name__ == "__main__":
     main()
