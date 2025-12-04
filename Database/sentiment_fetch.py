@@ -367,6 +367,33 @@ def google_news_test(config, tickers):
 
     data.to_sql("sentiment_pieces", sql_engine, if_exists = "append", index = False)
 
+def get_google_news(config, tickers):
+    google = GoogleNews()
+    ban_list = config["tickers"]["ban_list"]["IWM"]
+    conn_conf = config["database"]
+    sql_engine = create_engine(f'postgresql://{conn_conf["user"]}:{conn_conf["password"]}@{conn_conf["host"]}:{conn_conf["port"]}/{conn_conf["dbname"]}')
+
+    for ticker in tickers:
+        news = google.get_news(ticker, ban_list = ban_list)
+        assert news is not None
+
+        clue_dict = parse_clue_dict(config["tickers"]["clues"])
+        news = [new for new in news if new.get_ticker_relevance(clue_dict) is not None]
+        assert news is not None
+
+        scores = batch_process_sentiment(news)
+        for new, score in zip(news, scores):
+            score_num = score["sentiment_score"]
+            new.sentiment = score_num
+
+        data = gn_to_pandas(news)
+        data = data.sort_values(by=["url"]).drop_duplicates(subset=["url"]).sort_values(by=["ticker"])
+
+        dupes = pd.read_sql("SELECT url FROM sentiment_pieces", sql_engine)
+        data = remove_dupes(data, dupes)
+
+        data.to_sql("sentiment_pieces", sql_engine, if_exists = "append", index = False)
+
 def get_google_headlines(tickers: List[str]):
     client = GoogleNewsClient()
     data = []
@@ -378,19 +405,12 @@ def get_google_headlines(tickers: List[str]):
 
     print(len(data))
 
-    #write_out = '\n'.join(data)
-
-    #with open("titles.txt", "w") as file:
-        #file.write(write_out)
-
 def main():
     with open("config.toml", "rb") as file:
         config = tomllib.load(file)
 
     tickers = config["tickers"]["ticker_list"]
-    #google_news_test(config, tickers)
-    #av_test_write(config, tickers)
-    get_google_headlines(tickers)
+    get_google_news(config, tickers)
 
 if __name__ == "__main__":
     main()
