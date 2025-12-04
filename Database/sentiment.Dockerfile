@@ -10,6 +10,8 @@ COPY sentiment_requirements.txt .
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r sentiment_requirements.txt
 
+RUN playwright install
+
 # Copy the rest of the application code
 COPY sentiment_fetch.py .
 COPY redirect_resolver.py .

@@ -6,3 +6,5 @@ transformers
 torch
 SQLAlchemy
 psycopg2-binary
+lxml_html_clean
+playwright

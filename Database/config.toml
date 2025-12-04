@@ -2,9 +2,9 @@
 dbname = "financedata"
 user = "postgres"
 password = "postgres"
-host = "localhost"
-#host = "fin_db"
-port = 5431
+#host = "localhost"
+host = "fin_db"
+port = 5432
 
 [tickers]
 ticker_list = ["IWM", "QQQ", "TQQQ", "NVDL", "NVD", "AAPL", "OPEN", "NVDA"]
