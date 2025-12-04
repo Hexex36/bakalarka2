@@ -7,10 +7,13 @@ WORKDIR /app
 # Copy the requirements file first to leverage Docker cache
 COPY sentiment_requirements.txt .
 
-# Install any needed packages specified in requirements.txt
-RUN pip install --no-cache-dir -r sentiment_requirements.txt
+# Install python packages and system dependencies
+RUN apt-get update && \
+    pip install --no-cache-dir -r sentiment_requirements.txt && \
+    playwright install-deps && \
+    playwright install && \
+    rm -rf /var/lib/apt/lists/*
 
-RUN playwright install
 
 # Copy the rest of the application code
 COPY sentiment_fetch.py .
