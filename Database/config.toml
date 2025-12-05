@@ -17,3 +17,11 @@ ban_list = { IWM = ["museum", "Duxford", "Imperial", "Holocaust", "exhibition", 
 marketaux = {}
 alpha_vantage = {key = "888OCZUN2Y3OVY3C"}
 #alpha_vantage = {key = "NPEM79QOLO8FGXPB"}
+
+[mongo]
+dbname = "financedata"
+user = "postgres"
+password = "postgres"
+host = "192.168.27.52"
+port = 27017
+

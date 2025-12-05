@@ -16,6 +16,8 @@ import json
 import logging
 import os.path
 from sqlalchemy import create_engine
+import ast
+from pymongo import MongoClient
 
 logger = logging.getLogger(__name__)
 
@@ -50,9 +52,8 @@ class News:
             source: Optional[str] = None,
             publish_date: Optional[datetime] = None, 
             tickers: Optional[List[str]] = None,
-            sentiment_score: Optional[Dict[str, float]] = None,
-            sentiment: Optional[str] = None,
-            sentiment_confidence: Optional[str] = None,
+            ticker_sentiments: Optional[Dict[str, float]] = None,
+            sentiment: Optional[Dict[str, float]] = None,
             ):
         self.title = title
         self.description = description
@@ -61,9 +62,8 @@ class News:
         self.source = source
         self.publish_date = publish_date
         self.tickers = tickers
-        self.sentiment_score = sentiment_score
         self.sentiment = sentiment
-        self.sentiment_confidence = sentiment_confidence
+        self.ticker_sentiments = ticker_sentiments
 
         self.clear_list = ['-', '.', ',', ':']
 
@@ -199,12 +199,11 @@ class AlphaVantage(NewsAggregator):
         return [News(
             title = piece["title"],
             source = piece["source"],
-            sentiment_score = {part["ticker"]:part["ticker_sentiment_score"] for part in piece["ticker_sentiment"]},
+            ticker_sentiments = {part["ticker"]:part["ticker_sentiment_score"] for part in piece["ticker_sentiment"]},
             description = piece["summary"],
             url = piece["url"],
             publish_date = datetime.fromisoformat(piece["time_published"]),
             ) for piece in content]
-
 
 
     def get_news_mt(self, tickers: List[str], start_date: str = "2023-01-01") -> Optional[List[News]]:
@@ -225,7 +224,7 @@ class AlphaVantage(NewsAggregator):
         return res
 
 def av_to_pandas(source: List[News], tickers: List[str]) -> pd.DataFrame:
-    records = [(record.title, record.url, record.source, record.description, ticker, val, record.publish_date) for record in source for ticker, val in record.sentiment_score.items()]
+    records = [(record.title, record.url, record.source, record.description, ticker, val, record.publish_date) for record in source for ticker, val in record.ticker_sentiments.items()]
     data = pd.DataFrame.from_records(records, columns=["title", "url", "source", "summary", "ticker", "sentiment", "date"])
     return data
 
@@ -234,8 +233,8 @@ def gn_to_pandas(source: List[News]) -> pd.DataFrame:
         records = [(record.title, record.url, record.source, record.description, record.content, record.publish_date) for record in source]
         cols = ["title", "url", "source", "summary", "text", "date"]
     else:
-        records = [(record.title, record.url, record.source, record.description, record.publish_date, record.tickers, record.sentiment) for record in source]
-        cols = ["title", "url", "source", "summary", "date", "ticker", "sentiment"]
+        records = [(record.title, record.url, record.source, record.description, record.content, record.publish_date, record.tickers, record.sentiment) for record in source]
+        cols = ["title", "url", "source", "summary", "text", "date", "ticker", "sentiment"]
 
     return pd.DataFrame.from_records(records, columns=cols)
 
@@ -288,6 +287,16 @@ def remove_dupes(self: pd.DataFrame, other: pd.DataFrame) -> pd.DataFrame:
 
     return outer[(outer._merge=='left_only')].drop('_merge', axis=1)
 
+def get_mongo_db(config):
+    mongo_conf = config["mongo"]
+    client = MongoClient(
+        host=mongo_conf["host"],
+        port=mongo_conf["port"],
+        username=mongo_conf["user"],
+        password=mongo_conf["password"]
+    )
+    return client[mongo_conf["dbname"]]
+
 DATA_WRITE_LOC = "alpha_vantage_data.csv"
 
 def av_test_read(config, tickers):
@@ -333,11 +342,13 @@ def google_news_test(config, tickers):
     else:
         data = pd.read_csv("google_data.csv")
         print(data)
-        records = data.to_records(index = False) 
-        if len(records[0]) == 6:
+        records = data.to_records(index = False)
+        if len(records[0]) == 8:
+            to_news = lambda x: News(title=x[0], url=x[1], source=x[2], description=x[3], content=x[4], publish_date=x[5], tickers=x[6], sentiment=ast.literal_eval(x[7]) if isinstance(x[7], str) else x[7])
+        elif len(records[0]) == 6:
             to_news = lambda x: News(title = x[0], url = x[1], source = x[2], description = x[3], content = x[4], publish_date = x[5])
         else:
-            to_news = lambda x: News(title = x[0], url = x[1], source = x[2], description = x[3], content = x[4], publish_date = x[5], sentiment = x[6])
+            raise ValueError("Unexpected number of columns in google_data.csv")
         news = [to_news(record) for record in data.to_records(index = False)]
     #print(google.client.search("AAPL", after = "2023-01-01")[0])
     clue_dict = parse_clue_dict(config["tickers"]["clues"])
@@ -351,7 +362,7 @@ def google_news_test(config, tickers):
 
     for new, score in zip(news, scores):
         score_num = score["sentiment_score"]
-        new.sentiment = score_num
+        new.sentiment = {"finbert": score_num}
 
     data = gn_to_pandas(news)
 
@@ -386,7 +397,7 @@ def get_google_news(config, tickers):
         scores = batch_process_sentiment(news)
         for new, score in zip(news, scores):
             score_num = score["sentiment_score"]
-            new.sentiment = score_num
+            new.sentiment = {"finbert": score_num}
 
         data = gn_to_pandas(news)
         data = data.sort_values(by=["url"]).drop_duplicates(subset=["url"]).sort_values(by=["ticker"])
@@ -395,6 +406,144 @@ def get_google_news(config, tickers):
         data = remove_dupes(data, dupes)
 
         data.to_sql("sentiment_pieces", sql_engine, if_exists = "append", index = False)
+
+def av_test_write_mongo(config, tickers):
+    if not os.path.isfile(DATA_WRITE_LOC):
+        print("No test file found, running read test first.")
+        av_test_read(config, tickers)
+    data = pd.read_csv(DATA_WRITE_LOC)
+    data = data[data["ticker"].isin(tickers)]
+    data = data.sort_values(by=["url"]).drop_duplicates(subset=["url"]).sort_values(by=["ticker"])
+
+    db = get_mongo_db(config)
+    collection = db["sentiment_pieces"]
+
+    # remove duplicates
+    existing_urls = {doc["url"] for doc in collection.find({}, {"url": 1})}
+    data = data[~data["url"].isin(existing_urls)]
+
+    records = data.to_dict('records')
+    for record in records:
+        record['sentiment'] = {'alpha_vantage': record['sentiment']}
+
+    if records:
+        collection.insert_many(records)
+    print(f"Inserted {len(records)} new documents into MongoDB.")
+
+def google_news_test_mongo(config, tickers):
+    print("Fetching news...")
+    if not os.path.isfile("google_data.csv"):
+        google = GoogleNews()
+        ban_list = config["tickers"]["ban_list"].get(tickers[0], [])
+        news = google.get_news(tickers[0], ban_list = ban_list, build_limit=10)
+        assert news is not None
+
+        data = gn_to_pandas(news)
+        data.to_csv("google_data.csv", index = False)
+    else:
+        # This part is now fixed
+        data = pd.read_csv("google_data.csv")
+        records = data.to_records(index = False)
+        if len(records[0]) == 8:
+            to_news = lambda x: News(title=x[0], url=x[1], source=x[2], description=x[3], content=x[4], publish_date=x[5], tickers=x[6], sentiment=ast.literal_eval(x[7]) if isinstance(x[7], str) else x[7])
+        elif len(records[0]) == 6:
+            to_news = lambda x: News(title = x[0], url = x[1], source = x[2], description = x[3], content = x[4], publish_date = x[5])
+        else:
+            raise ValueError("Unexpected number of columns in google_data.csv")
+        news = [to_news(record) for record in data.to_records(index = False)]
+
+    clue_dict = parse_clue_dict(config["tickers"]["clues"])
+    news = [new for new in news if new.get_ticker_relevance(clue_dict) is not None]
+
+    # This part needs to happen only if sentiment is not already there
+    news_to_process = [new for new in news if new.sentiment is None]
+    if news_to_process:
+        print("Done. Moving to sentiment processing.")
+        scores = batch_process_sentiment(news_to_process)
+        for new, score in zip(news_to_process, scores):
+            score_num = score["sentiment_score"]
+            new.sentiment = {"finbert": score_num}
+
+    db = get_mongo_db(config)
+    collection = db["sentiment_pieces"]
+
+    # Explode tickers and create documents
+    documents = []
+    for new in news:
+        if new.tickers:
+            for ticker in new.tickers:
+                doc = {
+                    "title": new.title,
+                    "url": new.url,
+                    "source": new.source,
+                    "summary": new.description,
+                    "text": new.content,
+                    "date": new.publish_date,
+                    "ticker": ticker,
+                    "sentiment": new.sentiment
+                }
+                documents.append(doc)
+
+    if not documents:
+        print("No new documents to insert.")
+        return
+
+    # remove duplicates
+    existing_urls = {doc["url"] for doc in collection.find({}, {"url": 1})}
+
+    new_documents = [doc for doc in documents if doc["url"] not in existing_urls]
+
+    if new_documents:
+        collection.insert_many(new_documents)
+
+    print(f"Inserted {len(new_documents)} new documents into MongoDB.")
+
+def get_google_news_mongo(config, tickers):
+    google = GoogleNews()
+    ban_list = config["tickers"]["ban_list"]
+    clue_dict = parse_clue_dict(config["tickers"]["clues"])
+    db = get_mongo_db(config)
+    collection = db["sentiment_pieces"]
+
+    for ticker in tickers:
+        news = google.get_news(ticker, ban_list = ban_list.get(ticker, []))
+        if not news:
+            continue
+
+        news = [new for new in news if new.get_ticker_relevance(clue_dict) is not None]
+        if not news:
+            continue
+
+        scores = batch_process_sentiment(news)
+        for new, score in zip(news, scores):
+            score_num = score["sentiment_score"]
+            new.sentiment = {"finbert": score_num}
+
+        documents = []
+        for new in news:
+            if new.tickers:
+                for t in new.tickers:
+                    doc = {
+                        "title": new.title,
+                        "url": new.url,
+                        "source": new.source,
+                        "summary": new.description,
+                        "text": new.content,
+                        "date": new.publish_date,
+                        "ticker": t,
+                        "sentiment": new.sentiment
+                    }
+                    documents.append(doc)
+
+        if not documents:
+            continue
+
+        existing_urls = {doc["url"] for doc in collection.find({'url': {'$in': [d['url'] for d in documents]}}, {"url": 1})}
+        new_documents = [doc for doc in documents if doc["url"] not in existing_urls]
+
+        if new_documents:
+            collection.insert_many(new_documents)
+            print(f"Inserted {len(new_documents)} new documents for ticker {ticker}.")
 
 def get_google_headlines(tickers: List[str]):
     client = GoogleNewsClient()
@@ -413,7 +562,8 @@ def main():
 
     tickers = config["tickers"]["ticker_list"]
     #get_google_news(config, tickers)
-    google_news_test(config, tickers)
+    #google_news_test(config, tickers)
+    google_news_test_mongo(config, tickers)
 
 if __name__ == "__main__":
     main()
