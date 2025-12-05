@@ -109,16 +109,21 @@ class NewsAggregator(ABC):
             res.extend(prepres)
         return res
 
-eval_correctness = lambda url: not any(part in url for part in ["google.com", "consent", "Consent", "guce.yahoo.com"])
+def eval_correctness(url):
+    return not any(part in url for part in ["google.com", "consent", "Consent", "guce.yahoo.com"])
 
 class GoogleNews(NewsAggregator):
     def __init__(self):
         self.client = GoogleNewsClient()
 
-    def get_news(self, ticker: str, start_date: str = "2023-01-01", ban_list: List[str] = []) -> List[News]: 
+    def get_news(self, ticker: str, start_date: str = "2023-01-01", ban_list: List[str] = [], build_limit: Optional[int] = None) -> List[News]: 
+
         with open("headers.json", "rb") as file:
             headers = json.load(file)
         news = self.client.search(ticker, after=start_date)
+        if build_limit:
+            if build_limit < len(news):
+                news = news[:build_limit]
         if ban_list:
             banned_pattern = re.compile(r'\b(' + '|'.join(re.escape(word) for word in ban_list) + r')\b', re.IGNORECASE)
             built_news = [ self.build_news(new, headers) for new in news if not banned_pattern.search(new["title"]) ]
@@ -154,11 +159,7 @@ class GoogleNews(NewsAggregator):
 
         logger.info(f"URL: {url}")
         
-        #print(f"Content-Encoding: {content_encoding}")
-        print(f"Content length after decompression: {len(content)}")
-        logger.info(f"Post-compression: {content}")
         to_get = newspaper.Article(url=url)
-        #to_get.download()
         to_get.set_html(content)
         to_get.parse()
         to_get.nlp()
@@ -174,7 +175,7 @@ class GoogleNews(NewsAggregator):
             source = article["source"],
             description = to_get.summary,
             content = to_get.text
-                )
+        )
 
 class AlphaVantage(NewsAggregator):
     def __init__(self, api_key: str):
@@ -296,7 +297,7 @@ def av_test_read(config, tickers):
     assert av_news is not None
     data = av_to_pandas(av_news,tickers)
     print(data)
-    data = data.drop_duplicates(subset=["url"])
+    data = data.sort_values(by=["url"]).drop_duplicates().sort_values(by=["ticker"])
     data.to_csv(DATA_WRITE_LOC, index = False)
 
 def av_test_write(config, tickers):
@@ -324,7 +325,7 @@ def google_news_test(config, tickers):
     if not os.path.isfile("google_data.csv"):
         google = GoogleNews()
         print(ban_list := config["tickers"]["ban_list"]["IWM"])
-        news = google.get_news(tickers[0], ban_list = ban_list)
+        news = google.get_news(tickers[0], ban_list = ban_list, build_limit=10)
         assert news is not None
 
         data = gn_to_pandas(news)
@@ -341,6 +342,7 @@ def google_news_test(config, tickers):
     #print(google.client.search("AAPL", after = "2023-01-01")[0])
     clue_dict = parse_clue_dict(config["tickers"]["clues"])
     news = [new for new in news if new.get_ticker_relevance(clue_dict) is not None]
+    print(f"IMPORTANT: [new.tickers for new in news]")
     print("Done. Moving to sentiment processing.")
     #news = list(set(news))
     print(news)
@@ -365,7 +367,7 @@ def google_news_test(config, tickers):
     data = remove_dupes(data, dupes)
     print(data)
 
-    data.to_sql("sentiment_pieces", sql_engine, if_exists = "append", index = False)
+    #data.to_sql("sentiment_pieces", sql_engine, if_exists = "append", index = False)
 
 def get_google_news(config, tickers):
     google = GoogleNews()
@@ -410,7 +412,8 @@ def main():
         config = tomllib.load(file)
 
     tickers = config["tickers"]["ticker_list"]
-    get_google_news(config, tickers)
+    #get_google_news(config, tickers)
+    google_news_test(config, tickers)
 
 if __name__ == "__main__":
     main()
