@@ -561,9 +561,10 @@ def main():
         config = tomllib.load(file)
 
     tickers = config["tickers"]["ticker_list"]
-    #get_google_news(config, tickers)
+    get_google_news_mongo(config, tickers)
     #google_news_test(config, tickers)
-    google_news_test_mongo(config, tickers)
+    #google_news_test_mongo(config, tickers)
+    #av_test_write_mongo(config, tickers)
 
 if __name__ == "__main__":
     main()
