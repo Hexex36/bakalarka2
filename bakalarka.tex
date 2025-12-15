@@ -73,7 +73,7 @@
 
   \subsection{Markovské procesy}
   
-  Nejkratším způsobem jak definovat markovské procesy, je označit jako "Náhodné procesy, splňující Markovskou podmínku." Pro využití této formy definice je první nutné si tyto dva termíny zadefinovat.
+  Nejkratším způsobem jak definovat markovské procesy, je označit je jako "Náhodné procesy, splňující Markovskou podmínku." Pro využití této formy definice je první nutné si tyto dva termíny zadefinovat.
 
   \subsubsection{Náhodný proces}
 
@@ -88,6 +88,8 @@
     Náhodným procesem rozumíme množinu náhodných veličin, závislých na určitém počtu parametrů. Každý parametr patří do množiny reálných čísel. \cite{korenar2010}  
   \end{definition}
 
+  Náhodný proces typicky značíme jako $X(a_1, a_2, ...)$, kde $a_1, a_2, ...$ jsou parametry procesu. 
+
   Při každém pokusu je průběh náhodného procesu po každé jiný. Konkrétní průběh daného procesu nazvýváme realizací náhodného procesu, a značíme jako ${\{X_j(t)\}; j \in \{1, 2, ..., n\}}$. \cite{korenar2010}
 
   Pokud je parametrem náhodného procesu čas, můžeme proces také značit jako stochastický. \cite{korenar2010}
@@ -95,8 +97,25 @@
   \subsubsection{Markovský proces}
   % Markovská podmínka, něco málo o procesu
 
-  \subsubsection{Markovský řetězec}
-  % Řetězce pog
+  Markovský proces je libovolný stochastický proces, pro který platí Markovská podmínka.
+
+  %TODO: Vadné
+  \begin{definition}[Markovská podmínka]
+    Nechť $X(t); t \in {1,2, ..., n}$ je stochastický proces, a nechť $X(t) = j$ značí stav procesu v momentu $t$ náležící množině stavů. Pro tento proces platí Markovská podmínka právě tehdy, když:
+    \begin{multline*}
+      P(X(t) = j_1 | X(t-1) = j_2, X(t-2) = j_3, ... , X(1) = j_n)
+      = P(X(t) = j_1 | X(t-1) = j_2)
+    \end{multline*}
+    \cite{lukas2009} \cite{korenar2010}
+  \end{definition}
+
+  Intuitivněji můžeme Markovskou podmínku chápat takto: Pravděpodobnost, že proces $X(t)$ je v momentu $t$ ve stavu $j_1$, za předpokladu že v předchozím kroku (v momentu $t-1$) byl ve stavu $j_2$, není závislá na zbytku historie vývoje procesu. Relevantní je pro vývoj tohoto procesu vždy pouze krok předchozí.
+
+  Markovský proces lze nazvat Markovským řetezcem, jsou-li množiny časových parametrů a stavů diskrétní. Markovský řetězec můžeme brát jako posloupnost.
+
+  \subsubsection{Vlastnosti Markovských řetezců}
+
+  Jsou-li pro každý časový moment stejné pravděpodobnosti přechodu.
 
   \subsection{Opce a jejich oceňování}
 

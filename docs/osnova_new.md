@@ -1,3 +1,9 @@
+Název tématu v češtině:
+Modelování cen finančních aktiv diskrétními Markovovými řetězci a jejich aplikace v opčních strategiích
+
+Název tématu v angličtině:
+Modeling of Financial Asset Prices with Discrete-Time Markov Chains and Their Application in Option Strategies
+
 Cíl práce:
 Cílem bakalářské práce je navrhout a vytvořit aplikaci schopnou vyobrazit vývoj hodnot vybraných opcí, predikovat budoucí vývoj pomocí diskrétního markovovského řetezce a doporučit vhodnou opční strategii. K vytvoření markovského řetezce vybude využita analýza sentinentu a sentimentu opce, k ocenění bude využita Blackův-Scholesův model. Kvalita predikce aplikace bude hodnocena jako procento úspěšných uzavřených obchodů, vytvoření backtestů obchodních strategií.
 
