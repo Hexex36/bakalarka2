@@ -1,0 +1,17 @@
+[1] Config.pm:307> INFO - This is Biber 2.19
+[1] Config.pm:310> INFO - Logfile is 'prezentace.blg'
+[347] biber:340> INFO - === čt pro 11, 2025, 09:16:44
+[402] Biber.pm:419> INFO - Reading 'prezentace.bcf'
+[716] Biber.pm:979> INFO - Found 3 citekeys in bib section 0
+[777] Biber.pm:4419> INFO - Processing section 0
+[815] Biber.pm:4610> INFO - Looking for bibtex file '../bakalarka.bib' for section 0
+[818] bibtex.pm:1713> INFO - LaTeX decoding ...
+[861] bibtex.pm:1519> INFO - Found BibTeX data source '../bakalarka.bib'
+[1062] Biber.pm:4610> INFO - Looking for bibtex file 'prezentace.bib' for section 0
+[1064] bibtex.pm:1713> INFO - LaTeX decoding ...
+[1068] bibtex.pm:1519> INFO - Found BibTeX data source 'prezentace.bib'
+[1138] UCollate.pm:68> INFO - Overriding locale 'cs-CZ' defaults 'variable = shifted' with 'variable = non-ignorable'
+[1138] UCollate.pm:68> INFO - Overriding locale 'cs-CZ' defaults 'normalization = NFD' with 'normalization = prenormalized'
+[1139] Biber.pm:4239> INFO - Sorting list 'nty/global//global/global' of type 'entry' with template 'nty' and locale 'cs-CZ'
+[1165] bbl.pm:660> INFO - Writing 'prezentace.bbl' with encoding 'UTF-8'
+[1170] bbl.pm:763> INFO - Output to prezentace.bbl

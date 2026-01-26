@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  openbb:
+    image: openbb-platform:latest
+    container_name: openbb-options
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - OPENBB_API_KEY=${OPENBB_API_KEY}
+    working_dir: /app
+    command: ["openbb", "platform"]
+    restart: unless-stopped

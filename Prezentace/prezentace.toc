@@ -1,0 +1,10 @@
+\babel@toc {czech}{}\relax 
+\beamer@sectionintoc {1}{Obsah prezentace}{2}{0}{1}
+\beamer@sectionintoc {2}{Rámec práce}{3}{0}{2}
+\beamer@sectionintoc {3}{Úvod do problematiky}{4}{0}{3}
+\beamer@subsectionintoc {3}{1}{Markovské řetezce}{4}{0}{3}
+\beamer@subsectionintoc {3}{2}{Opce}{7}{0}{3}
+\beamer@sectionintoc {4}{Další oblasti zájmu}{9}{0}{4}
+\beamer@sectionintoc {5}{Upřesnění cíle a postupu}{10}{0}{5}
+\beamer@subsectionintoc {5}{1}{Postup}{10}{0}{5}
+\beamer@subsectionintoc {5}{2}{Tech-stack}{11}{0}{5}

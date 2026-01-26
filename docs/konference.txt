@@ -1,0 +1,53 @@
+# Abstrakt
+Tato bakalářská práce se zabývá systematizací a porovnáním různých přístupů k oceňování akciových opcí. Cílem je zhodnotit vhodnost a přesnost jak modelů pro spojitý čas, tak modelů pro čas diskrétní. V práci jsou teoreticky rozebrány a následně prakticky aplikovány Blackův-Scholesův model, numerické metody (binomické a trinomické stromy) a simulace Monte Carlo. V rámci případových studií na reálných datech je provedena analýza citlivosti těchto modelů na klíčové parametry, jako je volatilita a čas do expirace. Výsledkem práce je detailní porovnání uvažovaných modelů, které identifikuje jejich silné a slabé stránky a určuje jejich praktickou použitelnost pro oceňování opcí s různými charakteristikami ve firemním prostředí.
+
+# Zásady (okopírováno ze zadání práce)
+Cílem bakalářské práce je systemizovat a porovnat modely oceňování opcí na akcie. Použité budou modely pro spojitý i diskrétní čas, specificky Blackův-Scholesův model, numerické oceňovací přístupy, simulace Monte Carlo a pravdědpodobně také markovovské řetezce. Práce vyhodnotí v kontextu případových studií vhodnost a přesnost uvažovaných přístupů, bude zvažovat různé typy opcí a vyhodnotí citlivost modelů na čase a volatilitě podkladového finančního aktiva. Výsledkem práce je porovnání modelů pro praktické oceňování ve firemní sféře a určení vhodnosti každého modelu pro opce se specifickými vlastnostmi.
+
+Struktura práce:
+* Teoretická část
+- Rešerše
+    - Opce
+        - Typy opcí (vanilkové & exotické, evropské & americké)
+        - Základní parametry a vlastnosti opcí
+    - Přístupy k oceňování opci
+        - Blackův-Scholesův model
+        - Binomické a trinomické stromy
+        - Simulace Monte Carlo
+        - Markovovské řetezce
+* Praktická část
+- Získání dat pro případové studie
+    - Odhady volatility
+    - Ceny opcí
+    - Volba vhodných konfigurací
+- Kódování oceňovaných přístupů
+- Aplikace oceňovaních přístupů na různých konfiguracích parametrů
+- Vyhodnocení
+
+Osnova:
+    1. Úvod
+    2. Teoretická část
+        2.1. Opce na akce a jejich oceňování
+        2.2. Standardní oceňovací přístupy
+            2.2.1. Blackův-Scholesův model
+            2.2.2. Numerické metody
+            2.2.3. Simulace Monte Carlo
+    3. Praktická část
+        3.1. Konfigurace případových studií
+        3.2. Implementace modelů
+            3.2.1. Blackův-Scholesův model
+            3.2.2. Numerické metody
+            3.2.2. Simulace Monte Carlo
+    4. Analýza výsledků
+        4.1. Přesnost oproti reálným datům
+        4.2. Analýza citlivosti modelů
+            4.2.1. Citlivost na volatilitu
+            4.2.2. Citlivost na čas
+        4.3. Limitace modelů
+    5. Závěr
+
+# Co je zpracováno
+Učinil jsem základní rešerši a podařilo se mi získat opční řetezce a vývoj akcií pro americké opce, a zpracovat je do použitelné formy. Jsem v procesu základního zpracování těchto opcí pomocí Blackova-Scholesova modelu.
+
+ # Zaměření referátu
+ Referát ma za cíl uvést posluchače do základní problematiky opcí a jejich ohodnocení, stručně uvést metody ohodnocení a vysvětlit relevanci cíle práce.

@@ -1,0 +1,115 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.2 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{nty/global//global/global}
+    \entry{korenar2010}{book}{}
+      \name{author}{1}{}{%
+        {{hash=58d7bd1bf92798dfb9a61286970c9a37}{%
+           family={Kořenář},
+           familyi={K\bibinitperiod},
+           given={Václav},
+           giveni={V\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {Praha}%
+      }
+      \list{publisher}{1}{%
+        {Oeconomica}%
+      }
+      \strng{namehash}{58d7bd1bf92798dfb9a61286970c9a37}
+      \strng{fullhash}{58d7bd1bf92798dfb9a61286970c9a37}
+      \strng{bibnamehash}{58d7bd1bf92798dfb9a61286970c9a37}
+      \strng{authorbibnamehash}{58d7bd1bf92798dfb9a61286970c9a37}
+      \strng{authornamehash}{58d7bd1bf92798dfb9a61286970c9a37}
+      \strng{authorfullhash}{58d7bd1bf92798dfb9a61286970c9a37}
+      \field{sortinit}{K}
+      \field{sortinithash}{c02bf6bff1c488450c352b40f5d853ab}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{edition}{2. přeprac.}
+      \field{isbn}{978-80-245-1646-2}
+      \field{title}{Stochastické procesy}
+      \field{year}{2010}
+    \endentry
+    \entry{lukas2009}{book}{}
+      \name{author}{1}{}{%
+        {{hash=30aa9b2fedb740c1ebb169e1ed31f874}{%
+           family={Lukáš},
+           familyi={L\bibinitperiod},
+           given={Ladislav},
+           giveni={L\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {Praha}%
+      }
+      \list{publisher}{1}{%
+        {Academia}%
+      }
+      \strng{namehash}{30aa9b2fedb740c1ebb169e1ed31f874}
+      \strng{fullhash}{30aa9b2fedb740c1ebb169e1ed31f874}
+      \strng{bibnamehash}{30aa9b2fedb740c1ebb169e1ed31f874}
+      \strng{authorbibnamehash}{30aa9b2fedb740c1ebb169e1ed31f874}
+      \strng{authornamehash}{30aa9b2fedb740c1ebb169e1ed31f874}
+      \strng{authorfullhash}{30aa9b2fedb740c1ebb169e1ed31f874}
+      \field{sortinit}{L}
+      \field{sortinithash}{7c47d417cecb1f4bd38d1825c427a61a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{isbn}{978-80-200-1704-8}
+      \field{series}{Lanna : knižnice České matice technické}
+      \field{title}{Pravděpodobnostní modely v managementu: Markovovy řetězce a systémy hromadné obsluhy}
+      \field{volume}{2}
+      \field{year}{2009}
+    \endentry
+    \entry{plechac2021}{online}{}
+      \name{author}{1}{}{%
+        {{hash=53f594e811fd2d9aa607d7a260887c77}{%
+           family={Plecháč},
+           familyi={P\bibinitperiod},
+           given={Petr},
+           giveni={P\bibinitperiod}}}%
+      }
+      \strng{namehash}{53f594e811fd2d9aa607d7a260887c77}
+      \strng{fullhash}{53f594e811fd2d9aa607d7a260887c77}
+      \strng{bibnamehash}{53f594e811fd2d9aa607d7a260887c77}
+      \strng{authorbibnamehash}{53f594e811fd2d9aa607d7a260887c77}
+      \strng{authornamehash}{53f594e811fd2d9aa607d7a260887c77}
+      \strng{authorfullhash}{53f594e811fd2d9aa607d7a260887c77}
+      \field{sortinit}{P}
+      \field{sortinithash}{ff3bcf24f47321b42cb156c2cc8a8422}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{"Co je OPCE, rozdíl mezi investováním do akcií a obchodováním opcí"}
+      \field{urlday}{11}
+      \field{urlmonth}{12}
+      \field{urlyear}{2025}
+      \field{year}{2021}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://www.tradecz.cz/co-je-opce-rozdil-mezi-investovanim-do-akcii-a-obchodovanim-opci
+      \endverb
+      \verb{url}
+      \verb https://www.tradecz.cz/co-je-opce-rozdil-mezi-investovanim-do-akcii-a-obchodovanim-opci
+      \endverb
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
+
