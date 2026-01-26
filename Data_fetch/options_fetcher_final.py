@@ -1,36 +1,26 @@
 #!/usr/bin/env python3
 """
 Options Data Fetcher for S&P500 Stocks
-Fetches full options chains for American and European options using yfinance
-Can also fetch European options for custom indices passed as arguments.
+Fetches full options chains for American options and European index options using yfinance.
 """
 
 import yfinance as yf
 import pandas as pd
+import toml
 from datetime import datetime
 import time
 import sys
 import os
 
-# American stocks (individual equity options)
-AMERICAN_STOCKS = {
-    'High Volatility': ['TSLA', 'NVDA', 'AMD'],
-    'Moderate Volatility': ['AAPL', 'MSFT', 'GOOGL'],
-    'Low Volatility': ['JNJ', 'PG', 'KO']
-}
-
-# Default European indices (index options)
-DEFAULT_EUROPEAN_INDICES = ['SPX', 'XSP']
-
-def fetch_american_options():
-    """Fetch all American options for individual stocks"""
+def fetch_american_options(american_tickers_config):
+    """Fetch all American options for individual stocks from a TOML configuration."""
     print("Fetching American Options (Individual Stocks)...")
     print("=" * 50)
     
     all_american_data = []
     
-    for category, tickers in AMERICAN_STOCKS.items():
-        print(f"\n--- {category} ---")
+    for category, tickers in american_tickers_config.items():
+        print(f"\n--- {category.replace('_', ' ').title()} ---") # Format category name
         
         for ticker_symbol in tickers:
             print(f"Fetching {ticker_symbol} options...")
@@ -78,7 +68,8 @@ def fetch_american_options():
                         continue
                 
                 # Success message
-                total_contracts = len([x for x in all_american_data if any(x['Ticker'] == ticker_symbol)])
+                # Ensure correct filtering for `ticker_symbol` and `Ticker` column
+                total_contracts = len([df for df in all_american_data if 'Ticker' in df.columns and ticker_symbol in df['Ticker'].values])
                 print(f"  ✓ {ticker_symbol}: {total_contracts} contracts fetched")
                 
             except Exception as e:
@@ -110,100 +101,74 @@ def fetch_american_options():
     else:
         return pd.DataFrame()
 
-def fetch_european_options_default():
-    """Fetch European options for default indices"""
-    return _fetch_european_options_for_tickers(DEFAULT_EUROPEAN_INDICES)
-
-def fetch_european_options_custom(tickers):
-    """Fetch European options for a custom list of indices"""
-    return _fetch_european_options_for_tickers(tickers)
-
-def _fetch_european_options_for_tickers(tickers_list):
-    """Helper function to fetch European options for a given list of tickers"""
-    print(f"\nFetching European Options (Indices): {', '.join(tickers_list)}...")
+def fetch_european_options(european_tickers_config):
+    """Fetch European options for index tickers from a TOML configuration."""
+    print("\nFetching European Index Options...")
     print("=" * 50)
-    
+
     all_european_data = []
-    
-    for ticker_symbol in tickers_list:
-        print(f"Fetching {ticker_symbol} options...")
-        
-        try:
-            ticker = yf.Ticker(ticker_symbol)
-            
-            # Get all expiration dates
-            expirations = ticker.options
-            if not expirations:
-                print(f"⚠️  No expirations found for {ticker_symbol}")
-                continue
-            
-            print(f"  Found {len(expirations)} expirations")
-            
-            # Fetch each expiration's option chain
-            for i, exp_date in enumerate(expirations):
-                try:
-                    option_chain = ticker.option_chain(exp_date)
-                    
-                    # Process calls
-                    calls = option_chain.calls.copy()
-                    calls['Type'] = 'Call'
-                    calls['Ticker'] = ticker_symbol
-                    calls['Expiration'] = exp_date
-                    calls['ExerciseStyle'] = 'European'
-                    
-                    # Process puts
-                    puts = option_chain.puts.copy()
-                    puts['Type'] = 'Put'
-                    puts['Ticker'] = ticker_symbol
-                    puts['Expiration'] = exp_date
-                    puts['ExerciseStyle'] = 'European'
-                    
-                    # Combine calls and puts
-                    combined = pd.concat([calls, puts], ignore_index=True)
-                    all_european_data.append(combined)
-                    
-                    if (i + 1) % 5 == 0:
-                        print(f"    Processed {i + 1}/{len(expirations)} expirations")
-                    
-                    # Rate limiting
-                    time.sleep(0.5)
-                    
-                except Exception as e:
-                    print(f"⚠️  Error processing {ticker_symbol} {exp_date}: {e}")
+
+    for category, tickers in european_tickers_config.items():
+        print(f"\n--- {category.replace('_', ' ').title()} ---") # Format category name
+
+        for ticker_symbol in tickers:
+            print(f"Fetching {ticker_symbol} options...")
+
+            try:
+                ticker = yf.Ticker(ticker_symbol)
+                expirations = ticker.options
+                if not expirations:
+                    print(f"⚠️  No expirations found for {ticker_symbol}")
                     continue
+                
+                print(f"  Found {len(expirations)} expirations")
+                
+                for i, exp_date in enumerate(expirations):
+                    try:
+                        option_chain = ticker.option_chain(exp_date)
+
+                        calls = option_chain.calls.copy()
+                        calls['Type'] = 'Call'
+                        calls['Ticker'] = ticker_symbol
+                        calls['Expiration'] = exp_date
+
+                        puts = option_chain.puts.copy()
+                        puts['Type'] = 'Put'
+                        puts['Ticker'] = ticker_symbol
+                        puts['Expiration'] = exp_date
+
+                        combined = pd.concat([calls, puts], ignore_index=True)
+                        all_european_data.append(combined)
+
+                        if (i + 1) % 5 == 0:
+                            print(f"    Processed {i + 1}/{len(expirations)} expirations")
+                        
+                        time.sleep(0.5)
+
+                    except Exception as e:
+                        print(f"⚠️  Error processing {ticker_symbol} {exp_date}: {e}")
+                        continue
+                
+                total_contracts = len([df for df in all_european_data if 'Ticker' in df.columns and ticker_symbol in df['Ticker'].values])
+                print(f"  ✓ {ticker_symbol}: {total_contracts} contracts fetched")
+
+            except Exception as e:
+                print(f"❌ CRITICAL ERROR fetching {ticker_symbol}: {e}")
+                print("Failing entirely as requested...")
+                sys.exit(1)
             
-            # Success message
-            total_contracts = len([x for x in all_european_data if any(x['Ticker'] == ticker_symbol)])
-            print(f"  ✓ {ticker_symbol}: {total_contracts} contracts fetched")
-            
-        except Exception as e:
-            print(f"❌ CRITICAL ERROR fetching {ticker_symbol}: {e}")
-            print("Failing entirely as requested...")
-            sys.exit(1)
-        
-        # Rate limiting between tickers
-        time.sleep(1)
-    
+            time.sleep(1)
+
     if all_european_data:
         final_european_data = pd.concat(all_european_data, ignore_index=True)
-        
-        # Select and reorder columns
-        desired_cols = ['Ticker', 'Expiration', 'strike', 'Type', 'bid', 'ask', 'lastPrice', 'volume', 'openInterest', 'ExerciseStyle']
-        
-        # Only include columns that exist
-        final_cols = []
-        for col in desired_cols:
-            if col in final_european_data.columns:
-                final_cols.append(col)
-        
+        desired_cols = ['Ticker', 'Expiration', 'strike', 'Type', 'bid', 'ask', 'lastPrice', 'volume', 'openInterest']
+        final_cols = [col for col in desired_cols if col in final_european_data.columns]
         final_european_data = final_european_data[final_cols]
-        
-        # Sort for readability
         final_european_data = final_european_data.sort_values(['Ticker', 'Expiration', 'strike', 'Type'])
-        
         return final_european_data
     else:
         return pd.DataFrame()
+
 
 def save_options_data(data, filename_prefix):
     """Save options data to CSV with timestamp"""
@@ -243,34 +208,32 @@ def main():
     
     start_time = time.time()
     
-    custom_european_tickers = sys.argv[1:]
-    
     try:
+        # Load tickers from toml file
+        with open('tickers.toml', 'r') as f:
+            config = toml.load(f)
+        
+        american_tickers_config = config.get('american_tickers', {})
+        european_tickers_config = config.get('european_tickers', {})
+
+
         american_data = pd.DataFrame()
         european_data = pd.DataFrame()
 
-        if custom_european_tickers:
-            print(f"Fetching European options for custom tickers: {', '.join(custom_european_tickers)}")
-            european_data = fetch_european_options_custom(custom_european_tickers)
-            if not european_data.empty:
-                save_options_data(european_data, 'european_options_custom')
-            else:
-                print("No custom European options data fetched")
+        # Fetch American options
+        american_data = fetch_american_options(american_tickers_config)
+        if not american_data.empty:
+            save_options_data(american_data, 'american_options')
         else:
-            # Fetch American options
-            american_data = fetch_american_options()
-            if not american_data.empty:
-                save_options_data(american_data, 'american_options')
-            else:
-                print("No American options data fetched")
-            
-            # Fetch default European options  
-            european_data = fetch_european_options_default()
-            if not european_data.empty:
-                save_options_data(european_data, 'european_options_default')
-            else:
-                print("No default European options data fetched")
+            print("No American options data fetched")
         
+        # Fetch European options
+        european_data = fetch_european_options(european_tickers_config)
+        if not european_data.empty:
+            save_options_data(european_data, 'european_options')
+        else:
+            print("No European options data fetched")
+
         # Final summary
         total_time = time.time() - start_time
         print(f"\n✅ COMPLETE - Total time: {total_time:.1f} seconds")
@@ -278,6 +241,9 @@ def main():
         print(f"   European contracts: {len(european_data):,}")
         print(f"   Total contracts: {len(american_data) + len(european_data):,}")
         
+    except FileNotFoundError:
+        print("❌ Error: tickers.toml not found. Please create it.")
+        sys.exit(1)
     except KeyboardInterrupt:
         print("\n⚠️  Interrupted by user")
         sys.exit(1)

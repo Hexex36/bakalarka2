@@ -1,0 +1,22 @@
+[project]
+name = "data-fetcher"
+version = "0.1.0"
+authors = [
+    { name = "Matej", email = "matej@example.com" },
+]
+description = "A Python project for fetching financial data."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "yfinance",
+    "pandas",
+    "toml",
+    "tomlkit",
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.uv]
+# UV specific configurations if any

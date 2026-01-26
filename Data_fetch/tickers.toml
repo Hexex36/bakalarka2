@@ -1,0 +1,8 @@
+[american_tickers]
+high_volatility = ["TSLA", "AMD", "META"] # Non-dividend
+moderate_volatility = ["AMZN"] # Non-dividend
+low_volatility = ["NFLX"] # Non-dividend
+dividend_payers = ["AAPL", "GOOGL", "JNJ", "KO", "MSFT", "NVDA", "PG"]
+
+[european_tickers]
+indexes = ["^RUT", "^VIX", "^XDB", "^XDA", "^XDE", "^XDN"]
