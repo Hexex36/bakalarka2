@@ -34,7 +34,7 @@
       % Jméno práce
       \vspace*{0.75cm}
       \Huge
-      \textbf{Modelování cen finančních aktiv diskrétními Markovovými řetězci a jejich aplikace v opčních strategiích}
+      \textbf{Oceňování opcí na akce za pomoci různých oceňovacích přístupů}
 
       % Typ práce
       \vspace{0.5cm}
@@ -46,7 +46,7 @@
       Autor: Matěj Sloup
 
       % Vedoucí
-      Vedoucí: Ing. Roman Vaibar, Ph.D., MBA
+      Vedoucí: doc. PhDr. Ing. Martin Boďa, PhD.
 
       \vfill
 
@@ -71,67 +71,77 @@
 
   \section{Teoretická část}
 
-  \subsection{Markovské procesy}
-  
-  Nejkratším způsobem jak definovat markovské procesy, je označit je jako "Náhodné procesy, splňující Markovskou podmínku." Pro využití této formy definice je první nutné si tyto dva termíny zadefinovat.
+  \subsection{Úvod do problematiky opcí}
 
-  \subsubsection{Náhodný proces}
+  \subsubsection{Definice opce}
 
-  \begin{definition}[Náhodná veličina]
-    Náhodná veličina (také náhodná proměnná) se definuje jako veličina, která může nabývat více hodnot z ${x}$, a to s určitou pravděpodobností pro každý prvek. \cite{lukas2009}  
-  \end{definition}
+  \textbf{Poznámka: Následující text je první draft práce. Bude obsahovat nespisovné výrazy, neobratné vyjadřování, a nepodpořené výroky.}
 
-  Příkladem náhodné veličiny je hod kostkou. Výsledná hodnota hodu může nabývat hodnoty ${\{1, 2, 3, 4, 5, 6\}}$, s pravděpodobností ${\frac{1}{6}}$ pro každý prvek.
-  Definici náhodné veličiny můžeme použít k definování náhodného procesu:
+  Ve světě obchodování je vývoj cen nevyzpytatelný, aspoň se stoprocentní jistotou a přesností. Následkem tohoto fakt nás při různých obchodech můžeme následkem nepředvídatelných událostí, nebo vlivem špatného úsudku, učinit obchod při kterém proděláme. Nebo například vlivem jiných údalostí klesne cena produktu, který nějaká firma vyrábí, čímž může přijít o část zisků, a může to narušit její fiskální rok.
 
-  \begin{definition}[Náhodný proces]
-    Náhodným procesem rozumíme množinu náhodných veličin, závislých na určitém počtu parametrů. Každý parametr patří do množiny reálných čísel. \cite{korenar2010}  
-  \end{definition}
+  Opce jsou druh finančního kontraktu, který držiteli dává právo, nikoliv povinnost, jako by bylo třeba u futures, uskutečnit prodej/koupi předem daného podkladového aktiva za předem stanovenou cenu.
 
-  Náhodný proces typicky značíme jako $X(a_1, a_2, ...)$, kde $a_1, a_2, ...$ jsou parametry procesu. 
+  Důležité je zde slovo "právo". Měly-li by obě strany povinnost uskutečnit tento obchod, držící by musel dané aktivum koupit, i v případě, kdy by tato akce šla proti jeho zájmům. Opce specificky umožnující držiteli v případě, kdy by obchod uznal za neoptimální, nevyžít svého práva, a nechat kontrakt propadnout. Právě tato skutečnost činí opce velmi efektivní formou pojistky proti nepříznívým pohybům na trhu.
 
-  Při každém pokusu je průběh náhodného procesu po každé jiný. Konkrétní průběh daného procesu nazvýváme realizací náhodného procesu, a značíme jako ${\{X_j(t)\}; j \in \{1, 2, ..., n\}}$. \cite{korenar2010}
+  Kupříkladu: Chtěli bychom-li koupit akcie společnosti $A$, za účelem jejich prodání za výdělek v pozdější době, lze porovnat dva přístupy: Koupě akcie napřímo, v momentálním bodě v čase, nebo koupě opce, 
 
-  Pokud je parametrem náhodného procesu čas, můžeme proces také značit jako stochastický. \cite{korenar2010}
+  \subsubsection{Syntetická pozice}
 
-  \subsubsection{Markovský proces}
-  % Markovská podmínka, něco málo o procesu
+  \subsection{Metody ohodnocování opcí}
 
-  Markovský proces je libovolný stochastický proces, pro který platí Markovská podmínka.
+  \subsubsection{Binomické a trinomické stromy}
 
-  %TODO: Vadné
-  \begin{definition}[Markovská podmínka]
-    Nechť $X(t); t \in {1,2, ..., n}$ je stochastický proces, a nechť $X(t) = j$ značí stav procesu v momentu $t$ náležící množině stavů. Pro tento proces platí Markovská podmínka právě tehdy, když:
-    \begin{multline*}
-      P(X(t) = j_1 | X(t-1) = j_2, X(t-2) = j_3, ... , X(1) = j_n)
-      = P(X(t) = j_1 | X(t-1) = j_2)
-    \end{multline*}
-    \cite{lukas2009} \cite{korenar2010}
-  \end{definition}
+  Binomické a trinomické stromy zjednodušují náš model vnímání opcí zúžením možných hodnot podkladového aktiva na konci jednoho časového úsek na dvě možné hodnoty. Mějme dvě konstanty: $u$ a $d$, kde $u$ je míra o kterou se cena aktiva zvedne, roste-li cena, a kde $d$ je míra o kterou cena klesne, snižuje-li se cena. Výsledně, na konci jednoho časového období, značeného jako $t$, se z původní ceny aktiva $S$, dostaneme buďto na cenu $uS$ nebo $dS$.
 
-  Intuitivněji můžeme Markovskou podmínku chápat takto: Pravděpodobnost, že proces $X(t)$ je v momentu $t$ ve stavu $j_1$, za předpokladu že v předchozím kroku (v momentu $t-1$) byl ve stavu $j_2$, není závislá na zbytku historie vývoje procesu. Relevantní je pro vývoj tohoto procesu vždy pouze krok předchozí.
+  Při tomto uvažování lze jednoznačně určit cena opce pro dané aktivum. Můžeme vytvořit syntetickou opci tím, že si půčíme peníze na držení $\delta$ kusů aktiva (v našem případě podílů akcie) a investujeme bezrizikově $B$ hodnoty peněz, při bezrizikové úrokové míře $r$. Toto nám umožňuje stejné benefity jako u opce. (Rozepiš proč)
 
-  Markovský proces lze nazvat Markovským řetezcem, jsou-li množiny časových parametrů a stavů diskrétní. Markovský řetězec můžeme brát jako posloupnost.
+  Pokud by neplatilo, že můžeme jednoznačně určit cenu opce, nastávají příležitosti pro arbitráž. (Rozepiš případy)
 
-  \subsubsection{Vlastnosti Markovských řetezců}
+  Cenu opce můžeme získat jako očekávanou hodnotu při expiraci dle binomického stromu.
 
-  Jsou-li pro každý časový moment stejné pravděpodobnosti přechodu.
+  Jako bežný model binomických stromů se typicky považuje Cox-Ross-Rubensteinův model binomického stromu.
 
-  \subsection{Opce a jejich oceňování}
+  Trinomické stromy zavádějí do našeho modelu vývoje ceny aktiva ještě třetí možnost: Hodnota aktiva se nezmění (z počáteční hodnoty $S$ se cena na konci časového období vyvine na $S$, tudíž zůstane konstantní). 
 
-  \subsubsection{Finanční deriváty}
+  \subsubsection{Blackův-Scholesovův model}
 
-  \subsubsection{Blackův-Scholesův model}
+  % Black-Scholes-Merton
+  % Barone-Adesi & Whaley
 
-  \subsection{Markovský proces pro opce}
-
-  \subsection{Agilní model vývoje softwaru}
+  \subsubsection{Monte Carlo přístup}
 
   \section{Praktická část}
 
   \subsection{Sběr dat}
 
-  \subsection{První model}
+  V rámci práce byly sbírány opční řetezce a historické hodnoty akcií pro specificky vybrané tickery.
+  Vybrané tickery se liší dle typu opce, pro jejiž účely byly sbírany, poněvadž pro většinu tickerů byl dostupný pouze jeden typ opce: buď americký nebo evropský.
+
+  Pro akcie spojené s firmami jsou typické americké opce, které dávají větší flexibilitu. Data byla sbírana na tickery patřící do S\&P 500, předně pro akcie tzv. "Maginificent Seven", sedm velkých, výdělečných akcií tohoto fondu. Sbírané tickery byly klasifikovány podle volatility a dávané dividendy. Seznam sbíraných tickerů pro americké opce: 
+  \begin{itemize}
+    \item{Akcie s vysokou volatilitou ($ > 50\% $): TSLA, AMD}
+    \item{Akcie s nízkou volatilitou ($~35\%$): NFLX, META, AMZN}
+    \item{Akcie vyplácející dividendy: AAPL, GOOGL, JNJ, KO, MSFT, NVDA, PG}
+  \end{itemize}
+
+  Nízká volatilita je zde použita jako termín relativní v rámci použitých akcií. Racionální člověk by neřekl, že volatilita 30\% je malá.
+
+  Za účelem získání opcí evropských byla sbírána data indexů. U opcí akcií indexů je běžná metoda využití kontraktu přímé splacení rozdílu hodnot penězy, k čemuž se právě využívají akcie evropského typu. Vybrané indexy:
+  \begin{itemize}
+    \item{Monetární fondy: XDB, XDA, XDE, XDN}
+    \item{Akcie: RUT, VIX}
+  \end{itemize}
+
+  Data byla sbírána pomocí pythonovské knihovny "yfinance". Tato knihovna umožňuje bezbolestný přístup k API serveru Yahoo Finance, který sbírá finanční informace k rozmanitému množství akcií a indexů.
+  Informace k opčním řetezcům takto získané zahrnují identifikátor tickeru, minimum, maximum a průměr poptávané ceny, strikeovou cenu, a informace o objemu obchodu.
+  K těmto informacím bylo nutno doplnit některé další informace, specificky cena akcie v čase získání dat, délka časového úseku v poměru k roku, implikovaná (historická) volatilita a bezriziková úroková míra.
+  Momentální cena akcie byla získána pomocí knihovny yfinance.
+  Délka periody byla spočtena v R souboru analyzujícím metody ohodnocení opcí.
+  Implikovaná volatilita byla spočtena z dat vývoje ceny akcií získaných z yfinance. Hodnota byla spočetena jako standardní odchylka poměrů dvou po sobě jdoucích cen, vynásobená odmocninou z počtu pracovních dní v roce (252).
+  Bezriziková úroková míra pro americký dolar byla získána z oficiální webové stránky Ministerstva financí USA [link který přidám někdy v budoucnosti]. Pro data, která nespadala přesně na dané časové periody, byla tato úrovková míra spočtena interpolací lineární regrese. 
+
+  Skripty použité k získání těchto informací jsou dostupné na mém githubu [odkaz na můj github někdy v budoucnosti]. Tyto skripty byly primárně vytvořeny umělou inteligencí.
+  Data byla získána pro den 26.1.2026. Toto datum nenese žádnou specifickou důležitost.
 
   \section{Závěr}
 

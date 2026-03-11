@@ -1,0 +1,138 @@
+```{r setup}
+library(readr)
+library(fOptions)
+library(dplyr)
+```
+
+```{r data-loading}
+euro_chains <- read_csv("././Data_fetch/european_options_2026-01-26_greeks.csv")
+usa_chains <- read_csv("././Data_fetch/american_options_2026-01-26_greeks.csv")
+
+head(euro_chains)
+head(usa_chains)
+```
+
+``` {r expirations}
+origin_date <- as.Date("2026-01-26") 
+
+# Calculate T for euro_chains (assuming there's an expiration column)
+euro_chains$T <- as.numeric(as.Date(euro_chains$expiration) - origin_date) / 365
+# Calculate T for usa_chains
+usa_chains$T <- as.numeric(as.Date(usa_chains$expiration) - origin_date) / 365
+```
+
+``` {r data-filtering}
+euro_call_chains <- euro_chains[euro_chains$option_type == "Call", ]
+euro_put_chains <- euro_chains[euro_chains$option_type == "Put", ]
+
+usa_condition <- usa_chains$ticker == "TSLA"
+
+usa_call_chains <- usa_chains[usa_chains$option_type == "Call" & usa_condition, ]
+usa_put_chains <- usa_chains[usa_chains$option_type == "Put" & usa_condition, ]
+```
+
+```{r european-bs}
+# ============================================
+# EUROPEAN BLACK-SCHOLES
+# ============================================
+
+# European Call Option
+bs_european_call <- function(S, K, r, sigma, T, q = 0) {
+  d1 <- (log(S / K) + (r - q + sigma^2 / 2) * T) / (sigma * sqrt(T))
+  d2 <- d1 - sigma * sqrt(T)
+  
+  price <- S * exp(-q * T) * pnorm(d1) - K * exp(-r * T) * pnorm(d2)
+  return(price)
+}
+
+# European Put Option  
+bs_european_put <- function(S, K, r, sigma, T, q = 0) {
+  d1 <- (log(S / K) + (r - q + sigma^2 / 2) * T) / (sigma * sqrt(T))
+  d2 <- d1 - sigma * sqrt(T)
+  
+  price <- K * exp(-r * T) * pnorm(-d2) - S * exp(-q * T) * pnorm(-d1)
+  return(price)
+}
+```
+
+```{r american-bs-temp}
+bs_american_call <- function(S, K, r, sigma, T, q = 0) {
+  # TODO: Rozšířit o Barone-Adesi & Whaley aproximaci
+  return(bs_european_call(S, K, r, sigma, T, q = 0))
+}
+
+# TODO: Aproximace BS amerických put pomocí Barone-Adesi & Whaley
+```
+
+``` {r population}
+usa_call_chains <- usa_call_chains %>%
+  rowwise() %>%
+  mutate(user_bs = bs_american_call(S, K, r, sigma, T)) %>%
+  mutate(user_crr = CRRBinomialTreeOption(TypeFlag = "ca", S = S, X = K, Time = T, r = r, b = r, sigma = sigma, n = 100)@price)
+```
+
+```{r validation-plot}
+library(ggplot2)
+library(tidyr)
+
+# Reshape to long format for easier plotting
+plot_data <- usa_call_chains %>%
+  select(option_price, user_bs, user_crr) %>%
+  pivot_longer(
+    cols = c(user_bs, user_crr),
+    names_to = "method",
+    values_to = "calculated_price"
+  )
+
+# Scatter plot with 45-degree reference line
+ggplot(plot_data, aes(x = option_price, y = calculated_price, color = method)) +
+  geom_point() +
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray50") +
+  facet_wrap(~method) +
+  labs(
+    x = "Actual Market Price",
+    y = "Calculated Price",
+    title = "Model Prices vs Market Prices"
+  ) +
+  coord_equal() +
+  theme_minimal()
+```
+
+```{r contour-plot}
+# Prepare data for contour plot
+contour_data <- usa_call_chains %>%
+  ungroup() %>%
+  mutate(moneyness = S / K) %>%
+  select(moneyness, T, option_price, user_bs, user_crr) %>%
+  pivot_longer(
+    cols = c(user_bs, user_crr),
+    names_to = "method",
+    values_to = "calculated_price"
+  ) %>%
+  mutate(pricing_error = option_price - calculated_price)
+
+# Contour plot: Moneyness (S/K) vs Time to Expiration (T)
+# Contours show pricing error (actual - calculated)
+#newplot()
+ggplot(contour_data, aes(x = moneyness, y = T, z = pricing_error)) +
+  geom_contour_filled(aes(fill = after_stat(level)), bins = 20) +
+  facet_wrap(~method, nrow = 2) +
+  scale_fill_viridis_d(name = "Pricing Error\n(Market - Model)") +
+  labs(
+    x = "Moneyness (S/K)",
+    y = "Time to Expiration (T)",
+    title = "Pricing Error Contour Plot - TSLA Call Options",
+    subtitle = "Blue = Model overprices, Red = Model underprices"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "right")
+#saveplot()
+```
+
+``` {r output}
+write_csv(usa_call_chains, "././calculated_prices.csv")
+```
+
+
+
+

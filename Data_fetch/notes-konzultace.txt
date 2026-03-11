@@ -1,0 +1,44 @@
+- evropské zatím vynecháme (stále¨hledej¨)
+
+- Transformace
+- options
+	- s je cena na akcie v čase (přidat)
+	- k je strike
+	- r (?)
+	- t - počet dní do expirace od data získání (poměr k roku (365))
+	- sigma - volatilita stocku
+		- logaritmus dvou po sobě jdoucích cen -> výběrová směrodatná odchylka -> * sqrt(250)
+- stock data
+	- adjusted call (počítá se s dividendou) (cenová kontinuita)
+	- returns (výnos/návrat, kolik koupě vydělala)
+	- standard deviation (odhad volatility)
+	- rozptyl (sqrt(250) * stddev)
+
+- bezriziková úvěrová míra k 9.1.
+	- daily tresuary rates
+	- výnosová křivka
+	- měsíc ... 1/12 roku
+	- lineární interpolace středu
+	- vážený průměr rates
+	- expirace < 30 dní useless?
+		- rozpětí půl měsíce (rate pro 0.5m -> 3,72; 0m -> 3,74)
+	- umístěno mezi dva časy
+investing.com
+
+https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve&field_tdr_date_value=2026
+
+=1m+(1,5m-1m)
+(T_D,y_D) & (T_U,y_U) 
+ 
+D = down, U = up
+ y(T) = y_D + (y_U-y_D)*(T-T_D)/(T_U-T_D)
+t -> čas expirace opce
+y(t) -> lineární interpolace bezrizikové úrokové míry v čase expirace
+
+black scholes je pro call, ne put
+
+- výpočet black-scholes pro americkou call opci
+	- zkus i put opci...?
+
+
+

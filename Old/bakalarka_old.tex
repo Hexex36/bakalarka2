@@ -1,0 +1,140 @@
+\documentclass{article}
+
+% ###########
+% Packages
+\usepackage{biblatex}
+\usepackage{graphicx}
+\usepackage[czech]{babel}
+\usepackage{csquotes}
+
+% ###########
+% Metadata
+\title{Modelování cen finančních aktiv diskrétními Markovovými řetězci a jejich aplikace v opčních strategiích}
+\author{Matěj Sloup}
+\addbibresource{bakalarka.bib}
+
+\newtheorem{definition}{Definice}[subsection]
+
+\begin{document}
+
+  % TITULNÍ STRÁNKA
+  % Co tam mít?
+  % - [ ] Jméno práce
+  % - [ ] Co to je za práci
+  % - [ ] Autor
+  % - [ ] Instituce
+  % - [ ] Logo uni
+  % - [ ] Katedra, fakulta
+  % - [ ] Jméno uni
+  % - [ ] Vedoucí
+  % - [ ] Ročník
+
+  \begin{titlepage}
+    \begin{center}
+      % Jméno práce
+      \vspace*{0.75cm}
+      \Huge
+      \textbf{Modelování cen finančních aktiv diskrétními Markovovými řetězci a jejich aplikace v opčních strategiích}
+
+      % Typ práce
+      \vspace{0.5cm}
+      \Large
+      Bakalářská práce
+
+      % Autor
+      \LARGE
+      Autor: Matěj Sloup
+
+      % Vedoucí
+      Vedoucí: Ing. Roman Vaibar, Ph.D., MBA
+
+      \vfill
+
+      % Logo uni
+      \includegraphics[scale=0.33]{PřF-UJEP-logo.png}
+
+      % Katedra
+      \Large
+      Univerzita Jana Evangelisty Purkyně
+
+      Přírodovědecká fakulta
+
+      Katedra matematiky
+
+      2026
+    \end{center}
+  \end{titlepage}
+
+  \tableofcontents
+
+  \section{Úvod}
+
+  \section{Teoretická část}
+
+  \subsection{Markovské procesy}
+  
+  Nejkratším způsobem jak definovat markovské procesy, je označit je jako "Náhodné procesy, splňující Markovskou podmínku." Pro využití této formy definice je první nutné si tyto dva termíny zadefinovat.
+
+  \subsubsection{Náhodný proces}
+
+  \begin{definition}[Náhodná veličina]
+    Náhodná veličina (také náhodná proměnná) se definuje jako veličina, která může nabývat více hodnot z ${x}$, a to s určitou pravděpodobností pro každý prvek. \cite{lukas2009}  
+  \end{definition}
+
+  Příkladem náhodné veličiny je hod kostkou. Výsledná hodnota hodu může nabývat hodnoty ${\{1, 2, 3, 4, 5, 6\}}$, s pravděpodobností ${\frac{1}{6}}$ pro každý prvek.
+  Definici náhodné veličiny můžeme použít k definování náhodného procesu:
+
+  \begin{definition}[Náhodný proces]
+    Náhodným procesem rozumíme množinu náhodných veličin, závislých na určitém počtu parametrů. Každý parametr patří do množiny reálných čísel. \cite{korenar2010}  
+  \end{definition}
+
+  Náhodný proces typicky značíme jako $X(a_1, a_2, ...)$, kde $a_1, a_2, ...$ jsou parametry procesu. 
+
+  Při každém pokusu je průběh náhodného procesu po každé jiný. Konkrétní průběh daného procesu nazvýváme realizací náhodného procesu, a značíme jako ${\{X_j(t)\}; j \in \{1, 2, ..., n\}}$. \cite{korenar2010}
+
+  Pokud je parametrem náhodného procesu čas, můžeme proces také značit jako stochastický. \cite{korenar2010}
+
+  \subsubsection{Markovský proces}
+  % Markovská podmínka, něco málo o procesu
+
+  Markovský proces je libovolný stochastický proces, pro který platí Markovská podmínka.
+
+  %TODO: Vadné
+  \begin{definition}[Markovská podmínka]
+    Nechť $X(t); t \in {1,2, ..., n}$ je stochastický proces, a nechť $X(t) = j$ značí stav procesu v momentu $t$ náležící množině stavů. Pro tento proces platí Markovská podmínka právě tehdy, když:
+    \begin{multline*}
+      P(X(t) = j_1 | X(t-1) = j_2, X(t-2) = j_3, ... , X(1) = j_n)
+      = P(X(t) = j_1 | X(t-1) = j_2)
+    \end{multline*}
+    \cite{lukas2009} \cite{korenar2010}
+  \end{definition}
+
+  Intuitivněji můžeme Markovskou podmínku chápat takto: Pravděpodobnost, že proces $X(t)$ je v momentu $t$ ve stavu $j_1$, za předpokladu že v předchozím kroku (v momentu $t-1$) byl ve stavu $j_2$, není závislá na zbytku historie vývoje procesu. Relevantní je pro vývoj tohoto procesu vždy pouze krok předchozí.
+
+  Markovský proces lze nazvat Markovským řetezcem, jsou-li množiny časových parametrů a stavů diskrétní. Markovský řetězec můžeme brát jako posloupnost.
+
+  \subsubsection{Vlastnosti Markovských řetezců}
+
+  Jsou-li pro každý časový moment stejné pravděpodobnosti přechodu.
+
+  \subsection{Opce a jejich oceňování}
+
+  \subsubsection{Finanční deriváty}
+
+  \subsubsection{Blackův-Scholesův model}
+
+  \subsection{Markovský proces pro opce}
+
+  \subsection{Agilní model vývoje softwaru}
+
+  \section{Praktická část}
+
+  \subsection{Sběr dat}
+
+  \subsection{První model}
+
+  \section{Závěr}
+
+  \printbibliography
+  
+\end{document}
