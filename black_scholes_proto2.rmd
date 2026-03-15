@@ -1,0 +1,85 @@
+``` {r}
+# ============================================
+# EUROPEAN BLACK-SCHOLES
+# ============================================
+
+# European Call Option
+bs_european_call <- function(S, K, r, sigma, T, q = 0) {
+  d1 <- (log(S / K) + (r - q + sigma^2 / 2) * T) / (sigma * sqrt(T))
+  d2 <- d1 - sigma * sqrt(T)
+  
+  price <- S * exp(-q * T) * pnorm(d1) - K * exp(-r * T) * pnorm(d2)
+  return(price)
+}
+
+# European Put Option  
+bs_european_put <- function(S, K, r, sigma, T, q = 0) {
+  d1 <- (log(S / K) + (r - q + sigma^2 / 2) * T) / (sigma * sqrt(T))
+  d2 <- d1 - sigma * sqrt(T)
+  
+  price <- K * exp(-r * T) * pnorm(-d2) - S * exp(-q * T) * pnorm(-d1)
+  return(price)
+}
+```
+
+``` {r s_star}
+# Calculate critical commodity price
+
+s-star-finder <- function(S, K, r, sigma, T, q = 0) {
+  b <- r - q
+  N <- 2*b/(sigma^2)
+  M <- 2*r/(sigma^2)
+  K_other <- 1 - exp(-r * T)
+  q_2 <- (-(N - 1) + sqrt((N - 1)^2 + 4 * M / K_other))/2
+
+  RHS <- function(S_i) {
+    d_one <- (log(S_i/K) + (b + (sigma^2) / 2) * T)/(sigma * sqrt(T))
+    return(bs_european_call(S_i, K, r, sigma, T, q) + (1 - (exp((b-r)*T) * pnorm(d_one))) * S_i / q_2)
+  }
+
+  b_i <- function(S_i) { # Slope of RHS
+    d_one <- (log(S_i/K) + (b + (sigma^2) / 2) * T)/(sigma * sqrt(T))
+    val <- exp((b-r)*T) * pnorm(d_one) * (1 - 1/q_2) + (1 - (exp((b-r)*T) * pnorm(d_one))/(sigma * sqrt(T))) / q_2
+    return(val)
+  }
+
+  enhance_guess <- function(S_i) {
+    cur_bi <- b_i(S_i)
+    return((K - RHS(S_i) - cur_bi * S_i)/(1 - cur_bi))
+  }
+  # Get initial guess
+  S_inf <- K / (1 - 2 / (- (N - 1) + sqrt((N - 1)^2 + 4*M)))
+  h_2 <- -(b*T + 2*sigma*sqrt(T))*(K / (S_inf - K))
+  S_i <- K + (S_inf - K) * (1 - exp(h_2))
+
+  # Whilst LHS and RHS are not equal...
+  while(abs(S_i - K - RHS(S_i)) / K >= 0.0000001) {
+    # ...enhance guess
+    S_i <- enhance_guess(S_i)
+  }
+
+  return(S_i)
+}
+```
+
+``` {r s-star-check}
+check-s-star <- function(S, K, r, sigma, T, q = 0) {
+if(q <= 0) {
+return(TRUE)
+}
+  S_star <- s-star-finder(S, K, r, sigma, T, q)
+
+  b <- r - q
+  d_one <- (log(S_star/K) + (b + (sigma^2) / 2) * T)/(sigma * sqrt(T))
+
+  N <- 2*b/(sigma^2)
+  M <- 2*r/(sigma^2)
+  K_other <- 1 - exp(-r * T)
+  q_2 <- (-(N - 1) + sqrt((N - 1)^2 + 4 * M / K_other))/2
+
+  LHS <- S_star - K
+  RHS <- bs_european_call(S_star, K, r, sigma, T, q) + (1 - exp((b - r) * T) * pnorm(d_one)) * S_star / q_2
+
+  return(abs(LHS - RHS) < 0.0000001)
+}
+```
