@@ -25,12 +25,13 @@ bs_european_put <- function(S, K, r, sigma, T, q = 0) {
 ``` {r s_star}
 # Calculate critical commodity price
 
-s-star-finder <- function(S, K, r, sigma, T, q = 0) {
+s_star_finder <- function(S, K, r, sigma, T, q = 0) {
   b <- r - q
   N <- 2*b/(sigma^2)
   M <- 2*r/(sigma^2)
   K_other <- 1 - exp(-r * T)
-  q_2 <- (-(N - 1) + sqrt((N - 1)^2 + 4 * M / K_other))/2
+  q_2 <- (-(N - 1) + sqrt((N - 1)^2 + 4 * M))/2
+  #print(paste("q_2: ", q_2))
 
   RHS <- function(S_i) {
     d_one <- (log(S_i/K) + (b + (sigma^2) / 2) * T)/(sigma * sqrt(T))
@@ -45,17 +46,31 @@ s-star-finder <- function(S, K, r, sigma, T, q = 0) {
 
   enhance_guess <- function(S_i) {
     cur_bi <- b_i(S_i)
-    return((K - RHS(S_i) - cur_bi * S_i)/(1 - cur_bi))
+    #print(cur_bi)
+    return((K + RHS(S_i) - cur_bi * S_i)/(1 - cur_bi))
   }
   # Get initial guess
   S_inf <- K / (1 - 2 / (- (N - 1) + sqrt((N - 1)^2 + 4*M)))
+  #print(paste("S_inf: ", S_inf))
   h_2 <- -(b*T + 2*sigma*sqrt(T))*(K / (S_inf - K))
+  #print(paste("h_2: ", h_2))
   S_i <- K + (S_inf - K) * (1 - exp(h_2))
+  #print(paste("S_i: ", S_i))
+
+  guess_limit <- 1000
 
   # Whilst LHS and RHS are not equal...
-  while(abs(S_i - K - RHS(S_i)) / K >= 0.0000001) {
+  while(abs(S_i - K - RHS(S_i)) / K >= 0.000000001) {
+    #print(S_i - K - RHS(S_i))
     # ...enhance guess
     S_i <- enhance_guess(S_i)
+
+    guess_limit <- guess_limit - 1
+
+    if(guess_limit <= 0) {
+      #print("Exhausted guesses.")
+      return(S_i)
+    }
   }
 
   return(S_i)
@@ -63,11 +78,11 @@ s-star-finder <- function(S, K, r, sigma, T, q = 0) {
 ```
 
 ``` {r s-star-check}
-check-s-star <- function(S, K, r, sigma, T, q = 0) {
+check_s_star <- function(S, K, r, sigma, T, q = 0) {
 if(q <= 0) {
 return(TRUE)
 }
-  S_star <- s-star-finder(S, K, r, sigma, T, q)
+  S_star <- s_star_finder(S, K, r, sigma, T, q)
 
   b <- r - q
   d_one <- (log(S_star/K) + (b + (sigma^2) / 2) * T)/(sigma * sqrt(T))
@@ -75,11 +90,173 @@ return(TRUE)
   N <- 2*b/(sigma^2)
   M <- 2*r/(sigma^2)
   K_other <- 1 - exp(-r * T)
-  q_2 <- (-(N - 1) + sqrt((N - 1)^2 + 4 * M / K_other))/2
+  q_2 <- (-(N - 1) + sqrt((N - 1)^2 + 4 * M))/2
 
   LHS <- S_star - K
   RHS <- bs_european_call(S_star, K, r, sigma, T, q) + (1 - exp((b - r) * T) * pnorm(d_one)) * S_star / q_2
 
-  return(abs(LHS - RHS) < 0.0000001)
+  print(LHS - RHS)
+
+  return(abs(LHS - RHS) / K < 0.0000001)
 }
 ```
+
+``` {r money}
+bs_american_call <- function(S, K, r, sigma, T, q) {
+  S_star <- s_star_finder(S, K, r, sigma, T, q)
+
+  if(S >= S_star) {
+    return(S - K)
+  }
+
+  b <- r - q
+  N <- 2*b/(sigma^2)
+  M <- 2*r/(sigma^2)
+  K_other <- 1 - exp(-r * T)
+  q_2 <- (-(N - 1) + sqrt((N - 1)^2 + 4 * M / K_other))/2
+
+  d_one <- (log(S/K) + (b + (sigma^2) / 2) * T)/(sigma * sqrt(T))
+
+  A_2 <- (S_star / q_2)* (1 - exp((b - r)*T) * pnorm(d_one))
+
+  return(bs_european_call(S, K, r, sigma, T, q) + A_2 * (S / S_star) ^ q_2)
+}
+```
+
+``` {r test}
+S <- 100
+K <- 100
+r <- 0.05
+sigma <- 0.2
+T <- 1
+q <- 0.1
+
+eu_call <- bs_european_call(S, K, r, sigma, T, q)
+print(paste("European call:", eu_call))
+
+S_star <- s_star_finder(S, K, r, sigma, T, q)
+print(paste("S* (critical price):", S_star))
+
+check <- check_s_star(S, K, r, sigma, T, q)
+print(paste("S* check passed:", check))
+
+am_call <- bs_american_call(S, K, r, sigma, T, q)
+print(paste("American call:", am_call))
+```
+
+``` {r crr-comparison}
+library(fOptions)
+
+S <- 100
+K <- 100
+r <- 0.05
+sigma <- 0.2
+T <- 1
+q <- 0.1
+
+cat("=== Comparison with CRR Binomial Tree ===\n")
+cat("Parameters: S=", S, "K=", K, "r=", r, "sigma=", sigma, "T=", T, "q=", q, "\n\n")
+
+cat("BAW American Call:", bs_american_call(S, K, r, sigma, T, q), "\n")
+cat("European Call:", bs_european_call(S, K, r, sigma, T, q), "\n\n")
+
+cat("CRR Binomial Tree (American Call):\n")
+for (n in c(50, 100, 500, 1000)) {
+  crr <- CRRBinomialTreeOption(TypeFlag = "ca", S = S, X = K, Time = T, 
+                               r = r, b = r - q, sigma = sigma, n = n)
+  cat("  n =", n, ":", crr@price, "\n")
+}
+```
+
+``` {r more-tests}
+cat("=== Additional Test Cases ===\n\n")
+
+test_cases <- data.frame(
+  S = c(100, 110, 90, 100, 100, 100, 100, 100, 100, 110),
+  K = c(100, 100, 100, 100, 100, 100, 100, 100, 100, 100),
+  r = c(0.05, 0.05, 0.05, 0.03, 0.08, 0.05, 0.05, 0.05, 0.05, 0.08),
+  sigma = c(0.2, 0.2, 0.2, 0.2, 0.2, 0.4, 0.2, 0.2, 0.1, 0.3),
+  T = c(1, 1, 1, 1, 1, 1, 0.25, 2, 1, 0.5),
+  q = c(0.1, 0.1, 0.1, 0.06, 0.02, 0.1, 0.1, 0.1, 0.02, 0.05),
+  desc = c("ATM, moderate dividend", "ITM, moderate dividend", "OTM, moderate dividend",
+           "ATM, q > r", "ATM, high r, low q", "ATM, high volatility",
+           "ATM, short maturity", "ATM, long maturity", "ATM, low vol, low q",
+           "ITM, high r, med vol")
+)
+
+for (i in 1:nrow(test_cases)) {
+  S <- test_cases$S[i]; K <- test_cases$K[i]; r <- test_cases$r[i]
+  sigma <- test_cases$sigma[i]; T_val <- test_cases$T[i]; q <- test_cases$q[i]; desc <- test_cases$desc[i]
+  
+  cat("Test", i, "-", desc, "\n")
+  cat("  Params: S=", S, "K=", K, "r=", r, "sigma=", sigma, "T=", T_val, "q=", q, "\n")
+  
+  baw <- bs_american_call(S, K, r, sigma, T_val, q)
+  eu <- bs_european_call(S, K, r, sigma, T_val, q)
+  
+  b <- r - q
+  
+  crr500 <- CRRBinomialTreeOption(TypeFlag = "ca", S = S, X = K, Time = T_val, 
+                                  r = r, b = b, sigma = sigma, n = 1000)
+  
+  cat("  BAW:", baw, "  CRR(n=500):", crr500@price, "  Error:", round((baw - crr500@price)/crr500@price * 100, 2), "%\n")
+  cat("  European:", eu, "  Premium:", round((baw - eu)/eu * 100, 2), "%\n\n")
+}
+```
+
+Maximální zjištený error je 6.76%. To není dobrý.
+
+``` {r s_star_star_init_val}
+s_star_star_init_value <- function(S, K, r, sigma, T, q = 0) {
+  b <- r - q
+  S_ss_inf <- K / (1 - 2 / (-(N - 1) - sqrt((N - 1)^2) + 4M))
+  h_1 <- (b * T - 2 * sigma * sqrt(T)) * (K / (K - S_ss_inf))
+  S_ss <- S_ss_inf + (K - S_ss_inf) * exp(h_1)
+  return(S_ss)
+}
+```
+
+``` {r s_star_star}
+s_star_star_finder <- function(S, K, r, sigma, T, q = 0) {
+  b <- r - q
+  N <- 2*b/(sigma^2)
+  M <- 2*r/(sigma^2)
+  K_other <- 1 - exp(-r * T)
+  q_1 <- (-(N - 1) - sqrt((N - 1)^2 + 4 * M / K)) / 2
+
+  RHS <- function(S_j, K, r, sigma, T, q = 0) {
+    d_one <- (log(S_j/K) + (b + (sigma^2) / 2) * T)/(sigma * sqrt(T))
+    value <- bs_european_put(S_j, K, r, sigma, T, q) - (1 - exp((b-r)*T) * pnorm(-d_one)) * S_j / q_1
+    return(value)
+  }
+
+  b_j <- function(S_j, K, r, sigma, T, q = 0) {
+    d_one <- (log(S_j/K) + (b + (sigma^2) / 2) * T)/(sigma * sqrt(T))
+    value <- -exp((b-r) * T) * pnorm(-d_one) * (1 - 1 / q_1) - (1 + (exp((b-r)* T) * pnorm(-d_one))/(sigma * sqrt(T))) / q_1
+    return(value)
+  }
+
+  enhance_guess <- function(S_j, K, r, sigma, T, q = 0) {
+    return((K - RHS(S_j, K, r, sigma, T, q) + b_j * S_j)/(1 + b_j))
+  }
+
+  S_j <- s_star_star_init_value(S, K, r, sigma, T, q = 0)
+
+  guess_limit <- 10000
+
+  while(abs(X - S_j - RHS(S_j, K, r, sigma, T, q)) >= 0.000001) {
+    S_j <- enhance_guess(S_j, K, r, sigma, T, q)
+
+    guess_limit <- guess_limit - 1
+    if guess_limit <= 0 {
+      # Ran out of guesses
+      break
+    }
+  }
+
+  return(S_j)
+}
+```
+
+
+
