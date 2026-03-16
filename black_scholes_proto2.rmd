@@ -211,7 +211,8 @@ s_star_star_init_value <- function(S, K, r, sigma, T, q = 0) {
   b <- r - q
   N <- 2*b/(sigma^2)
   M <- 2*r/(sigma^2)
-  S_ss_inf <- K / (1 - 2 / (-(N - 1) - sqrt((N - 1)^2 + 4 * M)))
+  K_other <- 1 - exp(-r * T)
+  S_ss_inf <- K / (1 - 2 / (-(N - 1) - sqrt((N - 1)^2 + 4 * M / K_other)))
   h_1 <- (b * T - 2 * sigma * sqrt(T)) * (K / (K - S_ss_inf))
   S_ss <- S_ss_inf + (K - S_ss_inf) * exp(h_1)
   return(S_ss)
@@ -234,7 +235,7 @@ s_star_star_finder <- function(S, K, r, sigma, T, q = 0) {
 
   b_j <- function(S_j, K, r, sigma, T, q = 0) {
     d_one <- (log(S_j/K) + (b + (sigma^2) / 2) * T)/(sigma * sqrt(T))
-    value <- -exp((b-r) * T) * pnorm(-d_one) * (1 - 1 / q_1) - (1 + (exp((b-r)* T) * pnorm(-d_one))/(sigma * sqrt(T))) / q_1
+    value <- -exp((b-r) * T) * pnorm(-d_one) * (1 - 1 / q_1) - (1 + (exp((b-r)* T) * dnorm(-d_one))/(sigma * sqrt(T))) / q_1
     return(value)
   }
 
@@ -246,18 +247,32 @@ s_star_star_finder <- function(S, K, r, sigma, T, q = 0) {
   S_j <- s_star_star_init_value(S, K, r, sigma, T, q = 0)
 
   guess_limit <- 10000
+  iter <- 0
+
+  cat("=== S** Finder Diagnostics ===\n")
+  cat("Initial guess S_j:", S_j, "\n")
+  cat("Target equation: K - S = RHS(S)\n")
+  cat("K - S_j - RHS = 0 when converged\n\n")
 
   while(abs(K - S_j - RHS(S_j, K, r, sigma, T, q)) >= 0.0000001) {
-    #print(paste("Diff: ", K - S_j - RHS(S_j, K, r, sigma, T, q)))
+    iter <- iter + 1
+    residual <- K - S_j - RHS(S_j, K, r, sigma, T, q)
+    cur_bj <- b_j(S_j, K, r, sigma, T, q)
+    
+    if (iter <= 10 || iter %% 1000 == 0) {
+      cat(sprintf("Iter %d: S_j=%.6f, residual=%.8f, b_j=%.6f\n", iter, S_j, residual, cur_bj))
+    }
+    
     S_j <- enhance_guess(S_j, K, r, sigma, T, q)
-    #print(paste("New val: ", S_j))
 
     guess_limit <- guess_limit - 1
     if(guess_limit <= 0) {
-      # Ran out of guesses
+      cat("Ran out of guesses\n")
       break
     }
   }
+  cat("Converged after", iter, "iterations\n")
+  cat("Final S**:", S_j, "\n\n")
 
   return(S_j)
 }
@@ -278,8 +293,9 @@ bs_american_put <- function(S, K, r, sigma, T, q = 0) {
   q_1 <- (-(N - 1) - sqrt((N - 1)^2 + 4 * M / K_other)) / 2
 
   d_one <- (log(S/K) + (b + (sigma^2) / 2) * T)/(sigma * sqrt(T))
+  d_one_ss <- (log(S_ss/K) + (b + (sigma^2) / 2) * T)/(sigma * sqrt(T))
 
-  A_1 <- -(S_ss / q_1) * (1 - exp((b - r)*T) * pnorm(-d_one))
+  A_1 <- -(S_ss / q_1) * (1 - exp((b - r) * T)) * pnorm(-d_one_ss)
 
   return(bs_european_put(S, K, r, sigma, T, q) + A_1 * (S / S_ss)^q_1)
 }
