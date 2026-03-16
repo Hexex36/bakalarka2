@@ -209,7 +209,9 @@ Maximální zjištený error je 6.76%. To není dobrý.
 ``` {r s_star_star_init_val}
 s_star_star_init_value <- function(S, K, r, sigma, T, q = 0) {
   b <- r - q
-  S_ss_inf <- K / (1 - 2 / (-(N - 1) - sqrt((N - 1)^2) + 4M))
+  N <- 2*b/(sigma^2)
+  M <- 2*r/(sigma^2)
+  S_ss_inf <- K / (1 - 2 / (-(N - 1) - sqrt((N - 1)^2 + 4 * M)))
   h_1 <- (b * T - 2 * sigma * sqrt(T)) * (K / (K - S_ss_inf))
   S_ss <- S_ss_inf + (K - S_ss_inf) * exp(h_1)
   return(S_ss)
@@ -222,7 +224,7 @@ s_star_star_finder <- function(S, K, r, sigma, T, q = 0) {
   N <- 2*b/(sigma^2)
   M <- 2*r/(sigma^2)
   K_other <- 1 - exp(-r * T)
-  q_1 <- (-(N - 1) - sqrt((N - 1)^2 + 4 * M / K)) / 2
+  q_1 <- (-(N - 1) - sqrt((N - 1)^2 + 4 * M / K_other)) / 2
 
   RHS <- function(S_j, K, r, sigma, T, q = 0) {
     d_one <- (log(S_j/K) + (b + (sigma^2) / 2) * T)/(sigma * sqrt(T))
@@ -237,24 +239,123 @@ s_star_star_finder <- function(S, K, r, sigma, T, q = 0) {
   }
 
   enhance_guess <- function(S_j, K, r, sigma, T, q = 0) {
-    return((K - RHS(S_j, K, r, sigma, T, q) + b_j * S_j)/(1 + b_j))
+    cur_bj <- b_j(S_j, K, r, sigma, T, q)
+    return((K - RHS(S_j, K, r, sigma, T, q) + cur_bj * S_j)/(1 + cur_bj))
   }
 
   S_j <- s_star_star_init_value(S, K, r, sigma, T, q = 0)
 
   guess_limit <- 10000
 
-  while(abs(X - S_j - RHS(S_j, K, r, sigma, T, q)) >= 0.000001) {
+  while(abs(K - S_j - RHS(S_j, K, r, sigma, T, q)) >= 0.0000001) {
+    #print(paste("Diff: ", K - S_j - RHS(S_j, K, r, sigma, T, q)))
     S_j <- enhance_guess(S_j, K, r, sigma, T, q)
+    #print(paste("New val: ", S_j))
 
     guess_limit <- guess_limit - 1
-    if guess_limit <= 0 {
+    if(guess_limit <= 0) {
       # Ran out of guesses
       break
     }
   }
 
   return(S_j)
+}
+```
+
+``` {r}
+bs_american_put <- function(S, K, r, sigma, T, q = 0) {
+  S_ss <- s_star_star_finder(S, K, r, sigma, T, q)
+
+  if(S <= S_ss) {
+    return(K - S)
+  }
+
+  b <- r - q
+  N <- 2*b/(sigma^2)
+  M <- 2*r/(sigma^2)
+  K_other <- 1 - exp(-r * T)
+  q_1 <- (-(N - 1) - sqrt((N - 1)^2 + 4 * M / K_other)) / 2
+
+  d_one <- (log(S/K) + (b + (sigma^2) / 2) * T)/(sigma * sqrt(T))
+
+  A_1 <- -(S_ss / q_1) * (1 - exp((b - r)*T) * pnorm(-d_one))
+
+  return(bs_european_put(S, K, r, sigma, T, q) + A_1 * (S / S_ss)^q_1)
+}
+```
+
+``` {r test-put}
+# Basic test for American Put S* finder
+S <- 100
+K <- 100
+r <- 0.05
+sigma <- 0.2
+T <- 1
+q <- 0.1
+
+eu_put <- bs_european_put(S, K, r, sigma, T, q)
+print(paste("European put:", eu_put))
+
+S_star_put <- s_star_star_finder(S, K, r, sigma, T, q)
+print(paste("S* (put critical price):", S_star_put))
+
+# For American put, S** should be < K (put is ITM when S < K)
+print(paste("Strike K:", K))
+print(paste("S** < K?:", S_star_put < K))
+
+# Compare with CRR Binomial Tree
+cat("\n=== Comparison with CRR Binomial Tree (Put) ===\n")
+cat("Parameters: S=", S, "K=", K, "r=", r, "sigma=", sigma, "T=", T, "q=", q, "\n\n")
+
+cat("BAW American Put:", bs_american_put(S, K, r, sigma, T, q), "\n")
+cat("European Put:", bs_european_put(S, K, r, sigma, T, q), "\n\n")
+
+cat("CRR Binomial Tree (American Put):\n")
+for (n in c(50, 100, 500, 1000)) {
+  crr <- CRRBinomialTreeOption(TypeFlag = "pa", S = S, X = K, Time = T, 
+                               r = r, b = r - q, sigma = sigma, n = n)
+  cat("  n =", n, ":", crr@price, "\n")
+}
+```
+
+``` {r more-tests-put}
+cat("=== Additional Test Cases (Put) ===\n\n")
+
+test_cases_put <- data.frame(
+  S = c(100, 90, 110, 100, 100, 100, 100, 100, 100, 90),
+  K = c(100, 100, 100, 100, 100, 100, 100, 100, 100, 100),
+  r = c(0.05, 0.05, 0.05, 0.03, 0.08, 0.05, 0.05, 0.05, 0.05, 0.08),
+  sigma = c(0.2, 0.2, 0.2, 0.2, 0.2, 0.4, 0.2, 0.2, 0.1, 0.3),
+  T = c(1, 1, 1, 1, 1, 1, 0.25, 2, 1, 0.5),
+  q = c(0.1, 0.1, 0.1, 0.06, 0.02, 0.1, 0.1, 0.1, 0.02, 0.05),
+  desc = c("ATM, moderate dividend", "ITM, moderate dividend", "OTM, moderate dividend",
+           "ATM, q > r", "ATM, high r, low q", "ATM, high volatility",
+           "ATM, short maturity", "ATM, long maturity", "ATM, low vol, low q",
+           "ITM, high r, med vol")
+)
+
+for (i in 1:nrow(test_cases_put)) {
+  S <- test_cases_put$S[i]; K <- test_cases_put$K[i]; r <- test_cases_put$r[i]
+  sigma <- test_cases_put$sigma[i]; T_val <- test_cases_put$T[i]; q <- test_cases_put$q[i]; desc <- test_cases_put$desc[i]
+  
+  cat("Test", i, "-", desc, "\n")
+  cat("  Params: S=", S, "K=", K, "r=", r, "sigma=", sigma, "T=", T_val, "q=", q, "\n")
+  
+  # Get S** for this case
+  S_star_put <- s_star_star_finder(S, K, r, sigma, T_val, q)
+  cat("  S**:", S_star_put, "(K=", K, ")\n")
+  
+  baw <- bs_american_put(S, K, r, sigma, T_val, q)
+  eu <- bs_european_put(S, K, r, sigma, T_val, q)
+  
+  b <- r - q
+  
+  crr1000 <- CRRBinomialTreeOption(TypeFlag = "pa", S = S, X = K, Time = T_val, 
+                                   r = r, b = b, sigma = sigma, n = 1000)
+  
+  cat("  BAW:", baw, "  CRR(n=1000):", crr1000@price, "  Error:", round((baw - crr1000@price)/crr1000@price * 100, 2), "%\n")
+  cat("  European:", eu, "  Premium:", round((baw - eu)/eu * 100, 2), "%\n\n")
 }
 ```
 
