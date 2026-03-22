@@ -79,12 +79,12 @@ def main():
     # Define input and output files
     files_to_process = [
         {
-            "input": "./american_options_2026-01-26_enhanced.csv",
-            "output": "./american_options_2026-01-26_greeks.csv",
+            "input": "./american_options_2026-02-27_enhanced.csv",
+            "output": "./american_options_2026-02-27_greeks.csv",
         },
         {
-            "input": "./european_options_2026-01-26_enhanced.csv",
-            "output": "./european_options_2026-01-26_greeks.csv",
+            "input": "./european_options_2026-02-27_enhanced.csv",
+            "output": "./european_options_2026-02-27_greeks.csv",
         },
     ]
 

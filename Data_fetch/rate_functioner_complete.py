@@ -5,9 +5,9 @@ from typing import Dict, Optional
 
 
 class RateFuncer:
-    def __init__(self):
+    def __init__(self, rates_file: str = "rates.txt"):
         # Parse the rates file
-        with open("rates.txt", "r") as file:
+        with open(rates_file, "r") as file:
             data = file.read()
 
         data = data.split("\n")
@@ -261,7 +261,7 @@ class StockPriceVolatilityCalculator:
         self.tickers = self.stock_data["Ticker"].unique()
 
     def get_current_stock_price(
-        self, ticker: str, target_date: str = "2026-01-26"
+        self, ticker: str, target_date: str = "2026-02-27"
     ) -> Optional[float]:
         """
         Get the most recent stock price for a ticker as of target date.
@@ -341,7 +341,7 @@ class StockPriceVolatilityCalculator:
             return None
 
     def process_ticker_data(
-        self, ticker: str, target_date: str = "2026-01-26"
+        self, ticker: str, target_date: str = "2026-02-27"
     ) -> Dict[str, Optional[float]]:
         """
         Get current price and volatility for a ticker.
@@ -366,10 +366,10 @@ class EnhancedOptionsProcessor:
 
     def __init__(
         self,
-        rates_file: str = "rates.txt",
-        stock_prices_file: str = "stock_prices_2026-01-26.csv",
+        rates_file: str = "rates_2026_02_26.txt",
+        stock_prices_file: str = "stock_prices_2026-02-27.csv",
     ):
-        self.rate_funcer = RateFuncer()
+        self.rate_funcer = RateFuncer(rates_file)
         self.stock_calculator = StockPriceVolatilityCalculator(stock_prices_file)
 
     def process_options_file(self, options_file_path: str) -> pd.DataFrame:
@@ -397,21 +397,21 @@ if __name__ == "__main__":
 
     # Test with some sample expiration dates
     test_dates = [
-        "2026-01-27",  # 1 day
-        "2026-02-26",  # 1 month
-        "2026-04-26",  # 3 months
-        "2026-07-26",  # 6 months
-        "2027-01-26",  # 1 year
-        "2028-01-26",  # 2 years
+        "2026-02-28",  # 1 day
+        "2026-03-27",  # 1 month
+        "2026-05-27",  # 3 months
+        "2026-08-27",  # 6 months
+        "2027-02-27",  # 1 year
+        "2028-02-27",  # 2 years
     ]
 
     print("Testing rate matching:")
     for date in test_dates:
         rate = processor.rate_funcer.get_interpolated_rate(date)
-        print(f"Expiration: {date}, Rate: {rate:.4%}")
+        print(f"Expiration: {date}, Rate: {rate}")
 
     # Process European options file with enhanced data
-    options_df = processor.process_options_file("./european_options_2026-01-26.csv")
+    options_df = processor.process_options_file("./european_options_2026-02-27.csv")
     print(f"\nProcessed {len(options_df)} European options")
     print(f"Sample with rates and stock data:")
     sample_cols = [
@@ -425,9 +425,20 @@ if __name__ == "__main__":
     print(options_df[sample_cols].head(10))
 
     # Save results to new CSV file
-    output_file = "./european_options_2026-01-26_enhanced.csv"
+    output_file = "./european_options_2026-02-27_enhanced.csv"
     options_df.to_csv(output_file, index=False)
     print(f"\nSaved enhanced European results to {output_file}")
+
+    # Process American options file with enhanced data
+    options_df = processor.process_options_file("./american_options_2026-02-27.csv")
+    print(f"\nProcessed {len(options_df)} American options")
+    print(f"Sample with rates and stock data:")
+    print(options_df[sample_cols].head(10))
+
+    # Save results to new CSV file
+    output_file = "./american_options_2026-02-27_enhanced.csv"
+    options_df.to_csv(output_file, index=False)
+    print(f"\nSaved enhanced American results to {output_file}")
 
     # Show some summary statistics
     print(f"\nSummary Statistics:")

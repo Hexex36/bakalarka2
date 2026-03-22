@@ -110,14 +110,17 @@ class RateFuncer:
 
 
 if __name__ == "__main__":
-    # Initialize rate matcher
-    rate_matcher = RateFuncer("rates.txt")
+    # Initialize rate matcher with Feb 27, 2026 rates
+    rate_matcher = RateFuncer("rates_2026_02_26.txt")
 
-    # Process options file and create new CSV
-    input_file = "european_options_2026-01-26.csv"
+    # Process European options
+    input_file = "european_options_2026-02-27.csv"
     result = rate_matcher.process_options_file(input_file)
-
-    # Display results
-    print(f"✅ Successfully processed {result['records_processed']} options")
+    print(f"✅ Successfully processed {result['records_processed']} European options")
     print(f"📁 Output saved to: {result['output_file']}")
-    print(f"📊 Columns added: {', '.join(result['columns_added'])}")
+
+    # Process American options
+    input_file = "american_options_2026-02-27.csv"
+    result = rate_matcher.process_options_file(input_file)
+    print(f"✅ Successfully processed {result['records_processed']} American options")
+    print(f"📁 Output saved to: {result['output_file']}")

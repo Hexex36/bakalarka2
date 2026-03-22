@@ -1,0 +1,126 @@
+``` {r}
+simulations <- 100000
+
+mc_sim_pathless <- function(S, T, sigma, r, q = 0) {
+Z <- rnorm(simulations)
+return(S * exp((r - q - sigma^2/2)*T + sigma*sqrt(T)*Z))
+}
+```
+
+``` {r}
+mc_european_call <- function(S, K, T, sigma, r, q = 0) {
+  paths <- mc_sim_pathless(S, T, sigma, r, q)
+  returns <- pmax(paths - K, 0)
+  return((sum(returns) / simulations) * exp(-r * T))
+}
+
+mc_european_put <- function(S, K, T, sigma, r, q = 0) {
+  paths <- mc_sim_pathless(S, T, sigma, r, q)
+  returns <- pmax(K - paths, 0)
+  return((sum(returns) / simulations) * exp(-r * T))
+}
+```
+
+``` {r}
+mc_sim_pathed <- function(S, T, sigma, r, q = 0) {
+  steps <- round(T * 252)
+  Z <- matrix(rnorm(simulations * steps), nrow = simulations, ncol = steps)
+  dt <- 1 / 252
+  transformation <- (r - q - sigma^2/2) * dt + sigma * sqrt(dt) * Z
+  #return(S * exp(transformation))
+  return(S * exp(t(apply(transformation, 1, cumsum))))
+}
+```
+
+``` {r}
+S <- 100
+K <- 110
+T <- 1
+sigma <- 0.3
+r <- 0.08
+q <- 0
+```
+
+``` {r}
+mc_american_call <- function(S, K, T, sigma, r, q = 0) {
+  paths <- mc_sim_pathed(S, T, sigma, r, q)
+  steps <- round(T * 252)
+  dt <- 1/252
+
+  CF <- pmax(paths[, steps] - K, 0)
+
+  for(step in (steps-1):1) {
+    x_raw <- paths[, step]
+    x <- x_raw / K
+
+    itm_mask <- x_raw > K
+
+    if (sum(itm_mask) < 100) next
+
+    y <- exp(-r * dt) * CF[itm_mask]
+    y_positive <- y > 0
+
+    if (sum(y_positive) < 100) next
+
+    X <- cbind(1, x[itm_mask][y_positive], 
+               x[itm_mask][y_positive]^2, 
+               x[itm_mask][y_positive]^3)
+    y_use <- y[y_positive]
+    beta <- coef(lm(y_use ~ X - 1))
+
+    X_all <- cbind(1, x, x^2, x^3)
+    continuation <- X_all %*% beta
+    continuation <- pmax(continuation, 0)
+
+    exercise <- pmax(x_raw - K, 0)
+    exercise_now <- exercise > continuation
+
+    CF[exercise_now] <- exercise[exercise_now]
+    CF[!exercise_now] <- exp(-r * dt) * CF[!exercise_now]
+  }
+
+  return(mean(CF))
+}
+```
+
+``` {r}
+# === Validation ===
+library(fOptions)
+
+S <- 100
+K <- 110
+T <- 1
+sigma <- 0.3
+r <- 0.08
+q <- 0
+
+cat("=== European Call ===\n")
+bin_euro_call <- CRRBinomialTreeOption(
+  TypeFlag = "ce", S = S, X = K, Time = T, r = r,
+  b = r - q, sigma = sigma, n = 500
+)@price
+mc_euro_call <- mc_european_call(S, K, T, sigma, r, q)
+cat("Binomial Tree:", bin_euro_call, "\n")
+cat("Monte Carlo:  ", mc_euro_call, "\n")
+cat("Difference:   ", abs(bin_euro_call - mc_euro_call), "\n\n")
+
+cat("=== European Put ===\n")
+bin_euro_put <- CRRBinomialTreeOption(
+  TypeFlag = "pe", S = S, X = K, Time = T, r = r,
+  b = r - q, sigma = sigma, n = 500
+)@price
+mc_euro_put <- mc_european_put(S, K, T, sigma, r, q)
+cat("Binomial Tree:", bin_euro_put, "\n")
+cat("Monte Carlo:  ", mc_euro_put, "\n")
+cat("Difference:   ", abs(bin_euro_put - mc_euro_put), "\n\n")
+
+cat("=== American Call ===\n")
+bin_am_call <- CRRBinomialTreeOption(
+  TypeFlag = "ca", S = S, X = K, Time = T, r = r,
+  b = r - q, sigma = sigma, n = 500
+)@price
+mc_am_call <- mc_american_call(S, K, T, sigma, r, q)
+cat("Binomial Tree:", bin_am_call, "\n")
+cat("Monte Carlo:  ", mc_am_call, "\n")
+cat("Difference:   ", abs(bin_am_call - mc_am_call), "\n")
+```
