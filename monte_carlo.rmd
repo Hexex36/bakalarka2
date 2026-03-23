@@ -2,8 +2,10 @@
 simulations <- 100000
 
 mc_sim_pathless <- function(S, T, sigma, r, q = 0) {
-Z <- rnorm(simulations)
-return(S * exp((r - q - sigma^2/2)*T + sigma*sqrt(T)*Z))
+  n_half <- simulations / 2
+  Z <- rnorm(n_half)
+  Z <- c(Z, -Z)
+  return(S * exp((r - q - sigma^2/2)*T + sigma*sqrt(T)*Z))
 }
 ```
 
@@ -24,10 +26,11 @@ mc_european_put <- function(S, K, T, sigma, r, q = 0) {
 ``` {r}
 mc_sim_pathed <- function(S, T, sigma, r, q = 0) {
   steps <- round(T * 252)
-  Z <- matrix(rnorm(simulations * steps), nrow = simulations, ncol = steps)
+  n_half <- simulations / 2
+  Z <- matrix(rnorm(n_half * steps), nrow = n_half, ncol = steps)
+  Z <- rbind(Z, -Z)
   dt <- 1 / 252
   transformation <- (r - q - sigma^2/2) * dt + sigma * sqrt(dt) * Z
-  #return(S * exp(transformation))
   return(S * exp(t(apply(transformation, 1, cumsum))))
 }
 ```
@@ -84,6 +87,48 @@ mc_american_call <- function(S, K, T, sigma, r, q = 0) {
 ```
 
 ``` {r}
+mc_american_put <- function(S, K, T, sigma, r, q = 0) {
+  paths <- mc_sim_pathed(S, T, sigma, r, q)
+  steps <- round(T * 252)
+  dt <- 1/252
+
+  CF <- pmax(K - paths[, steps], 0)
+
+  for(step in (steps-1):1) {
+    x_raw <- paths[, step]
+    x <- x_raw / K
+
+    itm_mask <- x_raw < K
+
+    if (sum(itm_mask) < 100) next
+
+    y <- exp(-r * dt) * CF[itm_mask]
+    y_positive <- y > 0
+
+    if (sum(y_positive) < 100) next
+
+    X <- cbind(1, x[itm_mask][y_positive], 
+               x[itm_mask][y_positive]^2, 
+               x[itm_mask][y_positive]^3)
+    y_use <- y[y_positive]
+    beta <- coef(lm(y_use ~ X - 1))
+
+    X_all <- cbind(1, x, x^2, x^3)
+    continuation <- X_all %*% beta
+    continuation <- pmax(continuation, 0)
+
+    exercise <- pmax(K - x_raw, 0)
+    exercise_now <- exercise > continuation
+
+    CF[exercise_now] <- exercise[exercise_now]
+    CF[!exercise_now] <- exp(-r * dt) * CF[!exercise_now]
+  }
+
+  return(mean(CF))
+}
+```
+
+``` {r}
 # === Validation ===
 library(fOptions)
 
@@ -122,5 +167,15 @@ bin_am_call <- CRRBinomialTreeOption(
 mc_am_call <- mc_american_call(S, K, T, sigma, r, q)
 cat("Binomial Tree:", bin_am_call, "\n")
 cat("Monte Carlo:  ", mc_am_call, "\n")
-cat("Difference:   ", abs(bin_am_call - mc_am_call), "\n")
+cat("Difference:   ", abs(bin_am_call - mc_am_call), "\n\n")
+
+cat("=== American Put ===\n")
+bin_am_put <- CRRBinomialTreeOption(
+  TypeFlag = "pa", S = S, X = K, Time = T, r = r,
+  b = r - q, sigma = sigma, n = 500
+)@price
+mc_am_put <- mc_american_put(S, K, T, sigma, r, q)
+cat("Binomial Tree:", bin_am_put, "\n")
+cat("Monte Carlo:  ", mc_am_put, "\n")
+cat("Difference:   ", abs(bin_am_put - mc_am_put), "\n")
 ```
