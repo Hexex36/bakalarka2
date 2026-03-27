@@ -1,6 +1,11 @@
 ``` {r}
 simulations <- 100000
+library(future)
+library(future.apply)
+plan(multisession, workers = parallel::detectCores())
+```
 
+``` {r}
 mc_sim_pathless <- function(S, T, sigma, r, q = 0) {
   n_half <- simulations / 2
   Z <- rnorm(n_half)
@@ -25,13 +30,21 @@ mc_european_put <- function(S, K, T, sigma, r, q = 0) {
 
 ``` {r}
 mc_sim_pathed <- function(S, T, sigma, r, q = 0) {
-  steps <- round(T * 252)
-  n_half <- simulations / 2
-  Z <- matrix(rnorm(n_half * steps), nrow = n_half, ncol = steps)
-  Z <- rbind(Z, -Z)
-  dt <- 1 / 252
-  transformation <- (r - q - sigma^2/2) * dt + sigma * sqrt(dt) * Z
-  return(S * exp(t(apply(transformation, 1, cumsum))))
+  steps <- round(T * 52)
+  n_cores <- parallel::detectCores()
+  paths_per_core <- simulations / n_cores
+  n_half <- paths_per_core / 2
+  dt <- 1 / 52
+
+  sim_chunk <- function(i) {
+    Z <- matrix(rnorm(n_half * steps), nrow = n_half, ncol = steps)
+    Z <- rbind(Z, -Z)
+    transformation <- (r - q - sigma^2/2) * dt + sigma * sqrt(dt) * Z
+    S * exp(t(apply(transformation, 1, cumsum)))
+  }
+
+  paths_list <- future_lapply(1:n_cores, sim_chunk, future.seed = TRUE)
+  return(do.call(rbind, paths_list))
 }
 ```
 
@@ -47,8 +60,8 @@ q <- 0
 ``` {r}
 mc_american_call <- function(S, K, T, sigma, r, q = 0) {
   paths <- mc_sim_pathed(S, T, sigma, r, q)
-  steps <- round(T * 252)
-  dt <- 1/252
+  steps <- round(T * 52)
+  dt <- 1/52
 
   CF <- pmax(paths[, steps] - K, 0)
 
@@ -89,8 +102,8 @@ mc_american_call <- function(S, K, T, sigma, r, q = 0) {
 ``` {r}
 mc_american_put <- function(S, K, T, sigma, r, q = 0) {
   paths <- mc_sim_pathed(S, T, sigma, r, q)
-  steps <- round(T * 252)
-  dt <- 1/252
+  steps <- round(T * 52)
+  dt <- 1/52
 
   CF <- pmax(K - paths[, steps], 0)
 

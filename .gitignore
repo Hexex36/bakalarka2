@@ -35,3 +35,5 @@ Data_fetch/data_fetcher.egg-info
 Data_fetch/euro_indexes_old.txt
 Data_fetch/find_dividend_stocks.py
 Data_fetch/my_random_script.py
+AGENTS.md
+Data_fetch/uv.lock
