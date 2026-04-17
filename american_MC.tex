@@ -1,0 +1,41 @@
+  Pro opce evropského typu je vyhodnocení v celku jednoduché: Stačí vzít finální cenu aktiva, dle typu opce spočíst výdělek, získat průměr a ten následně slevit o růst ceny měny za daný čas. Nicméně pro opce amerického typu musíme počítat s možností dřívějšího využití opce.
+
+  (Dle prezentace) Nacházení bodu předčasného výkonu opce je antithetické pro Monte Carlo metody, poněvadž pro nalezení bodu předčasného výkonu musíme cestovat od konce k začátku(známe cenu na konci, musíme najít nejlepší hodnotu dané cesty), přičemž Monte Carlo jde od začátku ke konci (generování ceny aktiva pomocí Geometrického Brownovského pohybu).
+  Formulace problému nalezení předčasného výkonu spadá pod dynamické programování. Dynamické programování je kategorie problémů (TODO: Dopsat definici).
+
+  V rámci zjednodušení, zaveďme si dvě funkce: $h_i(x)$ a $V_i(x)$, kde $h_i(x)$ označuje hodnotu předčasného výkonu opce $x$ v čase $t_i$, diskontovánou o diskontní faktor pro interval $(t_0; t_i)$, což by pro opce na akcie je $e^{-r * (t_i - t_0)}$, a $V_i(x)$ označuje hodnotu opce v čase $t_i$, pokud nebyla již vykonána.
+
+  Dle Glassermana (TODO: Zdroj z prezentace, přečíst, aspoň trochu.) můžeme problém stanovení hodnoty opce formulovat takto:
+
+  Nechť $t_m$ označuje čas expirace opce. Potom:
+  $$V_m(x) = h_m(x)$$
+  $$V_{i-1}(x) = max(h_{i-1}(x), \mathbb(E)\[V_i(X_i) | X_{i-1} = x\])$$
+
+  ...kde $\mathbb(E)$ je označená pro očekávanou hodnotu závorky.
+
+  Nicméně, musíme určit také tzv. pokračovací hodnotu, která udává potenciální zisk z nevyužití opce v tento daný moment. Pokračovací hodnotu budeme označovat $C_i(x)$, a definujeme ji takto:
+  $$C_i(x) = \mathbb(E)\[V_{i+1}(X_{i+1} | X_i = x)\]$$
+
+  Nejpoužívanější metodou pro zjištění hodnoty americké opce pomocí Monte Carla je Longstaff-Schwartzova metoda. (TODO: Zdroj prezentace) Mějme $N$ simulovaných cest, počínajících v $t_0$, expirujících v čase $t_m$. V čase expirace je hodnota opce:
+  $$ V_m(X_m) = h_m(X_m) $$
+
+  Pokračovací hodnota opce při předchozím datu expirace je:
+  $$ C_{m-1}(x) = \mathbb(E)\[V_m(X_m) | X_{m-1} = x\] $$
+
+  Tohle je taková píčovina. Koho to kurva zajímá? Není to o ničem. Stejně nás Trump, Putin, Netanyahu nebo nějakej jinej čurák v moci dostane nukleární pumou, nebo nás dostane nějaká tajná policie. Stejně jsme všichni v prdeli.
+
+  Aproximujeme jako množinu bázových funkcí o velikosti $R$. Formálně psáno jako:
+  $$ \hat{C}_{m-1}(x) = \sum\limits^R_{r=1} \beta_r \psi_r (x) $$
+
+  Koeficienty získáme pomocí metody minimalizace rozdílu čtverců. Minimalizujeme postavením derivace rozdílu odhadu od reálné hodnoty rovno nule.
+
+  \begin{equation*}
+    \mathbb(E)\left\{ (\mathbb(E)\[V_m(X_m) | X{m-1}\] - \hat{C}_{m-1}(X_{m-1}))^2 \right\}^' = 0
+    \mathbb(E)\left\{ (\mathbb(E)\[V_m(X_m) | X{m-1}\] - \hat{C}_{m-1}(X_{m-1})) * \psi_r(X_{m-1}) \right\} = 0
+  \end{equation*}
+
+  \begin{align*}
+    \mathbb(E) \[V_m(X_m) \psi_r(X_{m-1})\] &= \mathbb(E)\[\hat{C}_{m-1}(X_{m-1} \psi_r (X_{m-1}))\]
+    &= \sum\limits_s\mathbb(E)\[\psi_r(X_{m-1})\psi_s(X_{m-1})\]\beta_s
+  \end{align*}
+

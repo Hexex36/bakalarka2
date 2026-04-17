@@ -160,7 +160,7 @@ bin_euro_call <- CRRBinomialTreeOption(
 mc_euro_call <- mc_european_call(S, K, T, sigma, r, q)
 cat("Binomial Tree:", bin_euro_call, "\n")
 cat("Monte Carlo:  ", mc_euro_call, "\n")
-cat("Difference:   ", abs(bin_euro_call - mc_euro_call), "\n\n")
+cat("Difference (%):", abs(bin_euro_call - mc_euro_call) / bin_euro_call * 100, "%\n\n")
 
 cat("=== European Put ===\n")
 bin_euro_put <- CRRBinomialTreeOption(
@@ -170,7 +170,7 @@ bin_euro_put <- CRRBinomialTreeOption(
 mc_euro_put <- mc_european_put(S, K, T, sigma, r, q)
 cat("Binomial Tree:", bin_euro_put, "\n")
 cat("Monte Carlo:  ", mc_euro_put, "\n")
-cat("Difference:   ", abs(bin_euro_put - mc_euro_put), "\n\n")
+cat("Difference (%):", abs(bin_euro_put - mc_euro_put) / bin_euro_put * 100, "%\n\n")
 
 cat("=== American Call ===\n")
 bin_am_call <- CRRBinomialTreeOption(
@@ -180,7 +180,7 @@ bin_am_call <- CRRBinomialTreeOption(
 mc_am_call <- mc_american_call(S, K, T, sigma, r, q)
 cat("Binomial Tree:", bin_am_call, "\n")
 cat("Monte Carlo:  ", mc_am_call, "\n")
-cat("Difference:   ", abs(bin_am_call - mc_am_call), "\n\n")
+cat("Difference (%):", abs(bin_am_call - mc_am_call) / bin_am_call * 100, "%\n\n")
 
 cat("=== American Put ===\n")
 bin_am_put <- CRRBinomialTreeOption(
@@ -190,5 +190,5 @@ bin_am_put <- CRRBinomialTreeOption(
 mc_am_put <- mc_american_put(S, K, T, sigma, r, q)
 cat("Binomial Tree:", bin_am_put, "\n")
 cat("Monte Carlo:  ", mc_am_put, "\n")
-cat("Difference:   ", abs(bin_am_put - mc_am_put), "\n")
+cat("Difference (%):", abs(bin_am_put - mc_am_put) / bin_am_put * 100, "%\n")
 ```
