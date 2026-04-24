@@ -1,0 +1,439 @@
+ %volby: 
+% male × female
+% czech × english (zatím funguje jen czech)
+% a studijní program / obor 
+% is_bc (nejvíc odladěno)
+% api_bc
+% api_ing
+% edu_bc
+% edu_ing
+
+\documentclass[male,czech,api_bc]{kitheses}
+\usepackage{ifthen}
+
+\usepackage{amsmath,amssymb}
+\usepackage{graphics}
+\usepackage{color}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{afterpage}
+\usepackage{microtype}  % přesnější typografie
+
+% workaround for imcompatibility of czech babel and biblatex
+
+\iftutex
+\else
+\usepackage{etoolbox}
+\makeatletter
+\newcommand\my@hsyphen{-}
+\newcommand\my@apostroph{'}
+\patchcmd\select@language{-}{\my@hyphen }{}{\fail}
+\patchcmd\select@language{'}{\my@apostroph }{}{\fail}
+\makeatother
+\fi
+
+\usepackage[style=iso-numeric,shortnumeration=true]{biblatex}
+\addbibresource{thesis.bib}
+
+
+% fonty lze měnit (detaily viz sekce fonty)
+\iftutex
+	\usepackage{fontspec}  % nastavení fontů pro LuaLaTeX a XeLaTeX
+	\setmainfont{Libertinus Serif}
+	\setsansfont{Libertinus Sans}
+	\setmonofont[Scale=MatchLowercase]{Source Code Pro}
+	\usepackage{unicode-math}
+	\setmathfont{Libertinus Math}
+\else
+	\usepackage[utf8]{inputenc} % nastavení pro PDF LaTeX
+	\usepackage[T1]{fontenc}
+	\usepackage{libertinus}
+	\renewcommand{\ttdefault}{pxtt}
+\fi
+
+\usepackage{csquotes} % uvozovky
+
+% sazba ukázek kódu 
+
+\usepackage{listings}
+
+% ukázka pro nastavení balíku listings pro sazbu ukázek zdrojových kódů
+\lstset{ %
+  language=R,                % the language of the code
+  basicstyle=\small\ttfamily,    
+  backgroundcolor=\color{white},   % choose the background color. You must add \usepackage{color}
+  showspaces=false,                % show spaces adding particular underscores
+  showstringspaces=true,           % underline spaces within strings
+  showtabs=false,                  % show tabs within strings adding particular underscores
+  frame=single,                    % adds a frame around the code
+  tabsize=3,                       % sets default tabsize to 2 spaces
+  breaklines=true,                 % sets automatic line breaking
+  breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
+  keywordstyle=\bfseries,          % keyword style
+  commentstyle=\rmfamily,       % comment style
+  stringstyle=\itshape\color,   % string literal style
+}
+
+% barevné zvýraznění textů, které je nutno nahradit
+\newcommand{\ZT}[1]{\colorbox{yellow}{\color{red}{#1}}}
+
+
+% TOTO JE POTŘEBA ZMĚNIT !!!!!!
+\newcommand{\nazevcz}{\ZT{Oceňování opcí na akcie za pomocí různých oceňovacích přístupů}}        % zde VYPLŇTE český název práce (přesně podle zadání!)
+\newcommand{\nazeven}{\ZT{Valuation of stock options by using various valuation approaches}}     % zde VYPLŇTE anglický název práce (přesně podle zadání!)
+\newcommand{\autor}{\ZT{Matěj Sloup}}           % zde VYPLŇTE své jméno a příjmení
+\newcommand{\rok}{\the\year}                
+\newcommand{\vedouci}{\ZT{doc. PhDr. Ing. Martin Boďa, DrSc.}}         
+% zde VYPLŇTE jméno a příjmení vedoucího práce, včetně titulů
+\newcommand{\vedouciDAT}{\ZT{doc. PhDr. Ing. Martinu Boďovi, DrSc.}}   
+% zde VYPLŇTE jméno a příjmení vedoucího práce, včetně titulů ve třetím pádě
+                                                           
+
+% zvětšuje o 23% vertikální okraje v tabulkách
+\renewcommand{\arraystretch}{1.23}
+
+% nastavení pro záhlaví (co nelze udělat v cls souboru)
+
+\renewcommand{\chaptermark}[1]{\markboth{\arabic{chapter}. #1}{}}
+\pagestyle{fancy}
+
+% nastavení odkazů
+\usepackage{url} % formátování URL, příkaz \url
+\usepackage{varioref} % lepší interní odkazy na obrázky, apod. příkaz \vref
+\usepackage[unicode=true,pdfusetitle,
+ bookmarks=true,
+ breaklinks=false,pdfborder={0 0 1},backref=false,colorlinks=false]{hyperref} % hypertextové odkazy v PDF
+ 
+\newcommand{\UV}[1]{\quotedblbase#1\textquotedblleft}
+ 
+% odstraňte pokud vám vadí absence zarovnání dole 
+\raggedbottom
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% vlastní začátek dokumentu
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+\thispagestyle{empty}
+\begin{center}
+{
+\LARGE
+\univerzita\\[16pt]
+\fakulta
+}
+
+\vspace{2cm}
+\resizebox{8.42cm}{!}{%
+\ifthenelse{\boolean{czech}}
+{\includegraphics{LOGO_PRF_CZ_RGB_standard.jpg}}
+{\includegraphics{LOGO_PRF_EN_RGB_standard.jpg}}}
+
+\vspace{2cm}
+{
+\Huge\sffamily
+\nazevcz\par
+\vspace{0.6cm}
+\Large\scshape \ifthenelse{\boolean{bc}}{bakalářská}{diplomová} práce
+}
+\end{center} 
+ 
+\vfill
+{
+\large
+\begin{tabular}{>{\bfseries}rl}
+    Vypracoval: 	& \autor\\
+    Vedoucí práce: 	& \vedouci\\
+&\\
+Studijní program:       & \program\\
+\ifthenelse{\boolean{api}}{Studijní obor:          & \obor\\}{}
+\end{tabular} 
+}
+\vspace{1.5cm}
+\begin{center}
+  \Large\scshape   Ústí nad Labem \rok
+\end{center}
+
+\cleardoublepage
+\thispagestyle{empty}
+\pagecolor{yellow}
+{\Large Namísto žlutých stránek vložte digitálně podepsané zadání kvalifikační práce poskytnuté vedoucím katedry.\\\
+Zadání musí zaujímat právě dvě strany.
+}
+
+Zadání je nutno vložit jako PDF pomocí některého nástroje, který umožňuje editaci dokumentů (se zachováním
+elektronického podpisu).
+
+V Linuxe lze například použít příkaz \texttt{pdftk}.
+
+\clearpage
+\thispagestyle{empty}
+\afterpage{\nopagecolor}
+~
+\clearpage
+
+\thispagestyle{empty} 
+{\bfseries Prohlášení}
+
+\vspace{0.5cm}
+Prohlašuji, že jsem tuto \ifthenelse{\boolean{bc}}{bakalářskou}{diplomovou} práci vypracoval\ifthenelse{\boolean{feminum}}{a}{}
+samostatně a použil\ifthenelse{\boolean{feminum}}{a}{}
+jen pramenů, které cituji a uvádím v přiloženém seznamu literatury.
+
+\vspace{0.5em}
+
+Byl\ifthenelse{\boolean{feminum}}{a}{} jsem seznámen\ifthenelse{\boolean{feminum}}{a}{} 
+s tím, že se na moji práci vztahují práva a povinnosti vyplývající ze
+zákona č. 121/2000 Sb., ve znění zákona č. 81/2005 Sb., autorský zákon, zejména se
+skutečností, že Univerzita Jana Evangelisty Purkyně v Ústí nad Labem má právo na uzavření
+licenční smlouvy o užití této práce jako školního díla podle § 60 odst. 1 autorského zákona, a
+s tím, že pokud dojde k užití této práce mnou nebo bude poskytnuta licence o užití jinému
+subjektu, je Univerzita Jana Evangelisty Purkyně v Ústí nad Labem oprávněna ode mne
+požadovat přiměřený příspěvek na úhradu nákladu, které na vytvoření díla vynaložila, a to
+podle okolností až do jejich skutečné výše.
+
+\vspace{2em}
+
+V Ústí nad Labem dne \today   \hfill Podpis: \makebox[4cm][s]{\dotfill}
+
+\cleardoublepage
+\thispagestyle{empty}
+~
+\vfill
+
+\begin{flushright}
+    Děkuji vedoucímu práce \ZT{\vedouciDAT}\\ a Ing. Romanovi Vaibarovi
+    za neocenitelné rady a pomoc při tvorbě bakalářské práce.
+\end{flushright}
+
+\cleardoublepage
+
+\textsc{\nazevcz}
+
+\textbf{Abstrakt:}
+
+Cílem bakalářské práce je systemizovat a porovnat modely oceňování opcí na akcie. Použité budou modely pro spojitý i diskrétní čas, specificky Blackův-Scholesův model, numerické oceňovací přístupy, simulace Monte Carlo a pravdědpodobně také markovovské řetezce. Práce vyhodnotí v kontextu případových studií vhodnost a přesnost uvažovaných přístupů, bude zvažovat různé typy opcí a vyhodnotí citlivost modelů na čase a volatilitě podkladového finančního aktiva. Výsledkem práce je porovnání modelů pro praktické oceňování ve firemní sféře a určení vhodnosti každého modelu pro opce se specifickými vlastnostmi.
+
+\textbf{Klíčová slova:} Opce, binomické stromy, Blackův-Scholesův model, Monte Carlo, americké opce
+
+\bigskip
+
+
+\textsc{\nazeven}
+
+\textbf{Abstract:}
+
+The goal of this bachelor's thesis is to systematize and compare stock option pricing models. Both continuous-time and discrete-time models will be used, specifically the Black-Scholes model, numerical pricing approaches, Monte Carlo simulations, and likely Markov chains as well. The thesis will evaluate the suitability and accuracy of the considered approaches in the context of case studies, consider various option types, and assess the sensitivity of the models to time and the volatility of the underlying financial asset. The output of the thesis is a comparison of models for practical pricing in corporate settings, and a determination of the suitability of each model for options with specific characteristics.
+
+\textbf{Keywords:} Options, binomial trees, Black-Scholes model, Monte Carlo, american options
+
+\tableofcontents
+
+\addchap{Úvod}
+
+Úvod závěrečné práce má dvě povinné částí
+
+\begin{itemize}
+\item úvodní seznámení s (širší) problematikou a aktuálním stavem v oblasti (pro neznalého čtenáře) včetně případné objektivní motivace 
+\item cíle práce podle zadání ve formulaci autora práce
+\end{itemize}
+
+Nepovinně lze uvést i stručný popis jednotlivých kapitol práce (co v nich le nalézt).
+
+Text v této šabloně by Vám měl pomoci s tvorbou závěrečné práce. Je však velmi stručný a tak doporučuji přečtení dalších zdrojů např. \cite{Katuscakc2008} nebo 
+\cite{Ticha2009}. Pokud nejsou tyto zdroje v souladu s informacemi uvedenými v tézo šabloně, pak je autoritativním zdrojem tato šablona a její formátování.
+
+\tableofcontents
+
+\chapter{Teoretická část}
+
+\section{Úvod do problematiky opcí}
+
+\subsection{Definice opce}
+
+  \textbf{Poznámka: Následující text je první draft práce. Bude obsahovat nespisovné výrazy, neobratné vyjadřování, a nepodpořené výroky.}
+
+  Ve světě obchodování je vývoj cen nevyzpytatelný, aspoň se stoprocentní jistotou a přesností. Následkem tohoto fakt nás při různých obchodech můžeme následkem nepředvídatelných událostí, nebo vlivem špatného úsudku, učinit obchod při kterém proděláme. Nebo například vlivem jiných údalostí klesne cena produktu, který nějaká firma vyrábí, čímž může přijít o část zisků, a může to narušit její fiskální rok.
+
+  Opce jsou druh finančního kontraktu, který držiteli dává právo, nikoliv povinnost, jako by bylo třeba u futures, uskutečnit prodej/koupi předem daného podkladového aktiva za předem stanovenou cenu.
+
+  Důležité je zde slovo "právo". Měly-li by obě strany povinnost uskutečnit tento obchod, držící by musel dané aktivum koupit, i v případě, kdy by tato akce šla proti jeho zájmům. Opce specificky umožnující držiteli v případě, kdy by obchod uznal za neoptimální, nevyžít svého práva, a nechat kontrakt propadnout. Právě tato skutečnost činí opce velmi efektivní formou pojistky proti nepříznívým pohybům na trhu.
+
+  Kupříkladu: Chtěli bychom-li koupit akcie společnosti $A$, za účelem jejich prodání za výdělek v pozdější době, lze porovnat dva přístupy: Koupě akcie napřímo, v momentálním bodě v čase, nebo koupě opce, 
+
+  \subsection{Syntetická pozice}
+
+  \section{Ohodnocování opcí pomocí binomických a trinomických stromů}
+
+    Binomické a trinomické stromy zjednodušují náš model vnímání opcí zúžením možných hodnot podkladového aktiva na konci jednoho časového úsek na dvě možné hodnoty. Mějme dvě konstanty: $u$ a $d$, kde $u$ je míra o kterou se cena aktiva zvedne, roste-li cena, a kde $d$ je míra o kterou cena klesne, snižuje-li se cena. Výsledně, na konci jednoho časového období, značeného jako $t$, se z původní ceny aktiva $S$, dostaneme buďto na cenu $uS$ nebo $dS$.
+
+  Při tomto uvažování lze jednoznačně určit cena opce pro dané aktivum. Můžeme vytvořit syntetickou opci tím, že si půčíme peníze na držení $\delta$ kusů aktiva (v našem případě podílů akcie) a investujeme bezrizikově $B$ hodnoty peněz, při bezrizikové úrokové míře $r$. Toto nám umožňuje stejné benefity jako u opce. (Rozepiš proč)
+
+  Pokud by neplatilo, že můžeme jednoznačně určit cenu opce, nastávají příležitosti pro arbitráž. (Rozepiš případy)
+
+  Cenu opce můžeme získat jako očekávanou hodnotu při expiraci dle binomického stromu.
+
+  Jako bežný model binomických stromů se typicky považuje Cox-Ross-Rubensteinův model binomického stromu.
+
+  Trinomické stromy zavádějí do našeho modelu vývoje ceny aktiva ještě třetí možnost: Hodnota aktiva se nezmění (z počáteční hodnoty $S$ se cena na konci časového období vyvine na $S$, tudíž zůstane konstantní). 
+
+  \section{Ohodnocování opcí pomocí Blackova-Scholesova modelu}
+
+  U binomických stromů musíme jako parametr stanovit počet kroků od začátku až po expiraci opce, čímž diskretizujeme vývoj ceny pokladového aktiva, což nereflektuje realitu, kde se cena aktiva vyvíjí konstantně vlimem okolních vlivů. Abychom dosáhli spojistosti vývoje ceny podkladového aktiva, museli bychom mít nekonečné množství kroků, což by trochu prodloužilo čekání na ukončení algoritmu. Naštěstí, dvě chytré hlavy, specificky Black a Scholes, vytvořili formuli, která funguje jako zobecnění výpočtu ceny opce pomocí binomického stromu, jehož počet kroků se limitně blíží nekonečnu.
+
+  Blackova-Scholesova formule má kompletně separátní znění pro call i pro put opce, nicméně známe-li jedno, to druhé můžeme odvodit pomocí put-call parity.
+
+  Blackova-Scholesova formule pro evropské call opce bez dividend se definuje jako:
+  \begin{equation}
+    C(S, K, \sigma, r, T) = SN(d_1) - Ke^{-rT}N(d_2)
+  \end{equation}
+
+  kde $N(x)$ je cumulativní normálová distribuční funkce a platí:
+
+  \begin{gather}
+    \label{d_1 and d_2}
+    d_1 = \frac{ln(S/K) + (r + \frac{1}{2}\sigma ^ 2)T}{\sigma \sqrt{T}} \\
+    d_2 = d_1 - \sigma \sqrt{T}
+  \end{gather}
+
+  (TODO: Rozepsat put-call paritu)
+
+  Tím pádem, můžeme Blackovu-Scholesovu formuli pro evropské put opce bez dividend zapsat jako:
+
+  \begin{equation}
+    P(S, K, \sigma, r, T) = Ke^{-rT}N(d_2) - SN(d_1)
+  \end{equation}
+
+  kde $d_1$ a $d_2$ je stejné jako v \ref{d_1 and d_2}.
+
+  Nicméně, v praxi se pravěpodobně setkáme s opcemi na akcie, které platí dividendu. Co potom? Dle Mertona, musíme zlevnit $S$ o míru rovnou spojitému yieldu (TODO: Špatný slovo) dividend, čili převézt $S$ na $S * e^{-\delta T}$. Tudíž, Blackova-Scholesova-Mertonova formule pro evropské call opce má následující znění:
+
+  \begin{equation}
+    C(S, K, \sigma, r, T, \delta) = Se^{-\delta T}N(d_1) - Ke^{-rT}N(d_2)
+  \end{equation}
+
+  Mimo to, musíme také zohlednit, že dividenda snižuje hodnotu akcie také v $d_1$, tudíž si $d_1$ a $d_2$ definujeme jako:
+
+  \begin{gather}
+    d_1 = \frac{ln(S/K) + (r - \delta + \frac{1}{2}\sigma ^ 2)T}{\sigma \sqrt{T}} \\
+    d_2 = d_1 - \sigma \sqrt{T}
+  \end{gather}
+
+  Stejně jako u Blackova-Scholesova modelu, můžeme odvodit Mertonovo rozšíření pomocí put-call parity:
+  \begin{equation}
+    P(S, K, \sigma, r, T, \delta) = Ke^{-rT}N(d_2) - Se^{-\delta T}N(d_1) 
+  \end{equation}
+
+  \subsection{Americké opce}
+
+  Blackův-Scholesův-Mertonův model nelze aplikovat na (všechny) americké opce, poněvadž nebere v potaz dřívější využití opce. Pro americké call opce bez dividend toto není problém, poněvadž u těch se dřívější využití nevyplatí (TODO: Odůvodnit), nicméně u všech ostatních toto představuje problém.
+
+  Pro tento problém existuje několik způsobů, jak aproximovat hodnotu americké opce pomocí Blackova-Scholesova-Mertonova modelu. Mnou vybraný je \textbf{Baroneova-Adesiho a Whaleyho metoda}. Tato metoda zavádí bonus pro hodnotu opce za možnost dřívějšího využití, který se přičítá k základní hodnotě Blackova-Scholesova-Mertonova modelu. Obecná definice pro call opce vypadá takto:
+
+  \begin{equation}
+    C_a(S, K, \sigma, r, T, \delta) = 
+    \begin{cases}
+      C(S, K, \sigma, r, T, \delta) + A_2(\frac{S}{S*})^{q_2} & \text{pro} S < S*, \\
+      S - X & \text{pro} S \le S*
+    \end{cases}
+  \end{equation}
+
+  \section{Ohodnocování opcí pomocí přístupu Monte Carlo}
+
+  Metoda Monte Carlo nese jméno města v Monaku, které je proslulé svými kasíny a hazardními hrami. Jméno této metody je metonymie, neb v této metodě budeme využívat k ohodnocení metod náhodu a pravděpodobnosti.
+
+  Při metodě Monte Carlo využíváme takzvaný "Zákon velkých čísel". Zákon velkých čísel říká, že aritmetický průměr n náhodných veličin se stejnou střední hodnotou se s rostoucí n za určitých podmínek blíží k této střední hodnotě. (TODO: Zdroj je Wikipedie, opiš z respektovatelného zdroje.) Tudíž, budeme-li opakovat nějaký náhodný experiment (např. hod šestistěnnou kostkou), s rostoucím množstvím pokusů se postupně budeme spolehlivě blížit střední hodnotě výsledku experimentu.
+
+  Tento princip lze aplikovat i na ocenování opcí. V tomto případě náhodným experimentem bude vývoj podkladového aktiva opce: Budeme simulovat vývoj aktiva, a zjistíme výdělek z opce. Následně získáme cenu opce jako průměrný výdělek náhodného experimentu.
+
+  Vývoj aktiva budeme simulovat jako Geometrický Brownovský pohyb (TODO: Zkontroluj, zda to je správný překlad fráze "Geometric Brownian Motion") (TODO: Vysvětli co to je). Rovnice, pro získání ceny aktiva $S$, s počáteční cenou $S_t$ v čase $t$, v čase $t + m$, má následující tvar:
+  $$ S(t + m) = S_t * exp((b - \frac{\sigma}{2}) * m + \sigma * Z * \sqrt{m}) $$ (Zdroj: Haug)
+  
+  Vysvětlení rovnice:
+  \begin{enumerate}
+    \item{\textbf{$exp(x)$}: Jiný zápis $e^x$, použito pro čitelnost.}
+    \item{\textbf{$b$}: Tzv. "cost of carry" (cena držení opce) (TODO: Není to cost of carry, to je u early exercise. Tohle je drift.). Popisuje výdělek ztracený držením akcie (minutá příležitost). V našem případě je cost of carry $r - q$. $r$ simuluje očekávaný růst hodnoty měny, $q$ ovlivnuje cenu jako takovou.}
+    \item{\textbf{$Z$}: Náhodná proměnná z normálního rozdělení v uzavřeném intervalu [0, 0].}
+  \end{enumerate}
+
+  \subsection{Americké opce}
+
+  Pro opce evropského typu je vyhodnocení v celku jednoduché: Stačí vzít finální cenu aktiva, dle typu opce spočíst výdělek, získat průměr a ten následně slevit o růst ceny měny za daný čas. Nicméně pro opce amerického typu musíme počítat s možností dřívějšího využití opce.
+
+  (Dle prezentace) Nacházení bodu předčasného výkonu opce je antithetické pro Monte Carlo metody, poněvadž pro nalezení bodu předčasného výkonu musíme cestovat od konce k začátku(známe cenu na konci, musíme najít nejlepší hodnotu dané cesty), přičemž Monte Carlo jde od začátku ke konci (generování ceny aktiva pomocí Geometrického Brownovského pohybu).
+  Formulace problému nalezení předčasného výkonu spadá pod dynamické programování. Dynamické programování je kategorie problémů (TODO: Dopsat definici).
+
+  V rámci zjednodušení, zaveďme si dvě funkce: $h_i(x)$ a $V_i(x)$, kde $h_i(x)$ označuje hodnotu předčasného výkonu opce $x$ v čase $t_i$, diskontovánou o diskontní faktor pro interval $(t_0; t_i)$, což by pro opce na akcie je $e^{-r * (t_i - t_0)}$, a $V_i(x)$ označuje hodnotu opce v čase $t_i$, pokud nebyla již vykonána.
+
+  Dle Glassermana (TODO: Zdroj z prezentace, přečíst, aspoň trochu.) můžeme problém stanovení hodnoty opce formulovat takto:
+
+  Nechť $t_m$ označuje čas expirace opce. Potom:
+  $$V_m(x) = h_m(x)$$
+  $$V_{i-1}(x) = max(h_{i-1}(x), \mathbb(E)[V_i(X_i) | X_{i-1} = x])$$
+
+  ...kde $\mathbb(E)$ je označená pro očekávanou hodnotu závorky.
+
+  Nicméně, musíme určit také tzv. pokračovací hodnotu, která udává potenciální zisk z nevyužití opce v tento daný moment. Pokračovací hodnotu budeme označovat $C_i(x)$, a definujeme ji takto:
+  $$C_i(x) = \mathbb(E)[V_{i+1}(X_{i+1} | X_i = x)]$$
+
+  Nejpoužívanější metodou pro zjištění hodnoty americké opce pomocí Monte Carla je Longstaff-Schwartzova metoda. (TODO: Zdroj prezentace) Mějme $N$ simulovaných cest, počínajících v $t_0$, expirujících v čase $t_m$. V čase expirace je hodnota opce:
+  $$ V_m(X_m) = h_m(X_m) $$
+
+  Pokračovací hodnota opce při předchozím datu expirace je:
+  $$ C_{m-1}(x) = \mathbb(E)[V_m(X_m) | X_{m-1} = x] $$
+
+  Tohle je taková píčovina. Koho to kurva zajímá? Není to o ničem. Stejně nás Trump, Putin, Netanyahu nebo nějakej jinej čurák v moci dostane nukleární pumou, nebo nás dostane nějaká tajná policie. Stejně jsme všichni v prdeli.
+
+  Aproximujeme jako množinu bázových funkcí o velikosti $R$. Formálně psáno jako:
+  $$ \hat{C}_{m-1}(x) = \sum\limits^R_{r=1} \beta_r \psi_r (x) $$
+
+  Koeficienty získáme pomocí metody minimalizace rozdílu čtverců. Minimalizujeme postavením derivace rozdílu odhadu od reálné hodnoty rovno nule.
+
+  \begin{gather}
+    \mathbb(E)\left\{ (\mathbb(E)[V_m(X_m) | X{m-1}] - \hat{C}_{m-1}(X_{m-1}))^2 \right\}^\prime = 0 \\
+    \mathbb(E)\left\{ (\mathbb(E)[V_m(X_m) | X{m-1}] - \hat{C}_{m-1}(X_{m-1})) * \psi_r(X_{m-1}) \right\} = 0
+  \end{gather}
+
+  \begin{align*}
+    \mathbb(E) [V_m(X_m) \psi_r(X_{m-1})] &= \mathbb(E)[\hat{C}_{m-1}(X_{m-1} \psi_r (X_{m-1}))] \\
+     &= \sum\limits_s\mathbb(E)[\psi_r(X_{m-1})\psi_s(X_{m-1})]\beta_s
+  \end{align*}
+
+  \chapter{Praktická část}
+
+  \section{Sběr dat}
+
+  V rámci práce byly sbírány opční řetezce a historické hodnoty akcií pro specificky vybrané tickery.
+  Vybrané tickery se liší dle typu opce, pro jejiž účely byly sbírany, poněvadž pro většinu tickerů byl dostupný pouze jeden typ opce: buď americký nebo evropský.
+
+  Pro akcie spojené s firmami jsou typické americké opce, které dávají větší flexibilitu. Data byla sbírana na tickery patřící do S\&P 500, předně pro akcie tzv. "Maginificent Seven", sedm velkých, výdělečných akcií tohoto fondu. Sbírané tickery byly klasifikovány podle volatility a dávané dividendy. Seznam sbíraných tickerů pro americké opce: 
+  \begin{itemize}
+    \item{Akcie s vysokou volatilitou ($ > 50\% $): TSLA, AMD}
+    \item{Akcie s nízkou volatilitou ($~35\%$): NFLX, META, AMZN}
+    \item{Akcie vyplácející dividendy: AAPL, GOOGL, JNJ, KO, MSFT, NVDA, PG}
+  \end{itemize}
+
+  Nízká volatilita je zde použita jako termín relativní v rámci použitých akcií. Racionální člověk by neřekl, že volatilita 30\% je malá.
+
+  Za účelem získání opcí evropských byla sbírána data indexů. U opcí akcií indexů je běžná metoda využití kontraktu přímé splacení rozdílu hodnot penězy, k čemuž se právě využívají akcie evropského typu. Vybrané indexy:
+  \begin{itemize}
+    \item{Monetární fondy: XDB, XDA, XDE, XDN}
+    \item{Akcie: RUT, VIX}
+  \end{itemize}
+
+  Data byla sbírána pomocí pythonovské knihovny "yfinance". Tato knihovna umožňuje bezbolestný přístup k API serveru Yahoo Finance, který sbírá finanční informace k rozmanitému množství akcií a indexů.
+  Informace k opčním řetezcům takto získané zahrnují identifikátor tickeru, minimum, maximum a průměr poptávané ceny, strikeovou cenu, a informace o objemu obchodu.
+  K těmto informacím bylo nutno doplnit některé další informace, specificky cena akcie v čase získání dat, délka časového úseku v poměru k roku, implikovaná (historická) volatilita a bezriziková úroková míra.
+  Momentální cena akcie byla získána pomocí knihovny yfinance.
+  Délka periody byla spočtena v R souboru analyzujícím metody ohodnocení opcí.
+  Implikovaná volatilita byla spočtena z dat vývoje ceny akcií získaných z yfinance. Hodnota byla spočetena jako standardní odchylka poměrů dvou po sobě jdoucích cen, vynásobená odmocninou z počtu pracovních dní v roce (252).
+  Bezriziková úroková míra pro americký dolar byla získána z oficiální webové stránky Ministerstva financí USA [link který přidám někdy v budoucnosti]. Pro data, která nespadala přesně na dané časové periody, byla tato úrovková míra spočtena interpolací lineární regrese. 
+
+  Skripty použité k získání těchto informací jsou dostupné na mém githubu [odkaz na můj github někdy v budoucnosti]. Tyto skripty byly primárně vytvořeny umělou inteligencí.
+  Data byla získána pro den 26.1.2026. Toto datum nenese žádnou specifickou důležitost.
+
+  \chapter{Závěr}
+
+  \printbibliography
+  
+\end{document}
+
