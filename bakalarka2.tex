@@ -262,6 +262,50 @@ Text v této šabloně by Vám měl pomoci s tvorbou závěrečné práce. Je v�
 
   \subsection{Syntetická pozice}
 
+  \subsection{Put-call parita}
+
+  Stejně jako můžeme vytvořit syntetické opce, můžeme vytvořit i syntetickou forwardovou pozici pro specifickou akcii pomocí koupě call opce a vypsání put opce (se stejnou strike cenou a dobou expirace). Pokud cena při expiraci stoupne nad strike cenu, put opce nemá žádnou hodnotu, a její vlastník ji nevyužije, zatímco my, jako vlastníci call opce nad strikeovou cenou, můžeme koupit akcie levněji než jsou na trhu, což je v našem zájmu. Pokud cena při expiraci klesne pod strikeovou cenu, call opce se stane bezcennou, a vlastník put opce nás přinutí odkoupit od něj akcii za vyšší cenu než na trhu. Tak jako tak, dostaneme specifické množství akcie, za strikeovou cenu. Toto přímo napodobuje forwardový kontrakt: Koupíme specifické množství podkladového aktiva za předem danou cenu, v specifickém bodě v budoucnosti.
+
+  Důležité je konstatovat, že oproti opcím, za forwardové kontrakty neplatíme prémium, poněvadž obě strany kontraktu mají stejnou příležitost vydělat. I toto je reprezentováno v systetické pozici. Máme-li forwardovou cenu $F$ pro forwardový kontrakt a strike cenu $K$ pro opce naší syntetické forwardové pozice, můžeme určit, co se stane, je-li $K$ větší nebo menší než $F$. Platí-li $K < F$, kupujeme danou akcii za pro nás výhodnou cenu. Tento fakt se musí promítnout na dražím prémiu call opce, jinak by prodávat tuto opci bylo nevýhodné. Naopak, je-li $K > F$, kupujeme akcii za pro nás nevýhodnou cenu, a chceme dostat vyšší prémium, pro případ že bychom museli prodávat akcii za nevýhodnou cenu. Pokud $K = F$, aby naše syntetická forwardová pozice napodobovala reálný forwardový kontrakt, musí zisk/prodělek z prémií být nulový. Tudíž, prémium call opce musí stát stejně co prémium put opce. Tímto se cena za syntetickou pozici rovná ceně koupě forwardového kontraktu. Tomuto konceptu říkáme put-call parita.
+
+  Pro matematickou formulaci musíme zavést trochu nové notace: Řekněme, že v čase 0 kupujeme forwardový kontrakt, kterým se vázáme koupit v čase $T$ podkladové aktivum za forwardovou cenu $F_{0, T}$. Současná hodnota kontraktu je rovná forwardové ceně aktiva, značeno jako $PV(F_{0, T})$. V syntetické pozici musí být současná hodnota vlastnění aktiva rovna prémiu z opcí (možnost koupě) a strikeové ceně (hodnota aktiva), čili $Call(K, T) - Put(K, T) + PV(K)$, kde $Call(K, T)$ a $Put(K, T)$ jsou prémia za danou opci. Dohromady vzniká takováto rovnice: 
+
+  \begin{equation*}
+    PV(F_{0, T}) = Call(K, T) - Put(K, T) + PV(K)
+  \end{equation*}
+
+  Čili:
+
+  \begin{equation}
+     Call(K, T) - Put(K, T) = PV(F_{0, T}) - PV(K)
+  \end{equation}
+
+  Takto vypadá rovnice pro obecnou put-call paritu. Pro náš specifický případ (opce na akciích), můžeme vyjadřit očekávanou hodnotu forwardové ceny jako cenu opce zlevněnou o míru vyplácené dividendy, značenou jako $\delta$. Toto vychází z faktu, že forwardová cena se rovná ceně akcie, zlevněnou o cenu držení opce ($r - \delta$), a očekávaná hodnota je extrahována jako zlevnění o bezrizikovou úrokovou míru.
+
+  \begin{equation}
+    F_{0, T} = S * e^{(r - \delta) T}
+  \end{equation}
+
+  \begin{align}
+    PV(F_{0, T}) &= S * e^{(r - \delta) T} * e^{-rT}
+                 &= S * e^{(r - r - \delta) T}
+                 &= S * e^{- \delta T}
+  \end{align}
+
+  Stejně tak očekává hodnota strike ceny je jen strike cena zlevněná o bezrizikovou úrokovou míru.
+
+  \begin{equation}
+    PV(K) = K * e^{- rT}
+  \end{equation}
+
+  Dosadíme-li do obecné rovnice o put-call paritě:
+
+  \begin{equation}
+     Call(K, T) - Put(K, T) = S * e^{-qT} - K * e^{-rT} 
+  \end{equation}
+
+  Tímto jsme odvodili rovnici put-call parity pro opce na akciích.
+
   \section{Ohodnocování opcí pomocí binomických a trinomických stromů}
 
     Binomické a trinomické stromy zjednodušují náš model vnímání opcí zúžením možných hodnot podkladového aktiva na konci jednoho časového úsek na dvě možné hodnoty. Mějme dvě konstanty: $u$ a $d$, kde $u$ je míra o kterou se cena aktiva zvedne, roste-li cena, a kde $d$ je míra o kterou cena klesne, snižuje-li se cena. Výsledně, na konci jednoho časového období, značeného jako $t$, se z původní ceny aktiva $S$, dostaneme buďto na cenu $uS$ nebo $dS$.
@@ -295,12 +339,21 @@ Text v této šabloně by Vám měl pomoci s tvorbou závěrečné práce. Je v�
     d_2 = d_1 - \sigma \sqrt{T}
   \end{gather}
 
-  (TODO: Rozepsat put-call paritu)
+  Z put-call parity můžeme odvodit Blackovu-Scholesovu formuli pro put opce:
+
+  \begin{gather*}
+    Call(S, K, \sigma, r, T) - Put(S, K, \sigma, r, T) = S - K * e^{-rT} \\
+    Put(S, K, \sigma, r, T) = Call(S, K, \sigma, r, T) + K * e^{-rT} - S \\
+    Put(S, K, \sigma, r, T) = SN(d_1) - S + K * e{-rT} - K * e^{-rT}N(d_2) \\
+    Put(S, K, \sigma, r, T) = S(N(d_1) - 1) + K * e{-rT} (1 - N(d_2))  \\
+    Put(S, K, \sigma, r, T) = -S(1 - N(d_1)) + K * e{-rT} (1 - N(d_2))  \\
+    Put(S, K, \sigma, r, T) = -S(N(-d_1)) + K * e{-rT} (N(-d_2)) \\
+  \end{gather*}
 
   Tím pádem, můžeme Blackovu-Scholesovu formuli pro evropské put opce bez dividend zapsat jako:
 
   \begin{equation}
-    P(S, K, \sigma, r, T) = Ke^{-rT}N(d_2) - SN(d_1)
+    P(S, K, \sigma, r, T) = Ke^{-rT}N(-d_2) - SN(-d_1)
   \end{equation}
 
   kde $d_1$ a $d_2$ je stejné jako v \ref{d_1 and d_2}.
@@ -320,7 +373,7 @@ Text v této šabloně by Vám měl pomoci s tvorbou závěrečné práce. Je v�
 
   Stejně jako u Blackova-Scholesova modelu, můžeme odvodit Mertonovo rozšíření pomocí put-call parity:
   \begin{equation}
-    P(S, K, \sigma, r, T, \delta) = Ke^{-rT}N(d_2) - Se^{-\delta T}N(d_1) 
+    P(S, K, \sigma, r, T, \delta) = Ke^{-rT}N(-d_2) - Se^{-\delta T}N(-d_1) 
   \end{equation}
 
   \subsection{Americké opce}
@@ -332,8 +385,8 @@ Text v této šabloně by Vám měl pomoci s tvorbou závěrečné práce. Je v�
   \begin{equation}
     C_a(S, K, \sigma, r, T, \delta) = 
     \begin{cases}
-      C(S, K, \sigma, r, T, \delta) + A_2(\frac{S}{S*})^{q_2} & \text{pro} S < S*, \\
-      S - X & \text{pro} S \le S*
+      C(S, K, \sigma, r, T, \delta) + A_2\left(\frac{S}{S*}\right)^{q_2} & \text{pro } S < S*, \\
+      S - X & \text{pro } S \le S*
     \end{cases}
   \end{equation}
 
@@ -380,8 +433,6 @@ Text v této šabloně by Vám měl pomoci s tvorbou závěrečné práce. Je v�
 
   Pokračovací hodnota opce při předchozím datu expirace je:
   $$ C_{m-1}(x) = \mathbb(E)[V_m(X_m) | X_{m-1} = x] $$
-
-  Tohle je taková píčovina. Koho to kurva zajímá? Není to o ničem. Stejně nás Trump, Putin, Netanyahu nebo nějakej jinej čurák v moci dostane nukleární pumou, nebo nás dostane nějaká tajná policie. Stejně jsme všichni v prdeli.
 
   Aproximujeme jako množinu bázových funkcí o velikosti $R$. Formálně psáno jako:
   $$ \hat{C}_{m-1}(x) = \sum\limits^R_{r=1} \beta_r \psi_r (x) $$
