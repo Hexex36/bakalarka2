@@ -25,6 +25,7 @@ def rename_columns_to_greek_notation(df: pd.DataFrame) -> pd.DataFrame:
         "treasury_rate": "r",  # r - risk-free rate
         "current_stock_price": "S",  # S - current stock price
         "strike": "K",  # K - strike price
+        "dividend_yield": "q",  # q - continuous dividend yield
         "lastPrice": "option_price",  # option price (not a Greek but standard notation)
         "bid": "bid_price",
         "ask": "ask_price",
