@@ -79,11 +79,12 @@
 
 
 % TOTO JE POTŘEBA ZMĚNIT !!!!!!
-\newcommand{\nazevcz}{\ZT{Oceňování opcí na akcie za pomocí různých oceňovacích přístupů}}        % zde VYPLŇTE český název práce (přesně podle zadání!)
-\newcommand{\nazeven}{\ZT{Valuation of stock options by using various valuation approaches}}     % zde VYPLŇTE anglický název práce (přesně podle zadání!)
+\newcommand{\nazevcz}{Oceňování opcí na akcie za pomocí \\ různých oceňovacích přístupů}        % zde VYPLŇTE český název práce (přesně podle zadání!)
+\newcommand{\nazeven}{\ZT{Valuation of stock options by using \\ various valuation approaches}}     % zde VYPLŇTE anglický název práce (přesně podle zadání!)
 \newcommand{\autor}{\ZT{Matěj Sloup}}           % zde VYPLŇTE své jméno a příjmení
 \newcommand{\rok}{\the\year}                
 \newcommand{\vedouci}{\ZT{doc. PhDr. Ing. Martin Boďa, DrSc.}}         
+\newcommand{\programreal}{Matematika ve firmách a veřejné správě}
 % zde VYPLŇTE jméno a příjmení vedoucího práce, včetně titulů
 \newcommand{\vedouciDAT}{\ZT{doc. PhDr. Ing. Martinu Boďovi, DrSc.}}   
 % zde VYPLŇTE jméno a příjmení vedoucího práce, včetně titulů ve třetím pádě
@@ -144,7 +145,7 @@
     Vypracoval: 	& \autor\\
     Vedoucí práce: 	& \vedouci\\
 &\\
-Studijní program:       & \program\\
+Studijní program:       & \programreal\\
 \ifthenelse{\boolean{api}}{Studijní obor:          & \obor\\}{}
 \end{tabular} 
 }
@@ -201,7 +202,7 @@ V Ústí nad Labem dne \today   \hfill Podpis: \makebox[4cm][s]{\dotfill}
 \vfill
 
 \begin{flushright}
-    Děkuji vedoucímu práce \ZT{\vedouciDAT}\\ a Ing. Romanovi Vaibarovi
+    Děkuji vedoucímu práce \ZT{\vedouciDAT}\\ a Ing. Romanovi Vaibarovi, Ph.D., MBA.
     za neocenitelné rady a pomoc při tvorbě bakalářské práce.
 \end{flushright}
 
@@ -242,8 +243,6 @@ Nepovinně lze uvést i stručný popis jednotlivých kapitol práce (co v nich 
 Text v této šabloně by Vám měl pomoci s tvorbou závěrečné práce. Je však velmi stručný a tak doporučuji přečtení dalších zdrojů např. \cite{Katuscakc2008} nebo 
 \cite{Ticha2009}. Pokud nejsou tyto zdroje v souladu s informacemi uvedenými v tézo šabloně, pak je autoritativním zdrojem tato šablona a její formátování.
 
-\tableofcontents
-
 \chapter{Teoretická část}
 
 \section{Úvod do problematiky opcí}
@@ -270,9 +269,9 @@ Text v této šabloně by Vám měl pomoci s tvorbou závěrečné práce. Je v�
 
   Pro matematickou formulaci musíme zavést trochu nové notace: Řekněme, že v čase 0 kupujeme forwardový kontrakt, kterým se vázáme koupit v čase $T$ podkladové aktivum za forwardovou cenu $F_{0, T}$. Současná hodnota kontraktu je rovná forwardové ceně aktiva, značeno jako $PV(F_{0, T})$. V syntetické pozici musí být současná hodnota vlastnění aktiva rovna prémiu z opcí (možnost koupě) a strikeové ceně (hodnota aktiva), čili $Call(K, T) - Put(K, T) + PV(K)$, kde $Call(K, T)$ a $Put(K, T)$ jsou prémia za danou opci. Dohromady vzniká takováto rovnice: 
 
-  \begin{equation*}
+  \begin{equation}
     PV(F_{0, T}) = Call(K, T) - Put(K, T) + PV(K)
-  \end{equation*}
+  \end{equation}
 
   Čili:
 
@@ -287,8 +286,8 @@ Text v této šabloně by Vám měl pomoci s tvorbou závěrečné práce. Je v�
   \end{equation}
 
   \begin{align}
-    PV(F_{0, T}) &= S * e^{(r - \delta) T} * e^{-rT}
-                 &= S * e^{(r - r - \delta) T}
+    PV(F_{0, T}) &= S * e^{(r - \delta) T} * e^{-rT} \\
+                 &= S * e^{(r - r - \delta) T} \\
                  &= S * e^{- \delta T}
   \end{align}
 
@@ -331,7 +330,7 @@ Text v této šabloně by Vám měl pomoci s tvorbou závěrečné práce. Je v�
     C(S, K, \sigma, r, T) = SN(d_1) - Ke^{-rT}N(d_2)
   \end{equation}
 
-  kde $N(x)$ je cumulativní normálová distribuční funkce a platí:
+  kde $N(x)$ je kumulativní normálová distribuční funkce a platí:
 
   \begin{gather}
     \label{d_1 and d_2}
