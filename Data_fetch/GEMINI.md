@@ -20,7 +20,7 @@ This project is a collection of Python scripts designed to fetch financial data,
 
 The project consists of several Python scripts for fetching different types of data:
 
-*   `stock_fetcher.py`: A simple script to fetch daily stock prices.
+*   `price_fetcher.py`: A script to fetch daily stock prices for tickers specified in a TOML file.
 *   `options_fetcher_final.py`: The main script for fetching full American option chains.
 
 ## Building and Running

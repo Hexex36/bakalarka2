@@ -218,33 +218,38 @@ class RateFuncer:
         stock_calculator: "StockPriceVolatilityCalculator",
     ) -> pd.DataFrame:
         """
-        Add stock price and volatility data to options DataFrame.
-
+        Add stock price, volatility, and dividend yield data to options DataFrame.
+        
         Args:
             options_df: DataFrame with options data
             stock_calculator: StockPriceVolatilityCalculator instance
-
+            
         Returns:
-            Enhanced DataFrame with stock price and volatility columns
+            Enhanced DataFrame with stock price, volatility, and dividend columns
         """
         # Get unique tickers from options
         option_tickers = options_df["Ticker"].unique()
-
+        
         # Create mapping of ticker to stock data
         stock_data_map = {}
         for ticker in option_tickers:
             stock_data_map[ticker] = stock_calculator.process_ticker_data(ticker)
-
+        
         # Add current price column
         options_df["current_stock_price"] = options_df["Ticker"].map(
             lambda x: stock_data_map.get(x, {}).get("current_price")
         )
-
+        
         # Add volatility column
         options_df["historical_volatility"] = options_df["Ticker"].map(
             lambda x: stock_data_map.get(x, {}).get("volatility")
         )
-
+        
+        # Add dividend yield column
+        options_df["dividend_yield"] = options_df["Ticker"].map(
+            lambda x: stock_data_map.get(x, {}).get("dividend_yield")
+        )
+        
         return options_df
 
 
@@ -335,28 +340,73 @@ class StockPriceVolatilityCalculator:
             annualized_vol = daily_vol * np.sqrt(252)  # 252 trading days per year
 
             return float(annualized_vol)
-
+ 
         except Exception as e:
             print(f"Error calculating volatility for {ticker}: {e}")
+            return None
+ 
+    def calculate_dividend_yield(self, ticker: str, lookback_days: int = 252) -> Optional[float]:
+        """
+        Calculate continuous dividend yield from historical dividend payments.
+        
+        Args:
+            ticker: Stock ticker symbol
+            lookback_days: Number of trading days to use for calculation
+            
+        Returns:
+            Continuous dividend yield as decimal or None if not found
+        """
+        try:
+            ticker_mask = self.stock_data["Ticker"] == ticker
+            ticker_data = self.stock_data[ticker_mask].copy()
+            ticker_data = ticker_data.sort_values(by="Date")
+            
+            if len(ticker_data) < 2:
+                return None
+                
+            # Use the last lookback_days of data
+            if len(ticker_data) > lookback_days:
+                ticker_data = ticker_data.tail(lookback_days)
+                
+            # Calculate total dividends paid in period
+            total_dividends = ticker_data["Dividends"].sum()
+            
+            # Calculate average stock price over period
+            avg_price = ticker_data["Close"].mean()
+            
+            if avg_price <= 0:
+                return None
+                
+            # Calculate discrete dividend yield
+            discrete_yield = total_dividends / avg_price
+            
+            # Convert to continuous dividend yield: δ = ln(1 + q)
+            continuous_yield = np.log(1 + discrete_yield)
+            
+            return float(continuous_yield)
+            
+        except Exception as e:
+            print(f"Error calculating dividend yield for {ticker}: {e}")
             return None
 
     def process_ticker_data(
         self, ticker: str, target_date: str = "2026-02-27"
     ) -> Dict[str, Optional[float]]:
         """
-        Get current price and volatility for a ticker.
-
+        Get current price, volatility, and dividend yield for a ticker.
+        
         Args:
             ticker: Stock ticker symbol
             target_date: Date to get price as of (YYYY-MM-DD)
-
+            
         Returns:
-            Dictionary with current_price and volatility
+            Dictionary with current_price, volatility, and dividend_yield
         """
         current_price = self.get_current_stock_price(ticker, target_date)
         volatility = self.calculate_historical_volatility(ticker)
-
-        return {"current_price": current_price, "volatility": volatility}
+        dividend_yield = self.calculate_dividend_yield(ticker)
+        
+        return {"current_price": current_price, "volatility": volatility, "dividend_yield": dividend_yield}
 
 
 class EnhancedOptionsProcessor:
@@ -375,12 +425,12 @@ class EnhancedOptionsProcessor:
     def process_options_file(self, options_file_path: str) -> pd.DataFrame:
         """
         Process options file and add both treasury rates and stock data.
-
+        
         Args:
             options_file_path: Path to the options CSV file
-
+            
         Returns:
-            Enhanced DataFrame with rates, stock prices, and volatility
+            Enhanced DataFrame with rates, stock prices, volatility, and dividend yield
         """
         # Process rates
         df = self.rate_funcer.process_options_file(options_file_path)
@@ -413,7 +463,7 @@ if __name__ == "__main__":
     # Process European options file with enhanced data
     options_df = processor.process_options_file("./european_options_2026-02-27.csv")
     print(f"\nProcessed {len(options_df)} European options")
-    print(f"Sample with rates and stock data:")
+    print(f"Sample with rates, stock data, and dividend yield:")
     sample_cols = [
         "Ticker",
         "Expiration",
@@ -421,6 +471,7 @@ if __name__ == "__main__":
         "treasury_rate",
         "current_stock_price",
         "historical_volatility",
+        "dividend_yield",
     ]
     print(options_df[sample_cols].head(10))
 
@@ -432,7 +483,7 @@ if __name__ == "__main__":
     # Process American options file with enhanced data
     options_df = processor.process_options_file("./american_options_2026-02-27.csv")
     print(f"\nProcessed {len(options_df)} American options")
-    print(f"Sample with rates and stock data:")
+    print(f"Sample with rates, stock data, and dividend yield:")
     print(options_df[sample_cols].head(10))
 
     # Save results to new CSV file

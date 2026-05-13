@@ -22,7 +22,7 @@ pip install yfinance pandas
 
 ```bash
 cd Data_fetch
-python stock_fetcher.py
+python price_fetcher.py
 ```
 
 ## Stocks Included
