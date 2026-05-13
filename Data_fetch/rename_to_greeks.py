@@ -75,10 +75,25 @@ def process_options_file(input_file: str, output_file: str) -> None:
 
 
 def main():
-    """Main function to process both American and European options files."""
+    """Main function to process American and European options files for all months."""
 
-    # Define input and output files
-    files_to_process = [
+    # Define input and output files for all months
+    files_to_process = []
+    
+    # January files
+    files_to_process.extend([
+        {
+            "input": "./american_options_2026-01-26_enhanced.csv",
+            "output": "./american_options_2026-01-26_greeks.csv",
+        },
+        {
+            "input": "./european_options_2026-01-26_enhanced.csv",
+            "output": "./european_options_2026-01-26_greeks.csv",
+        },
+    ])
+    
+    # February files
+    files_to_process.extend([
         {
             "input": "./american_options_2026-02-27_enhanced.csv",
             "output": "./american_options_2026-02-27_greeks.csv",
@@ -87,7 +102,19 @@ def main():
             "input": "./european_options_2026-02-27_enhanced.csv",
             "output": "./european_options_2026-02-27_greeks.csv",
         },
-    ]
+    ])
+    
+    # March files
+    files_to_process.extend([
+        {
+            "input": "./american_options_2026-03-27_enhanced.csv",
+            "output": "./american_options_2026-03-27_greeks.csv",
+        },
+        {
+            "input": "./european_options_2026-03-27_enhanced.csv",
+            "output": "./european_options_2026-03-27_greeks.csv",
+        },
+    ])
 
     print("=" * 60)
     print("RENAMING COLUMNS TO GREEK NOTATION")
