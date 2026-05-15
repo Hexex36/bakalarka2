@@ -74,14 +74,11 @@ mc_american_call <- function(S, K, T, sigma, r, q = 0) {
     if (sum(itm_mask) < 100) next
 
     y <- exp(-r * dt) * CF[itm_mask]
-    y_positive <- y > 0
 
-    if (sum(y_positive) < 100) next
-
-    X <- cbind(1, x[itm_mask][y_positive], 
-               x[itm_mask][y_positive]^2, 
-               x[itm_mask][y_positive]^3)
-    y_use <- y[y_positive]
+    X <- cbind(1, x[itm_mask], 
+               x[itm_mask]^2, 
+               x[itm_mask]^3)
+    y_use <- y
     beta <- coef(lm(y_use ~ X - 1))
 
     X_all <- cbind(1, x, x^2, x^3)
@@ -95,7 +92,7 @@ mc_american_call <- function(S, K, T, sigma, r, q = 0) {
     CF[!exercise_now] <- exp(-r * dt) * CF[!exercise_now]
   }
 
-  return(mean(CF))
+  return(mean(CF) * exp(-r * dt))
 }
 ```
 
@@ -116,14 +113,11 @@ mc_american_put <- function(S, K, T, sigma, r, q = 0) {
     if (sum(itm_mask) < 100) next
 
     y <- exp(-r * dt) * CF[itm_mask]
-    y_positive <- y > 0
 
-    if (sum(y_positive) < 100) next
-
-    X <- cbind(1, x[itm_mask][y_positive], 
-               x[itm_mask][y_positive]^2, 
-               x[itm_mask][y_positive]^3)
-    y_use <- y[y_positive]
+    X <- cbind(1, x[itm_mask], 
+               x[itm_mask]^2, 
+               x[itm_mask]^3)
+    y_use <- y
     beta <- coef(lm(y_use ~ X - 1))
 
     X_all <- cbind(1, x, x^2, x^3)
@@ -137,7 +131,7 @@ mc_american_put <- function(S, K, T, sigma, r, q = 0) {
     CF[!exercise_now] <- exp(-r * dt) * CF[!exercise_now]
   }
 
-  return(mean(CF))
+  return(mean(CF) * exp(-r * dt))
 }
 ```
 
@@ -191,4 +185,74 @@ mc_am_put <- mc_american_put(S, K, T, sigma, r, q)
 cat("Binomial Tree:", bin_am_put, "\n")
 cat("Monte Carlo:  ", mc_am_put, "\n")
 cat("Difference (%):", abs(bin_am_put - mc_am_put) / bin_am_put * 100, "%\n")
+```
+
+``` {r stress-test}
+library(dplyr)
+
+test_cases <- data.frame(
+  S = c(100, 110, 90, 100, 100, 100, 100, 100, 100, 110, 95, 105),
+  K = c(100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100),
+  T = c(1, 1, 1, 1, 1, 1, 0.25, 2, 1, 0.5, 1, 1),
+  sigma = c(0.2, 0.2, 0.2, 0.2, 0.2, 0.4, 0.2, 0.2, 0.1, 0.3, 0.2, 0.2),
+  r = c(0.05, 0.05, 0.05, 0.03, 0.08, 0.05, 0.05, 0.05, 0.05, 0.08, 0.05, 0.05),
+  q = c(0.05, 0.05, 0.05, 0.06, 0.02, 0.05, 0.05, 0.05, 0.02, 0.05, 0.05, 0.05),
+  desc = c("ATM, moderate div", "ITM, moderate div", "OTM, moderate div",
+           "ATM, q > r", "ATM, high r, low q", "ATM, high vol",
+           "ATM, short maturity", "ATM, long maturity", "ATM, low vol, low q",
+           "ITM, high r, med vol", "OTM, moderate div", "ITM, moderate div")
+)
+
+n_repeats <- 10
+
+results <- data.frame()
+
+for (i in 1:nrow(test_cases)) {
+  tc <- test_cases[i, ]
+  
+  crr_call <- CRRBinomialTreeOption(
+    TypeFlag = "ca", S = tc$S, X = tc$K, Time = tc$T,
+    r = tc$r, b = tc$r - tc$q, sigma = tc$sigma, n = 1000
+  )@price
+  
+  crr_put <- CRRBinomialTreeOption(
+    TypeFlag = "pa", S = tc$S, X = tc$K, Time = tc$T,
+    r = tc$r, b = tc$r - tc$q, sigma = tc$sigma, n = 1000
+  )@price
+  
+  cat(sprintf("Test %d/%d: %s\n", i, nrow(test_cases), tc$desc))
+  
+  for (j in 1:n_repeats) {
+    mc_call <- mc_american_call(tc$S, tc$K, tc$T, tc$sigma, tc$r, tc$q)
+    mc_put <- mc_american_put(tc$S, tc$K, tc$T, tc$sigma, tc$r, tc$q)
+    
+    results <- rbind(results, data.frame(
+      desc = tc$desc,
+      S = tc$S, K = tc$K, T = tc$T, sigma = tc$sigma, r = tc$r, q = tc$q,
+      run = j,
+      crr_call, mc_call, call_err = (mc_call - crr_call) / crr_call * 100,
+      crr_put, mc_put, put_err = (mc_put - crr_put) / crr_put * 100
+    ))
+  }
+}
+
+summary_stats <- results %>%
+  group_by(desc, S, K, T, sigma, r, q) %>%
+  summarise(
+    call_mean_err = mean(call_err),
+    call_max_err = max(abs(call_err)),
+    call_std = sd(call_err),
+    put_mean_err = mean(put_err),
+    put_max_err = max(abs(put_err)),
+    put_std = sd(put_err)
+  ) %>%
+  ungroup()
+
+cat("\n=== SUMMARY STATISTICS ===\n")
+cat(sprintf("Calls - Mean abs error: %.2f%%, Max abs error: %.2f%%\n",
+            mean(abs(summary_stats$call_mean_err)), max(summary_stats$call_max_err)))
+cat(sprintf("Puts  - Mean abs error: %.2f%%, Max abs error: %.2f%%\n",
+            mean(abs(summary_stats$put_mean_err)), max(summary_stats$put_max_err)))
+
+print(summary_stats)
 ```
