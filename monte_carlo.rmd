@@ -40,21 +40,18 @@ mc_sim_pathed <- function(S, T, sigma, r, q = 0) {
     Z <- matrix(rnorm(n_half * steps), nrow = n_half, ncol = steps)
     Z <- rbind(Z, -Z)
     transformation <- (r - q - sigma^2/2) * dt + sigma * sqrt(dt) * Z
-    S * exp(t(apply(transformation, 1, cumsum)))
+    # Vectorized cumsum: accumulate column by column
+    paths <- matrix(S, nrow = nrow(transformation), ncol = steps)
+    paths[, 1] <- S * exp(transformation[, 1])
+    for (k in 2:steps) {
+      paths[, k] <- paths[, k-1] * exp(transformation[, k])
+    }
+    paths
   }
 
   paths_list <- future_lapply(1:n_cores, sim_chunk, future.seed = TRUE)
   return(do.call(rbind, paths_list))
 }
-```
-
-``` {r}
-S <- 100
-K <- 110
-T <- 1
-sigma <- 0.3
-r <- 0.08
-q <- 0
 ```
 
 ``` {r}
@@ -79,7 +76,7 @@ mc_american_call <- function(S, K, T, sigma, r, q = 0) {
                x[itm_mask]^2, 
                x[itm_mask]^3)
     y_use <- y
-    beta <- coef(lm(y_use ~ X - 1))
+    beta <- solve(t(X) %*% X) %*% t(X) %*% y_use
 
     X_all <- cbind(1, x, x^2, x^3)
     continuation <- X_all %*% beta
@@ -118,7 +115,7 @@ mc_american_put <- function(S, K, T, sigma, r, q = 0) {
                x[itm_mask]^2, 
                x[itm_mask]^3)
     y_use <- y
-    beta <- coef(lm(y_use ~ X - 1))
+    beta <- solve(t(X) %*% X) %*% t(X) %*% y_use
 
     X_all <- cbind(1, x, x^2, x^3)
     continuation <- X_all %*% beta
