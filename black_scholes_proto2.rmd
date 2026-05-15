@@ -30,8 +30,7 @@ s_star_finder <- function(S, K, r, sigma, T, q = 0) {
   N <- 2*b/(sigma^2)
   M <- 2*r/(sigma^2)
   K_other <- 1 - exp(-r * T)
-  q_2 <- (-(N - 1) + sqrt((N - 1)^2 + 4 * M))/2
-  #print(paste("q_2: ", q_2))
+  q_2 <- (-(N - 1) + sqrt((N - 1)^2 + 4 * M / K_other))/2
 
   RHS <- function(S_i) {
     d_one <- (log(S_i/K) + (b + (sigma^2) / 2) * T)/(sigma * sqrt(T))
@@ -40,7 +39,7 @@ s_star_finder <- function(S, K, r, sigma, T, q = 0) {
 
   b_i <- function(S_i) { # Slope of RHS
     d_one <- (log(S_i/K) + (b + (sigma^2) / 2) * T)/(sigma * sqrt(T))
-    val <- exp((b-r)*T) * pnorm(d_one) * (1 - 1/q_2) + (1 - (exp((b-r)*T) * pnorm(d_one))/(sigma * sqrt(T))) / q_2
+    val <- exp((b-r)*T) * pnorm(d_one) * (1 - 1/q_2) + (1 - (exp((b-r)*T) * dnorm(d_one))/(sigma * sqrt(T))) / q_2
     return(val)
   }
 
@@ -90,7 +89,7 @@ return(TRUE)
   N <- 2*b/(sigma^2)
   M <- 2*r/(sigma^2)
   K_other <- 1 - exp(-r * T)
-  q_2 <- (-(N - 1) + sqrt((N - 1)^2 + 4 * M))/2
+  q_2 <- (-(N - 1) + sqrt((N - 1)^2 + 4 * M / K_other))/2
 
   LHS <- S_star - K
   RHS <- bs_european_call(S_star, K, r, sigma, T, q) + (1 - exp((b - r) * T) * pnorm(d_one)) * S_star / q_2
@@ -115,9 +114,9 @@ bs_american_call <- function(S, K, r, sigma, T, q) {
   K_other <- 1 - exp(-r * T)
   q_2 <- (-(N - 1) + sqrt((N - 1)^2 + 4 * M / K_other))/2
 
-  d_one <- (log(S/K) + (b + (sigma^2) / 2) * T)/(sigma * sqrt(T))
+  d_one_star <- (log(S_star/K) + (b + (sigma^2) / 2) * T)/(sigma * sqrt(T))
 
-  A_2 <- (S_star / q_2)* (1 - exp((b - r)*T) * pnorm(d_one))
+  A_2 <- (S_star / q_2)* (1 - exp((b - r)*T) * pnorm(d_one_star))
 
   return(bs_european_call(S, K, r, sigma, T, q) + A_2 * (S / S_star) ^ q_2)
 }
