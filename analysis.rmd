@@ -1,38 +1,107 @@
+# Setup
+
 ```{r setup}
 library(readr)
 library(fOptions)
 library(dplyr)
 ```
 
-```{r data-loading}
-euro_chains <- read_csv("././Data_fetch/european_options_2026-01-26_greeks.csv")
-usa_chains <- read_csv("././Data_fetch/american_options_2026-01-26_greeks.csv")
+# Načtení dat
 
-euro_chains <- dplyr::bind_rows(euro_chains, read_csv("././Data_fetch/european_options_2026-02-27_greeks.csv"))
-usa_chains <- dplyr::bind_rows(usa_chains, read_csv("././Data_fetch/american_options_2026-02-27_greeks.csv"))
+``` {r data_january}
+euro_chains_jan <- read_csv("././Data_fetch/european_options_2026-01-26_greeks.csv")
+usa_chains_jan <- read_csv("././Data_fetch/american_options_2026-01-26_greeks.csv")
 
-head(euro_chains)
-head(usa_chains)
-```
-
-``` {r expirations}
 origin_date <- as.Date("2026-01-26")
 
 # Calculate T for euro_chains (assuming there's an expiration column)
-euro_chains$T <- as.numeric(as.Date(euro_chains$expiration) - origin_date) / 365
+euro_chains_jan$T <- as.numeric(as.Date(euro_chains_jan$expiration) - origin_date) / 365
 # Calculate T for usa_chains
-usa_chains$T <- as.numeric(as.Date(usa_chains$expiration) - origin_date) / 365
+usa_chains_jan$T <- as.numeric(as.Date(usa_chains_jan$expiration) - origin_date) / 365
+
+head(euro_chains_jan)
+head(usa_chains_jan)
 ```
 
-``` {r data-filtering}
-euro_call_chains <- euro_chains[euro_chains$option_type == "Call", ]
-euro_put_chains <- euro_chains[euro_chains$option_type == "Put", ]
+``` {r data_february}
+euro_chains_feb <- read_csv("././Data_fetch/european_options_2026-02-27_greeks.csv")
+usa_chains_feb <- read_csv("././Data_fetch/american_options_2026-02-27_greeks.csv")
 
-usa_condition <- usa_chains$ticker == "TSLA"
+origin_date <- as.Date("2026-02-27")
 
-usa_call_chains <- usa_chains[usa_chains$option_type == "Call" & usa_condition, ]
-usa_put_chains <- usa_chains[usa_chains$option_type == "Put" & usa_condition, ]
+# Calculate T for euro_chains (assuming there's an expiration column)
+euro_chains_feb$T <- as.numeric(as.Date(euro_chains_feb$expiration) - origin_date) / 365
+# Calculate T for usa_chains
+usa_chains_feb$T <- as.numeric(as.Date(usa_chains_feb$expiration) - origin_date) / 365
+
+head(euro_chains_feb)
+head(usa_chains_feb)
 ```
+
+``` {r data_march}
+euro_chains_mar <- read_csv("././Data_fetch/european_options_2026-03-27_greeks.csv")
+usa_chains_mar <- read_csv("././Data_fetch/american_options_2026-03-27_greeks.csv")
+
+origin_date <- as.Date("2026-03-27")
+
+# Calculate T for euro_chains (assuming there's an expiration column)
+euro_chains_mar$T <- as.numeric(as.Date(euro_chains_mar$expiration) - origin_date) / 365
+# Calculate T for usa_chains
+usa_chains_mar$T <- as.numeric(as.Date(usa_chains_mar$expiration) - origin_date) / 365
+
+head(euro_chains_mar)
+head(usa_chains_mar)
+```
+
+``` {r coagulate_chains}
+euro_chains <- dplyr::bind_rows(euro_chains_jan, euro_chains_feb, euro_chains_mar)
+usa_chains <- dplyr::bind_rows(usa_chains_jan, usa_chains_feb, usa_chains_mar)
+```
+
+``` {r split_chains}
+# Split into:
+# - Call x put
+# - Dividend x no dividend
+
+splitter <- function(dataset) {
+  dividend_con <- dataset$q > 0
+  call_con <- dataset$option_type == "Call"
+
+  call_div <- dataset[call_con & dividend_con, ]
+  call_nodiv <- dataset[call_con & !dividend_con, ]
+  put_div <- dataset[!call_con & dividend_con, ]
+  put_nodiv <- dataset[!(call_con & dividend_con), ]
+
+  list(
+    call_div,
+    call_nodiv,
+    put_div,
+    put_nodiv
+  )
+}
+
+euro_split <- splitter(euro_chains)
+euro_call_div <- euro_split[0]
+euro_call_nodiv <- euro_split[1]
+euro_put_div <- euro_split[2]
+euro_put_nodiv <- euro_split[3]
+
+usa_split <- splitter(usa_chains)
+usa_call_div <- usa_split[0]
+usa_call_nodiv <- usa_split[1]
+usa_put_div <- usa_split[2]
+usa_put_nodiv <- usa_split[3]
+
+# euro_call_chains <- euro_chains[euro_chains$option_type == "Call", ]
+# euro_put_chains <- euro_chains[euro_chains$option_type == "Put", ]
+# 
+# usa_condition <- usa_chains$ticker == "TSLA"
+# 
+# usa_call_chains <- usa_chains[usa_chains$option_type == "Call" & usa_condition, ]
+# usa_put_chains <- usa_chains[usa_chains$option_type == "Put" & usa_condition, ]
+```
+
+# Black-Scholes
 
 ```{r european-bs}
 # ============================================
