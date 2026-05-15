@@ -66,6 +66,12 @@ euro_put_chains <- euro_chains[euro_chains$option_type == "Put", ]
 
 usa_call_chains <- usa_chains[usa_chains$option_type == "Call", ]
 usa_put_chains <- usa_chains[usa_chains$option_type == "Put", ]
+
+nrow(euro_call_chains)
+nrow(euro_put_chains)
+
+nrow(usa_call_chains)
+nrow(usa_put_chains)
 ```
 
 # Black-Scholes
