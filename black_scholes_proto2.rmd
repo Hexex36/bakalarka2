@@ -212,7 +212,7 @@ s_star_star_init_value <- function(S, K, r, sigma, T, q = 0) {
   N <- 2*b/(sigma^2)
   M <- 2*r/(sigma^2)
   K_other <- 1 - exp(-r * T)
-  S_ss_inf <- K / (1 - 2 / (-(N - 1) - sqrt((N - 1)^2 + 4 * M / K_other)))
+  S_ss_inf <- K / (1 - 2 / (-(N - 1) - sqrt((N - 1)^2 + 4 * M)))
   h_1 <- (b * T - 2 * sigma * sqrt(T)) * (K / (K - S_ss_inf))
   S_ss <- S_ss_inf + (K - S_ss_inf) * exp(h_1)
   return(S_ss)
@@ -292,10 +292,9 @@ bs_american_put <- function(S, K, r, sigma, T, q = 0) {
   K_other <- 1 - exp(-r * T)
   q_1 <- (-(N - 1) - sqrt((N - 1)^2 + 4 * M / K_other)) / 2
 
-  d_one <- (log(S/K) + (b + (sigma^2) / 2) * T)/(sigma * sqrt(T))
   d_one_ss <- (log(S_ss/K) + (b + (sigma^2) / 2) * T)/(sigma * sqrt(T))
 
-  A_1 <- -(S_ss / q_1) * (1 - exp((b - r) * T)) * pnorm(-d_one_ss)
+  A_1 <- -(S_ss / q_1) * (1 - exp((b - r) * T) * pnorm(-d_one_ss))
 
   return(bs_european_put(S, K, r, sigma, T, q) + A_1 * (S / S_ss)^q_1)
 }
