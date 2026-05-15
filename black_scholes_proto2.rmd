@@ -1,8 +1,4 @@
 ``` {r}
-# ============================================
-# EUROPEAN BLACK-SCHOLES
-# ============================================
-
 # European Call Option
 bs_european_call <- function(S, K, r, sigma, T, q = 0) {
   d1 <- (log(S / K) + (r - q + sigma^2 / 2) * T) / (sigma * sqrt(T))

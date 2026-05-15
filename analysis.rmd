@@ -59,55 +59,18 @@ usa_chains <- dplyr::bind_rows(usa_chains_jan, usa_chains_feb, usa_chains_mar)
 ```
 
 ``` {r split_chains}
-# Split into:
-# - Call x put
-# - Dividend x no dividend
+euro_call_chains <- euro_chains[euro_chains$option_type == "Call", ]
+euro_put_chains <- euro_chains[euro_chains$option_type == "Put", ]
 
-splitter <- function(dataset) {
-  dividend_con <- dataset$q > 0
-  call_con <- dataset$option_type == "Call"
-
-  call_div <- dataset[call_con & dividend_con, ]
-  call_nodiv <- dataset[call_con & !dividend_con, ]
-  put_div <- dataset[!call_con & dividend_con, ]
-  put_nodiv <- dataset[!(call_con & dividend_con), ]
-
-  list(
-    call_div,
-    call_nodiv,
-    put_div,
-    put_nodiv
-  )
-}
-
-euro_split <- splitter(euro_chains)
-euro_call_div <- euro_split[0]
-euro_call_nodiv <- euro_split[1]
-euro_put_div <- euro_split[2]
-euro_put_nodiv <- euro_split[3]
-
-usa_split <- splitter(usa_chains)
-usa_call_div <- usa_split[0]
-usa_call_nodiv <- usa_split[1]
-usa_put_div <- usa_split[2]
-usa_put_nodiv <- usa_split[3]
-
-# euro_call_chains <- euro_chains[euro_chains$option_type == "Call", ]
-# euro_put_chains <- euro_chains[euro_chains$option_type == "Put", ]
-# 
 # usa_condition <- usa_chains$ticker == "TSLA"
-# 
-# usa_call_chains <- usa_chains[usa_chains$option_type == "Call" & usa_condition, ]
-# usa_put_chains <- usa_chains[usa_chains$option_type == "Put" & usa_condition, ]
+
+usa_call_chains <- usa_chains[usa_chains$option_type == "Call", ]
+usa_put_chains <- usa_chains[usa_chains$option_type == "Put", ]
 ```
 
 # Black-Scholes
 
-```{r european-bs}
-# ============================================
-# EUROPEAN BLACK-SCHOLES
-# ============================================
-
+``` {r}
 # European Call Option
 bs_european_call <- function(S, K, r, sigma, T, q = 0) {
   d1 <- (log(S / K) + (r - q + sigma^2 / 2) * T) / (sigma * sqrt(T))
@@ -135,8 +98,7 @@ s_star_finder <- function(S, K, r, sigma, T, q = 0) {
   N <- 2*b/(sigma^2)
   M <- 2*r/(sigma^2)
   K_other <- 1 - exp(-r * T)
-  q_2 <- (-(N - 1) + sqrt((N - 1)^2 + 4 * M))/2
-  #print(paste("q_2: ", q_2))
+  q_2 <- (-(N - 1) + sqrt((N - 1)^2 + 4 * M / K_other))/2
 
   RHS <- function(S_i) {
     d_one <- (log(S_i/K) + (b + (sigma^2) / 2) * T)/(sigma * sqrt(T))
@@ -145,7 +107,7 @@ s_star_finder <- function(S, K, r, sigma, T, q = 0) {
 
   b_i <- function(S_i) { # Slope of RHS
     d_one <- (log(S_i/K) + (b + (sigma^2) / 2) * T)/(sigma * sqrt(T))
-    val <- exp((b-r)*T) * pnorm(d_one) * (1 - 1/q_2) + (1 - (exp((b-r)*T) * pnorm(d_one))/(sigma * sqrt(T))) / q_2
+    val <- exp((b-r)*T) * pnorm(d_one) * (1 - 1/q_2) + (1 - (exp((b-r)*T) * dnorm(d_one))/(sigma * sqrt(T))) / q_2
     return(val)
   }
 
@@ -182,7 +144,7 @@ s_star_finder <- function(S, K, r, sigma, T, q = 0) {
 }
 ```
 
-```{r american-bs-call}
+``` {r bs_american_call}
 bs_american_call <- function(S, K, r, sigma, T, q) {
   S_star <- s_star_finder(S, K, r, sigma, T, q)
 
@@ -196,9 +158,9 @@ bs_american_call <- function(S, K, r, sigma, T, q) {
   K_other <- 1 - exp(-r * T)
   q_2 <- (-(N - 1) + sqrt((N - 1)^2 + 4 * M / K_other))/2
 
-  d_one <- (log(S/K) + (b + (sigma^2) / 2) * T)/(sigma * sqrt(T))
+  d_one_star <- (log(S_star/K) + (b + (sigma^2) / 2) * T)/(sigma * sqrt(T))
 
-  A_2 <- (S_star / q_2)* (1 - exp((b - r)*T) * pnorm(d_one))
+  A_2 <- (S_star / q_2)* (1 - exp((b - r)*T) * pnorm(d_one_star))
 
   return(bs_european_call(S, K, r, sigma, T, q) + A_2 * (S / S_star) ^ q_2)
 }
@@ -207,10 +169,10 @@ bs_american_call <- function(S, K, r, sigma, T, q) {
 ``` {r s_star_star_init_val}
 s_star_star_init_value <- function(S, K, r, sigma, T, q = 0) {
   b <- r - q
-  N <- 2*b/(sigma^2)
-  M <- 2*r/(sigma^2)
+  N <- 2 * b / (sigma^2)
+  M <- 2 * r / (sigma^2)
   K_other <- 1 - exp(-r * T)
-  S_ss_inf <- K / (1 - 2 / (-(N - 1) - sqrt((N - 1)^2 + 4 * M / K_other)))
+  S_ss_inf <- K / (1 - 2 / (-(N - 1) - sqrt((N - 1)^2 + 4 * M)))
   h_1 <- (b * T - 2 * sigma * sqrt(T)) * (K / (K - S_ss_inf))
   S_ss <- S_ss_inf + (K - S_ss_inf) * exp(h_1)
   return(S_ss)
@@ -220,8 +182,8 @@ s_star_star_init_value <- function(S, K, r, sigma, T, q = 0) {
 ``` {r s_star_star}
 s_star_star_finder <- function(S, K, r, sigma, T, q = 0) {
   b <- r - q
-  N <- 2*b/(sigma^2)
-  M <- 2*r/(sigma^2)
+  N <- 2 * b / (sigma^2)
+  M <- 2 * r / (sigma^2)
   K_other <- 1 - exp(-r * T)
   q_1 <- (-(N - 1) - sqrt((N - 1)^2 + 4 * M / K_other)) / 2
 
@@ -247,36 +209,31 @@ s_star_star_finder <- function(S, K, r, sigma, T, q = 0) {
   guess_limit <- 10000
   iter <- 0
 
-  cat("=== S** Finder Diagnostics ===\n")
-  cat("Initial guess S_j:", S_j, "\n")
-  cat("Target equation: K - S = RHS(S)\n")
-  cat("K - S_j - RHS = 0 when converged\n\n")
-
   while(abs(K - S_j - RHS(S_j, K, r, sigma, T, q)) >= 0.0000001) {
     iter <- iter + 1
     residual <- K - S_j - RHS(S_j, K, r, sigma, T, q)
     cur_bj <- b_j(S_j, K, r, sigma, T, q)
     
-    if (iter <= 10 || iter %% 1000 == 0) {
-      cat(sprintf("Iter %d: S_j=%.6f, residual=%.8f, b_j=%.6f\n", iter, S_j, residual, cur_bj))
-    }
+    #if (iter <= 10 || iter %% 1000 == 0) {
+      #cat(sprintf("Iter %d: S_j=%.6f, residual=%.8f, b_j=%.6f\n", iter, S_j, residual, cur_bj))
+    #}
     
     S_j <- enhance_guess(S_j, K, r, sigma, T, q)
 
     guess_limit <- guess_limit - 1
     if(guess_limit <= 0) {
-      cat("Ran out of guesses\n")
+      #cat("Ran out of guesses\n")
       break
     }
   }
-  cat("Converged after", iter, "iterations\n")
-  cat("Final S**:", S_j, "\n\n")
+  # cat("Converged after", iter, "iterations\n")
+  # cat("Final S**:", S_j, "\n\n")
 
   return(S_j)
 }
 ```
 
-``` {r bs-american-put}
+``` {r}
 bs_american_put <- function(S, K, r, sigma, T, q = 0) {
   S_ss <- s_star_star_finder(S, K, r, sigma, T, q)
 
@@ -285,41 +242,181 @@ bs_american_put <- function(S, K, r, sigma, T, q = 0) {
   }
 
   b <- r - q
-  N <- 2*b/(sigma^2)
-  M <- 2*r/(sigma^2)
+  N <- 2 * b / (sigma^2)
+  M <- 2 * r / (sigma^2)
   K_other <- 1 - exp(-r * T)
   q_1 <- (-(N - 1) - sqrt((N - 1)^2 + 4 * M / K_other)) / 2
 
-  d_one <- (log(S/K) + (b + (sigma^2) / 2) * T)/(sigma * sqrt(T))
   d_one_ss <- (log(S_ss/K) + (b + (sigma^2) / 2) * T)/(sigma * sqrt(T))
 
-  A_1 <- -(S_ss / q_1) * (1 - exp((b - r) * T)) * pnorm(-d_one_ss)
+  A_1 <- -(S_ss / q_1) * (1 - exp((b - r) * T) * pnorm(-d_one_ss))
 
   return(bs_european_put(S, K, r, sigma, T, q) + A_1 * (S / S_ss)^q_1)
 }
 ```
 
+# Monte Carlo
+
+``` {r}
+simulations <- 100000
+library(future)
+library(future.apply)
+plan(multisession, workers = parallel::detectCores())
+```
+
+``` {r}
+mc_sim_pathless <- function(S, T, sigma, r, q = 0) {
+  n_half <- simulations / 2
+  Z <- rnorm(n_half)
+  Z <- c(Z, -Z)
+  return(S * exp((r - q - sigma^2/2)*T + sigma*sqrt(T)*Z))
+}
+```
+
+``` {r}
+mc_european_call <- function(S, K, T, sigma, r, q = 0) {
+  paths <- mc_sim_pathless(S, T, sigma, r, q)
+  returns <- pmax(paths - K, 0)
+  return((sum(returns) / simulations) * exp(-r * T))
+}
+
+mc_european_put <- function(S, K, T, sigma, r, q = 0) {
+  paths <- mc_sim_pathless(S, T, sigma, r, q)
+  returns <- pmax(K - paths, 0)
+  return((sum(returns) / simulations) * exp(-r * T))
+}
+```
+
+``` {r}
+mc_sim_pathed <- function(S, T, sigma, r, q = 0) {
+  steps <- round(T * 52)
+  n_cores <- parallel::detectCores()
+  paths_per_core <- simulations / n_cores
+  n_half <- paths_per_core / 2
+  dt <- 1 / 52
+
+  sim_chunk <- function(i) {
+    Z <- matrix(rnorm(n_half * steps), nrow = n_half, ncol = steps)
+    Z <- rbind(Z, -Z)
+    transformation <- (r - q - sigma^2/2) * dt + sigma * sqrt(dt) * Z
+    # Vectorized cumsum: accumulate column by column
+    paths <- matrix(S, nrow = nrow(transformation), ncol = steps)
+    paths[, 1] <- S * exp(transformation[, 1])
+    for (k in 2:steps) {
+      paths[, k] <- paths[, k-1] * exp(transformation[, k])
+    }
+    paths
+  }
+
+  paths_list <- future_lapply(1:n_cores, sim_chunk, future.seed = TRUE)
+  return(do.call(rbind, paths_list))
+}
+```
+
+``` {r}
+mc_american_call <- function(S, K, T, sigma, r, q = 0) {
+  paths <- mc_sim_pathed(S, T, sigma, r, q)
+  steps <- round(T * 52)
+  dt <- 1/52
+
+  CF <- pmax(paths[, steps] - K, 0)
+
+  for(step in (steps-1):1) {
+    x_raw <- paths[, step]
+    x <- x_raw / K
+
+    itm_mask <- x_raw > K
+
+    if (sum(itm_mask) < 100) next
+
+    y <- exp(-r * dt) * CF[itm_mask]
+
+    X <- cbind(1, x[itm_mask], 
+               x[itm_mask]^2, 
+               x[itm_mask]^3)
+    y_use <- y
+    beta <- solve(t(X) %*% X) %*% t(X) %*% y_use
+
+    X_all <- cbind(1, x, x^2, x^3)
+    continuation <- X_all %*% beta
+    continuation <- pmax(continuation, 0)
+
+    exercise <- pmax(x_raw - K, 0)
+    exercise_now <- exercise > continuation
+
+    CF[exercise_now] <- exercise[exercise_now]
+    CF[!exercise_now] <- exp(-r * dt) * CF[!exercise_now]
+  }
+
+  return(mean(CF) * exp(-r * dt))
+}
+```
+
+``` {r}
+mc_american_put <- function(S, K, T, sigma, r, q = 0) {
+  paths <- mc_sim_pathed(S, T, sigma, r, q)
+  steps <- round(T * 52)
+  dt <- 1/52
+
+  CF <- pmax(K - paths[, steps], 0)
+
+  for(step in (steps-1):1) {
+    x_raw <- paths[, step]
+    x <- x_raw / K
+
+    itm_mask <- x_raw < K
+
+    if (sum(itm_mask) < 100) next
+
+    y <- exp(-r * dt) * CF[itm_mask]
+
+    X <- cbind(1, x[itm_mask], 
+               x[itm_mask]^2, 
+               x[itm_mask]^3)
+    y_use <- y
+    beta <- solve(t(X) %*% X) %*% t(X) %*% y_use
+
+    X_all <- cbind(1, x, x^2, x^3)
+    continuation <- X_all %*% beta
+    continuation <- pmax(continuation, 0)
+
+    exercise <- pmax(K - x_raw, 0)
+    exercise_now <- exercise > continuation
+
+    CF[exercise_now] <- exercise[exercise_now]
+    CF[!exercise_now] <- exp(-r * dt) * CF[!exercise_now]
+  }
+
+  return(mean(CF) * exp(-r * dt))
+}
+```
+
+# Odhady opčních cen
 
 ``` {r population}
 usa_call_chains <- usa_call_chains %>%
   rowwise() %>%
-  mutate(user_bs = bs_american_call(S, K, r, sigma, T)) %>%
-  mutate(user_crr = CRRBinomialTreeOption(TypeFlag = "ca", S = S, X = K, Time = T, r = r, b = r, sigma = sigma, n = 100)@price)
+  mutate(user_bs = bs_american_call(S, K, r, sigma, T, q)) %>%
+  mutate(user_crr = CRRBinomialTreeOption(TypeFlag = "ca", S = S, X = K, Time = T, r = r, b = r, sigma = sigma, n = 100)@price) %>%
+  mutate(user_mc = mc_american_call(S, K, T, sigma, r, q))
 
 usa_put_chains <- usa_put_chains %>%
   rowwise() %>%
-  mutate(user_bs = bs_american_put(S, K, r, sigma, T)) %>%
-  mutate(user_crr = CRRBinomialTreeOption(TypeFlag = "pa", S = S, X = K, Time = T, r = r, b = r, sigma = sigma, n = 100)@price)
+  mutate(user_bs = bs_american_put(S, K, r, sigma, T, q)) %>%
+  mutate(user_crr = CRRBinomialTreeOption(TypeFlag = "pa", S = S, X = K, Time = T, r = r, b = r, sigma = sigma, n = 100)@price) %>%
+  mutate(user_mc = mc_american_put(S, K, T, sigma, r, q))
 
 euro_call_chains <- euro_call_chains %>%
   rowwise() %>%
   mutate(user_bs = bs_european_call(S, K, r, sigma, T)) %>%
-  mutate(user_crr = CRRBinomialTreeOption(TypeFlag = "ce", S = S, X = K, Time = T, r = r, b = r, sigma = sigma, n = 100)@price)
+  mutate(user_crr = CRRBinomialTreeOption(TypeFlag = "ce", S = S, X = K, Time = T, r = r, b = r, sigma = sigma, n = 100)@price) %>%
+  mutate(user_mc = mc_european_call(S, K, T, sigma, r, q))
 
 euro_put_chains <- euro_put_chains %>%
   rowwise() %>%
   mutate(user_bs = bs_european_put(S, K, r, sigma, T)) %>%
-  mutate(user_crr = CRRBinomialTreeOption(TypeFlag = "pe", S = S, X = K, Time = T, r = r, b = r, sigma = sigma, n = 100)@price)
+  mutate(user_crr = CRRBinomialTreeOption(TypeFlag = "pe", S = S, X = K, Time = T, r = r, b = r, sigma = sigma, n = 100)@price) %>%
+  mutate(user_mc = mc_european_put(S, K, T, sigma, r, q))
 ```
 
 ```{r validation-plot}

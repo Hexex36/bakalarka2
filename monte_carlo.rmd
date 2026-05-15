@@ -6,6 +6,12 @@ plan(multisession, workers = parallel::detectCores())
 ```
 
 ``` {r}
+library(torch)
+device <- torch_device(if (cuda_is_available()) "cuda" else "cpu")
+cat("Using device:", device$type, "\n")
+```
+
+``` {r}
 mc_sim_pathless <- function(S, T, sigma, r, q = 0) {
   n_half <- simulations / 2
   Z <- rnorm(n_half)
@@ -55,6 +61,21 @@ mc_sim_pathed <- function(S, T, sigma, r, q = 0) {
 ```
 
 ``` {r}
+mc_sim_pathed_gpu <- function(S, T, sigma, r, q = 0, n_paths = simulations) {
+  steps <- round(T * 52)
+  dt <- 1 / 52
+
+  Z <- torch_randn(n_paths, steps, device = device)
+  drift <- (r - q - sigma^2 / 2) * dt
+  diffusion <- sigma * sqrt(dt)
+  log_returns <- drift + diffusion * Z
+
+  paths <- torch_exp(torch_cumsum(log_returns, dim = 2)) * S
+  return(paths)
+}
+```
+
+``` {r}
 mc_american_call <- function(S, K, T, sigma, r, q = 0) {
   paths <- mc_sim_pathed(S, T, sigma, r, q)
   steps <- round(T * 52)
@@ -72,8 +93,8 @@ mc_american_call <- function(S, K, T, sigma, r, q = 0) {
 
     y <- exp(-r * dt) * CF[itm_mask]
 
-    X <- cbind(1, x[itm_mask], 
-               x[itm_mask]^2, 
+    X <- cbind(1, x[itm_mask],
+               x[itm_mask]^2,
                x[itm_mask]^3)
     y_use <- y
     beta <- solve(t(X) %*% X) %*% t(X) %*% y_use
@@ -111,8 +132,8 @@ mc_american_put <- function(S, K, T, sigma, r, q = 0) {
 
     y <- exp(-r * dt) * CF[itm_mask]
 
-    X <- cbind(1, x[itm_mask], 
-               x[itm_mask]^2, 
+    X <- cbind(1, x[itm_mask],
+               x[itm_mask]^2,
                x[itm_mask]^3)
     y_use <- y
     beta <- solve(t(X) %*% X) %*% t(X) %*% y_use
@@ -129,6 +150,102 @@ mc_american_put <- function(S, K, T, sigma, r, q = 0) {
   }
 
   return(mean(CF) * exp(-r * dt))
+}
+```
+
+``` {r}
+mc_american_call_gpu <- function(S, K, T, sigma, r, q = 0, n_paths = simulations) {
+  steps <- round(T * 52)
+  dt <- 1/52
+  disc <- exp(-r * dt)
+
+  paths <- mc_sim_pathed_gpu(S, T, sigma, r, q, n_paths)
+
+  CF <- torch$clamp(paths[, steps] - K, min = 0)
+
+  for(step in (steps-1):1) {
+    x_raw <- paths[, step]
+    x <- x_raw / K
+
+    itm_mask <- x_raw > K
+    n_itm <- as.integer(torch$sum(itm_mask)$item())
+
+    if (n_itm < 100) next
+
+    y <- disc * CF[itm_mask]
+
+    X <- torch$ones(n_itm, 4, device = device)
+    X[, 2] <- x[itm_mask]
+    X[, 3] <- x[itm_mask]^2
+    X[, 4] <- x[itm_mask]^3
+
+    XtX <- torch$mm(t(X), X)
+    Xty <- torch$mv(t(X), y)
+    beta <- torch$solve(Xty$unsqueeze(2), XtX)$solution$squeeze(2)
+
+    X_all <- torch$ones(n_paths, 4, device = device)
+    X_all[, 2] <- x
+    X_all[, 3] <- x^2
+    X_all[, 4] <- x^3
+    continuation <- torch$mm(X_all, beta$unsqueeze(2))$squeeze(2)
+    continuation <- torch$clamp(continuation, min = 0)
+
+    exercise <- torch$clamp(x_raw - K, min = 0)
+    exercise_now <- exercise > continuation
+
+    CF[exercise_now] <- exercise[exercise_now]
+    CF[!exercise_now] <- disc * CF[!exercise_now]
+  }
+
+  return(as.numeric(torch$mean(CF)$item()) * exp(-r * dt))
+}
+```
+
+``` {r}
+mc_american_put_gpu <- function(S, K, T, sigma, r, q = 0, n_paths = simulations) {
+  steps <- round(T * 52)
+  dt <- 1/52
+  disc <- exp(-r * dt)
+
+  paths <- mc_sim_pathed_gpu(S, T, sigma, r, q, n_paths)
+
+  CF <- torch$clamp(K - paths[, steps], min = 0)
+
+  for(step in (steps-1):1) {
+    x_raw <- paths[, step]
+    x <- x_raw / K
+
+    itm_mask <- x_raw < K
+    n_itm <- as.integer(torch$sum(itm_mask)$item())
+
+    if (n_itm < 100) next
+
+    y <- disc * CF[itm_mask]
+
+    X <- torch$ones(n_itm, 4, device = device)
+    X[, 2] <- x[itm_mask]
+    X[, 3] <- x[itm_mask]^2
+    X[, 4] <- x[itm_mask]^3
+
+    XtX <- torch$mm(t(X), X)
+    Xty <- torch$mv(t(X), y)
+    beta <- torch$solve(Xty$unsqueeze(2), XtX)$solution$squeeze(2)
+
+    X_all <- torch$ones(n_paths, 4, device = device)
+    X_all[, 2] <- x
+    X_all[, 3] <- x^2
+    X_all[, 4] <- x^3
+    continuation <- torch$mm(X_all, beta$unsqueeze(2))$squeeze(2)
+    continuation <- torch$clamp(continuation, min = 0)
+
+    exercise <- torch$clamp(K - x_raw, min = 0)
+    exercise_now <- exercise > continuation
+
+    CF[exercise_now] <- exercise[exercise_now]
+    CF[!exercise_now] <- disc * CF[!exercise_now]
+  }
+
+  return(as.numeric(torch$mean(CF)$item()) * exp(-r * dt))
 }
 ```
 
