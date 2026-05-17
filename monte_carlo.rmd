@@ -66,7 +66,7 @@ mc_sim_pathed_gpu <- function(S, T, sigma, r, q = 0, n_paths = simulations) {
   dt <- 1 / 52
   n_half <- n_paths / 2
 
-  Z <- torch_randn(n_half, steps, device = device)
+  Z <- torch_randn(n_half, steps, device = device, dtype = torch_double())
   Z <- torch_cat(list(Z, -Z), dim = 1)
 
   drift <- (r - q - sigma^2 / 2) * dt
@@ -74,7 +74,7 @@ mc_sim_pathed_gpu <- function(S, T, sigma, r, q = 0, n_paths = simulations) {
   log_returns <- drift + diffusion * Z
 
   paths <- torch_exp(torch_cumsum(log_returns, dim = 2)) * S
-  return(paths)
+  return(paths$to(dtype = torch_float()))
 }
 ```
 
@@ -265,6 +265,88 @@ mc_american_put_gpu <- function(S, K, T, sigma, r, q = 0) {
 ```
 
 ``` {r}
+mc_american_call_hybrid <- function(S, K, T, sigma, r, q = 0) {
+  paths_gpu <- mc_sim_pathed_gpu(S, T, sigma, r, q)
+  paths <- as_array(paths_gpu$to(device = "cpu"))
+  
+  steps <- round(T * 52)
+  dt <- 1/52
+  
+  CF <- pmax(paths[, steps] - K, 0)
+  
+  for(step in (steps-1):1) {
+    x_raw <- paths[, step]
+    x <- x_raw / K
+    
+    itm_mask <- x_raw > K
+    
+    if (sum(itm_mask) < 100) next
+    
+    y <- exp(-r * dt) * CF[itm_mask]
+    
+    X <- cbind(1, x[itm_mask],
+               x[itm_mask]^2,
+               x[itm_mask]^3)
+    y_use <- y
+    beta <- solve(t(X) %*% X, t(X) %*% y_use)
+    
+    X_all <- cbind(1, x, x^2, x^3)
+    continuation <- X_all %*% beta
+    continuation <- pmax(continuation, 0)
+    
+    exercise <- pmax(x_raw - K, 0)
+    exercise_now <- exercise > continuation
+    
+    CF[exercise_now] <- exercise[exercise_now]
+    CF[!exercise_now] <- exp(-r * dt) * CF[!exercise_now]
+  }
+  
+  return(mean(CF) * exp(-r * dt))
+}
+```
+
+``` {r}
+mc_american_put_hybrid <- function(S, K, T, sigma, r, q = 0) {
+  paths_gpu <- mc_sim_pathed_gpu(S, T, sigma, r, q)
+  paths <- as_array(paths_gpu$to(device = "cpu"))
+  
+  steps <- round(T * 52)
+  dt <- 1/52
+  
+  CF <- pmax(K - paths[, steps], 0)
+  
+  for(step in (steps-1):1) {
+    x_raw <- paths[, step]
+    x <- x_raw / K
+    
+    itm_mask <- x_raw < K
+    
+    if (sum(itm_mask) < 100) next
+    
+    y <- exp(-r * dt) * CF[itm_mask]
+    
+    X <- cbind(1, x[itm_mask],
+               x[itm_mask]^2,
+               x[itm_mask]^3)
+    y_use <- y
+    beta <- solve(t(X) %*% X, t(X) %*% y_use)
+    
+    X_all <- cbind(1, x, x^2, x^3)
+    continuation <- X_all %*% beta
+    continuation <- pmax(continuation, 0)
+    
+    exercise <- pmax(K - x_raw, 0)
+    exercise_now <- exercise > continuation
+    
+    CF[exercise_now] <- exercise[exercise_now]
+    CF[!exercise_now] <- exp(-r * dt) * CF[!exercise_now]
+  }
+  
+  return(mean(CF) * exp(-r * dt))
+}
+```
+
+``` {r}
 # === Validation ===
 library(fOptions)
 
@@ -387,6 +469,8 @@ for (i in 1:nrow(test_cases)) {
     mc_put <- mc_american_put(tc$S, tc$K, tc$T, tc$sigma, tc$r, tc$q)
     mc_call_gpu <- mc_american_call_gpu(tc$S, tc$K, tc$T, tc$sigma, tc$r, tc$q)
     mc_put_gpu <- mc_american_put_gpu(tc$S, tc$K, tc$T, tc$sigma, tc$r, tc$q)
+    mc_call_hyb <- mc_american_call_hybrid(tc$S, tc$K, tc$T, tc$sigma, tc$r, tc$q)
+    mc_put_hyb <- mc_american_put_hybrid(tc$S, tc$K, tc$T, tc$sigma, tc$r, tc$q)
     
     acc_results <- rbind(acc_results, data.frame(
       desc = tc$desc,
@@ -395,12 +479,17 @@ for (i in 1:nrow(test_cases)) {
       crr_call, crr_put,
       cpu_call = mc_call, cpu_put = mc_put,
       gpu_call = mc_call_gpu, gpu_put = mc_put_gpu,
+      hyb_call = mc_call_hyb, hyb_put = mc_put_hyb,
       cpu_call_err = (mc_call - crr_call) / crr_call * 100,
       cpu_put_err = (mc_put - crr_put) / crr_put * 100,
       gpu_call_err = (mc_call_gpu - crr_call) / crr_call * 100,
       gpu_put_err = (mc_put_gpu - crr_put) / crr_put * 100,
+      hyb_call_err = (mc_call_hyb - crr_call) / crr_call * 100,
+      hyb_put_err = (mc_put_hyb - crr_put) / crr_put * 100,
       cpu_gpu_call_diff = abs(mc_call - mc_call_gpu),
-      cpu_gpu_put_diff = abs(mc_put - mc_put_gpu)
+      cpu_gpu_put_diff = abs(mc_put - mc_put_gpu),
+      cpu_hyb_call_diff = abs(mc_call - mc_call_hyb),
+      cpu_hyb_put_diff = abs(mc_put - mc_put_hyb)
     ))
   }
 }
@@ -413,8 +502,12 @@ acc_summary <- acc_results %>%
     cpu_put_mean_err = mean(cpu_put_err), cpu_put_max_err = max(abs(cpu_put_err)),
     gpu_call_mean_err = mean(gpu_call_err), gpu_call_max_err = max(abs(gpu_call_err)),
     gpu_put_mean_err = mean(gpu_put_err), gpu_put_max_err = max(abs(gpu_put_err)),
+    hyb_call_mean_err = mean(hyb_call_err), hyb_call_max_err = max(abs(hyb_call_err)),
+    hyb_put_mean_err = mean(hyb_put_err), hyb_put_max_err = max(abs(hyb_put_err)),
     cpu_gpu_call_diff = mean(cpu_gpu_call_diff),
-    cpu_gpu_put_diff = mean(cpu_gpu_put_diff)
+    cpu_gpu_put_diff = mean(cpu_gpu_put_diff),
+    cpu_hyb_call_diff = mean(cpu_hyb_call_diff),
+    cpu_hyb_put_diff = mean(cpu_hyb_put_diff)
   ) %>%
   ungroup()
 
@@ -423,12 +516,18 @@ cat(sprintf("CPU Call - Mean abs err: %.2f%%, Max abs err: %.2f%%\n",
             mean(abs(acc_summary$cpu_call_mean_err)), max(acc_summary$cpu_call_max_err)))
 cat(sprintf("GPU Call - Mean abs err: %.2f%%, Max abs err: %.2f%%\n",
             mean(abs(acc_summary$gpu_call_mean_err)), max(acc_summary$gpu_call_max_err)))
+cat(sprintf("HYB Call - Mean abs err: %.2f%%, Max abs err: %.2f%%\n",
+            mean(abs(acc_summary$hyb_call_mean_err)), max(acc_summary$hyb_call_max_err)))
 cat(sprintf("CPU Put  - Mean abs err: %.2f%%, Max abs err: %.2f%%\n",
             mean(abs(acc_summary$cpu_put_mean_err)), max(acc_summary$cpu_put_max_err)))
 cat(sprintf("GPU Put  - Mean abs err: %.2f%%, Max abs err: %.2f%%\n",
             mean(abs(acc_summary$gpu_put_mean_err)), max(acc_summary$gpu_put_max_err)))
+cat(sprintf("HYB Put  - Mean abs err: %.2f%%, Max abs err: %.2f%%\n",
+            mean(abs(acc_summary$hyb_put_mean_err)), max(acc_summary$hyb_put_max_err)))
 cat(sprintf("\nCPU vs GPU diff - Call: %.4f, Put: %.4f\n",
             mean(acc_summary$cpu_gpu_call_diff), mean(acc_summary$cpu_gpu_put_diff)))
+cat(sprintf("CPU vs HYB diff - Call: %.4f, Put: %.4f\n",
+            mean(acc_summary$cpu_hyb_call_diff), mean(acc_summary$cpu_hyb_put_diff)))
 
 print(acc_summary)
 ```
@@ -544,7 +643,7 @@ t_cpu_call <- measure_time(mc_american_call(S, K, T, sigma, r, q))
 cat(sprintf(" mean=%.3fs, median=%.3fs\n", t_cpu_call$mean, t_cpu_call$median))
 
 cat("GPU:")
-t_gpu_call <- measure_time(mc_american_call_gpu(S, K, T, sigma, r, q))
+t_gpu_call <- measure_time(mc_american_call_hybrid(S, K, T, sigma, r, q))
 cat(sprintf(" mean=%.3fs, median=%.3fs\n", t_gpu_call$mean, t_gpu_call$median))
 cat(sprintf("Speedup: %.1fx\n\n", t_cpu_call$mean / t_gpu_call$mean))
 
@@ -554,7 +653,7 @@ t_cpu_put <- measure_time(mc_american_put(S, K, T, sigma, r, q))
 cat(sprintf(" mean=%.3fs, median=%.3fs\n", t_cpu_put$mean, t_cpu_put$median))
 
 cat("GPU:")
-t_gpu_put <- measure_time(mc_american_put_gpu(S, K, T, sigma, r, q))
+t_gpu_put <- measure_time(mc_american_put_hybrid(S, K, T, sigma, r, q))
 cat(sprintf(" mean=%.3fs, median=%.3fs\n", t_gpu_put$mean, t_gpu_put$median))
 cat(sprintf("Speedup: %.1fx\n\n", t_cpu_put$mean / t_gpu_put$mean))
 
