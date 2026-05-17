@@ -371,14 +371,27 @@ class StockPriceVolatilityCalculator:
             # Calculate total dividends paid in period
             total_dividends = ticker_data["Dividends"].sum()
             
-            # Calculate average stock price over period
-            avg_price = ticker_data["Close"].mean()
+            if total_dividends <= 0:
+                return 0.0
             
-            if avg_price <= 0:
+            # Calculate the actual time span in years for annualization
+            date_range = (ticker_data["Date"].max() - ticker_data["Date"].min()).days
+            years_span = date_range / 365.25
+            
+            if years_span <= 0:
+                return None
+            
+            # Annualize the dividends
+            annual_dividends = total_dividends / years_span
+            
+            # Use the most recent stock price (not average)
+            current_price = ticker_data["Close"].iloc[-1]
+            
+            if current_price <= 0:
                 return None
                 
             # Calculate discrete dividend yield
-            discrete_yield = total_dividends / avg_price
+            discrete_yield = annual_dividends / current_price
             
             # Convert to continuous dividend yield: δ = ln(1 + q)
             continuous_yield = np.log(1 + discrete_yield)
