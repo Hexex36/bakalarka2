@@ -5,6 +5,7 @@ bs_european_call <- function(S, K, r, sigma, T, q = 0) {
   d2 <- d1 - sigma * sqrt(T)
   
   price <- S * exp(-q * T) * pnorm(d1) - K * exp(-r * T) * pnorm(d2)
+  price <- ifelse(T <= 0, pmax(S - K, 0), price)
   return(price)
 }
 
@@ -14,6 +15,7 @@ bs_european_put <- function(S, K, r, sigma, T, q = 0) {
   d2 <- d1 - sigma * sqrt(T)
   
   price <- K * exp(-r * T) * pnorm(-d2) - S * exp(-q * T) * pnorm(-d1)
+  price <- ifelse(T <= 0, pmax(K - S, 0), price)
   return(price)
 }
 ```
@@ -98,6 +100,13 @@ return(TRUE)
 
 ``` {r money}
 bs_american_call <- function(S, K, r, sigma, T, q) {
+  if (T <= 0) {
+    return(max(S - K, 0))
+  }
+  if (q <= 0) {
+    return(bs_european_call(S, K, r, sigma, T, q))
+  }
+  
   S_star <- s_star_finder(S, K, r, sigma, T, q)
 
   if(S >= S_star) {
@@ -275,6 +284,10 @@ s_star_star_finder <- function(S, K, r, sigma, T, q = 0) {
 
 ``` {r}
 bs_american_put <- function(S, K, r, sigma, T, q = 0) {
+  if (T <= 0) {
+    return(max(K - S, 0))
+  }
+  
   S_ss <- s_star_star_finder(S, K, r, sigma, T, q)
 
   if(S <= S_ss) {
@@ -367,6 +380,24 @@ for (i in 1:nrow(test_cases_put)) {
   cat("  BAW:", baw, "  CRR(n=1000):", crr1000@price, "  Error:", round((baw - crr1000@price)/crr1000@price * 100, 2), "%\n")
   cat("  European:", eu, "  Premium:", round((baw - eu)/eu * 100, 2), "%\n\n")
 }
+```
+
+# Vectorized versions for batch processing
+``` {r vectorized-wrappers}
+v_bs_american_call <- Vectorize(bs_american_call, vectorize.args = c("S", "K", "r", "sigma", "T", "q"))
+v_bs_american_put <- Vectorize(bs_american_put, vectorize.args = c("S", "K", "r", "sigma", "T", "q"))
+
+# Test vectorization
+test_S <- c(100, 110, 90)
+test_K <- c(100, 100, 100)
+test_r <- c(0.05, 0.05, 0.05)
+test_sigma <- c(0.2, 0.2, 0.2)
+test_T <- c(1, 1, 1)
+test_q <- c(0.1, 0.1, 0.1)
+
+cat("=== Vectorization Test ===\n")
+cat("Vectorized American Call prices:", v_bs_american_call(test_S, test_K, test_r, test_sigma, test_T, test_q), "\n")
+cat("Vectorized American Put prices:", v_bs_american_put(test_S, test_K, test_r, test_sigma, test_T, test_q), "\n")
 ```
 
 

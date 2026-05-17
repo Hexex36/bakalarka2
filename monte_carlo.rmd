@@ -1,5 +1,5 @@
 ``` {r}
-simulations <- 100000
+simulations <- 25000
 library(future)
 library(future.apply)
 plan(multisession, workers = parallel::detectCores())
@@ -22,12 +22,20 @@ mc_sim_pathless <- function(S, T, sigma, r, q = 0) {
 
 ``` {r}
 mc_european_call <- function(S, K, T, sigma, r, q = 0) {
+  if (T <= 0) {
+    return(max(S - K, 0))
+  }
+  
   paths <- mc_sim_pathless(S, T, sigma, r, q)
   returns <- pmax(paths - K, 0)
   return((sum(returns) / simulations) * exp(-r * T))
 }
 
 mc_european_put <- function(S, K, T, sigma, r, q = 0) {
+  if (T <= 0) {
+    return(max(K - S, 0))
+  }
+  
   paths <- mc_sim_pathless(S, T, sigma, r, q)
   returns <- pmax(K - paths, 0)
   return((sum(returns) / simulations) * exp(-r * T))
@@ -37,32 +45,32 @@ mc_european_put <- function(S, K, T, sigma, r, q = 0) {
 ``` {r}
 mc_sim_pathed <- function(S, T, sigma, r, q = 0) {
   steps <- round(T * 52)
-  n_cores <- parallel::detectCores()
-  paths_per_core <- simulations / n_cores
-  n_half <- paths_per_core / 2
+  if (steps < 1) {
+    return(matrix(S, nrow = simulations, ncol = 1))
+  }
+  n_half <- simulations / 2
   dt <- 1 / 52
 
-  sim_chunk <- function(i) {
-    Z <- matrix(rnorm(n_half * steps), nrow = n_half, ncol = steps)
-    Z <- rbind(Z, -Z)
-    transformation <- (r - q - sigma^2/2) * dt + sigma * sqrt(dt) * Z
-    # Vectorized cumsum: accumulate column by column
-    paths <- matrix(S, nrow = nrow(transformation), ncol = steps)
-    paths[, 1] <- S * exp(transformation[, 1])
+  Z <- matrix(rnorm(n_half * steps), nrow = n_half, ncol = steps)
+  Z <- rbind(Z, -Z)
+  transformation <- (r - q - sigma^2/2) * dt + sigma * sqrt(dt) * Z
+  paths <- matrix(S, nrow = nrow(transformation), ncol = steps)
+  paths[, 1] <- S * exp(transformation[, 1])
+  if (steps > 1) {
     for (k in 2:steps) {
       paths[, k] <- paths[, k-1] * exp(transformation[, k])
     }
-    paths
   }
-
-  paths_list <- future_lapply(1:n_cores, sim_chunk, future.seed = TRUE)
-  return(do.call(rbind, paths_list))
+  paths
 }
 ```
 
 ``` {r}
 mc_sim_pathed_gpu <- function(S, T, sigma, r, q = 0, n_paths = simulations) {
   steps <- round(T * 52)
+  if (steps < 1) {
+    return(torch_ones(n_paths, 1, device = device, dtype = torch_double()) * S)
+  }
   dt <- 1 / 52
   n_half <- n_paths / 2
 
@@ -80,12 +88,17 @@ mc_sim_pathed_gpu <- function(S, T, sigma, r, q = 0, n_paths = simulations) {
 
 ``` {r}
 mc_american_call <- function(S, K, T, sigma, r, q = 0) {
-  paths <- mc_sim_pathed(S, T, sigma, r, q)
   steps <- round(T * 52)
+  if (steps < 1) {
+    return(max(S - K, 0))
+  }
+  
+  paths <- mc_sim_pathed(S, T, sigma, r, q)
   dt <- 1/52
 
   CF <- pmax(paths[, steps] - K, 0)
 
+  if (steps > 1) {
   for(step in (steps-1):1) {
     x_raw <- paths[, step]
     x <- x_raw / K
@@ -100,7 +113,7 @@ mc_american_call <- function(S, K, T, sigma, r, q = 0) {
                x[itm_mask]^2,
                x[itm_mask]^3)
     y_use <- y
-    beta <- solve(t(X) %*% X) %*% t(X) %*% y_use
+    beta <- qr.solve(X, y_use)
 
     X_all <- cbind(1, x, x^2, x^3)
     continuation <- X_all %*% beta
@@ -112,6 +125,7 @@ mc_american_call <- function(S, K, T, sigma, r, q = 0) {
     CF[exercise_now] <- exercise[exercise_now]
     CF[!exercise_now] <- exp(-r * dt) * CF[!exercise_now]
   }
+  }
 
   return(mean(CF) * exp(-r * dt))
 }
@@ -119,12 +133,17 @@ mc_american_call <- function(S, K, T, sigma, r, q = 0) {
 
 ``` {r}
 mc_american_put <- function(S, K, T, sigma, r, q = 0) {
-  paths <- mc_sim_pathed(S, T, sigma, r, q)
   steps <- round(T * 52)
+  if (steps < 1) {
+    return(max(K - S, 0))
+  }
+  
+  paths <- mc_sim_pathed(S, T, sigma, r, q)
   dt <- 1/52
 
   CF <- pmax(K - paths[, steps], 0)
 
+  if (steps > 1) {
   for(step in (steps-1):1) {
     x_raw <- paths[, step]
     x <- x_raw / K
@@ -139,7 +158,7 @@ mc_american_put <- function(S, K, T, sigma, r, q = 0) {
                x[itm_mask]^2,
                x[itm_mask]^3)
     y_use <- y
-    beta <- solve(t(X) %*% X) %*% t(X) %*% y_use
+    beta <- qr.solve(X, y_use)
 
     X_all <- cbind(1, x, x^2, x^3)
     continuation <- X_all %*% beta
@@ -151,6 +170,7 @@ mc_american_put <- function(S, K, T, sigma, r, q = 0) {
     CF[exercise_now] <- exercise[exercise_now]
     CF[!exercise_now] <- exp(-r * dt) * CF[!exercise_now]
   }
+  }
 
   return(mean(CF) * exp(-r * dt))
 }
@@ -158,14 +178,19 @@ mc_american_put <- function(S, K, T, sigma, r, q = 0) {
 
 ``` {r}
 mc_american_call_gpu <- function(S, K, T, sigma, r, q = 0) {
+  steps <- round(T * 52)
+  if (steps < 1) {
+    return(max(S - K, 0))
+  }
+  
   with_no_grad({
     paths <- mc_sim_pathed_gpu(S, T, sigma, r, q)
-    steps <- round(T * 52)
     dt <- 1/52
     disc <- exp(-r * dt)
     
     CF <- torch_clamp(paths[, steps] - K, min = 0)
     
+    if (steps > 1) {
     for(step in (steps-1):1) {
       x_raw <- paths[, step]
       x <- x_raw / K
@@ -182,14 +207,11 @@ mc_american_call_gpu <- function(S, K, T, sigma, r, q = 0) {
       X[, 3] <- x[itm_mask]^2
       X[, 4] <- x[itm_mask]^3
       
-      XtX <- torch_mm(X$t(), X)
-      Xty <- torch_mv(X$t(), y)
-      
-      XtX_d <- XtX$to(dtype = torch_double())
-      Xty_d <- Xty$to(dtype = torch_double())
-      inv_XtX <- torch_inverse(XtX_d)
-      beta_d <- torch_mv(inv_XtX, Xty_d)
-      beta <- beta_d$to(dtype = torch_float())
+      qr_X <- torch_qr(X)
+      Q <- qr_X$Q
+      R <- qr_X$R
+      beta_d <- torch_triangular_solve(Q$t()$mm(y$unsqueeze(2)), R$to(dtype = torch_double()), upper = TRUE)
+      beta <- beta_d$to(dtype = torch_float())$squeeze()
       
       X_all <- torch_ones(simulations, 4, device = device)
       X_all[, 2] <- x
@@ -204,6 +226,7 @@ mc_american_call_gpu <- function(S, K, T, sigma, r, q = 0) {
       CF[exercise_now] <- exercise[exercise_now]
       CF[!exercise_now] <- disc * CF[!exercise_now]
     }
+    }
     
     return(as.numeric(torch_mean(CF)$item()) * exp(-r * dt))
   })
@@ -212,14 +235,19 @@ mc_american_call_gpu <- function(S, K, T, sigma, r, q = 0) {
 
 ``` {r}
 mc_american_put_gpu <- function(S, K, T, sigma, r, q = 0) {
+  steps <- round(T * 52)
+  if (steps < 1) {
+    return(max(K - S, 0))
+  }
+  
   with_no_grad({
     paths <- mc_sim_pathed_gpu(S, T, sigma, r, q)
-    steps <- round(T * 52)
     dt <- 1/52
     disc <- exp(-r * dt)
     
     CF <- torch_clamp(K - paths[, steps], min = 0)
     
+    if (steps > 1) {
     for(step in (steps-1):1) {
       x_raw <- paths[, step]
       x <- x_raw / K
@@ -236,14 +264,11 @@ mc_american_put_gpu <- function(S, K, T, sigma, r, q = 0) {
       X[, 3] <- x[itm_mask]^2
       X[, 4] <- x[itm_mask]^3
       
-      XtX <- torch_mm(X$t(), X)
-      Xty <- torch_mv(X$t(), y)
-      
-      XtX_d <- XtX$to(dtype = torch_double())
-      Xty_d <- Xty$to(dtype = torch_double())
-      inv_XtX <- torch_inverse(XtX_d)
-      beta_d <- torch_mv(inv_XtX, Xty_d)
-      beta <- beta_d$to(dtype = torch_float())
+      qr_X <- torch_qr(X)
+      Q <- qr_X$Q
+      R <- qr_X$R
+      beta_d <- torch_triangular_solve(Q$t()$mm(y$unsqueeze(2)), R$to(dtype = torch_double()), upper = TRUE)
+      beta <- beta_d$to(dtype = torch_float())$squeeze()
       
       X_all <- torch_ones(simulations, 4, device = device)
       X_all[, 2] <- x
@@ -258,6 +283,7 @@ mc_american_put_gpu <- function(S, K, T, sigma, r, q = 0) {
       CF[exercise_now] <- exercise[exercise_now]
       CF[!exercise_now] <- disc * CF[!exercise_now]
     }
+    }
     
     return(as.numeric(torch_mean(CF)$item()) * exp(-r * dt))
   })
@@ -266,14 +292,19 @@ mc_american_put_gpu <- function(S, K, T, sigma, r, q = 0) {
 
 ``` {r}
 mc_american_call_hybrid <- function(S, K, T, sigma, r, q = 0) {
+  steps <- round(T * 52)
+  if (steps < 1) {
+    return(max(S - K, 0))
+  }
+  
   paths_gpu <- mc_sim_pathed_gpu(S, T, sigma, r, q)
   paths <- as_array(paths_gpu$to(device = "cpu"))
   
-  steps <- round(T * 52)
   dt <- 1/52
   
   CF <- pmax(paths[, steps] - K, 0)
   
+  if (steps > 1) {
   for(step in (steps-1):1) {
     x_raw <- paths[, step]
     x <- x_raw / K
@@ -288,7 +319,7 @@ mc_american_call_hybrid <- function(S, K, T, sigma, r, q = 0) {
                x[itm_mask]^2,
                x[itm_mask]^3)
     y_use <- y
-    beta <- solve(t(X) %*% X, t(X) %*% y_use)
+    beta <- qr.solve(X, y_use)
     
     X_all <- cbind(1, x, x^2, x^3)
     continuation <- X_all %*% beta
@@ -300,6 +331,7 @@ mc_american_call_hybrid <- function(S, K, T, sigma, r, q = 0) {
     CF[exercise_now] <- exercise[exercise_now]
     CF[!exercise_now] <- exp(-r * dt) * CF[!exercise_now]
   }
+  }
   
   return(mean(CF) * exp(-r * dt))
 }
@@ -307,14 +339,19 @@ mc_american_call_hybrid <- function(S, K, T, sigma, r, q = 0) {
 
 ``` {r}
 mc_american_put_hybrid <- function(S, K, T, sigma, r, q = 0) {
+  steps <- round(T * 52)
+  if (steps < 1) {
+    return(max(K - S, 0))
+  }
+  
   paths_gpu <- mc_sim_pathed_gpu(S, T, sigma, r, q)
   paths <- as_array(paths_gpu$to(device = "cpu"))
   
-  steps <- round(T * 52)
   dt <- 1/52
   
   CF <- pmax(K - paths[, steps], 0)
   
+  if (steps > 1) {
   for(step in (steps-1):1) {
     x_raw <- paths[, step]
     x <- x_raw / K
@@ -329,7 +366,7 @@ mc_american_put_hybrid <- function(S, K, T, sigma, r, q = 0) {
                x[itm_mask]^2,
                x[itm_mask]^3)
     y_use <- y
-    beta <- solve(t(X) %*% X, t(X) %*% y_use)
+    beta <- qr.solve(X, y_use)
     
     X_all <- cbind(1, x, x^2, x^3)
     continuation <- X_all %*% beta
@@ -340,6 +377,7 @@ mc_american_put_hybrid <- function(S, K, T, sigma, r, q = 0) {
     
     CF[exercise_now] <- exercise[exercise_now]
     CF[!exercise_now] <- exp(-r * dt) * CF[!exercise_now]
+  }
   }
   
   return(mean(CF) * exp(-r * dt))
