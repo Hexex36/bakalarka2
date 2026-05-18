@@ -1,6 +1,0 @@
-yfinance
-PyQt6
-sqlalchemy
-pandas
-psycopg2-binary
-pymongo
