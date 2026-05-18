@@ -547,6 +547,21 @@ timing_summary <- data.frame(
 knitr::kable(timing_summary, digits = 4, caption = "Computation Time Comparison")
 ```
 
+```{r save-results}
+dir.create("./calculated_prices", showWarnings = FALSE)
+
+write_csv(usa_call_chains, "./calculated_prices/american_calls.csv")
+write_csv(usa_put_chains, "./calculated_prices/american_puts.csv")
+write_csv(euro_call_chains, "./calculated_prices/european_calls.csv")
+write_csv(euro_put_chains, "./calculated_prices/european_puts.csv")
+
+cat("Results saved to ./calculated_prices/\n")
+cat("  american_calls.csv:", nrow(usa_call_chains), "rows\n")
+cat("  american_puts.csv:", nrow(usa_put_chains), "rows\n")
+cat("  european_calls.csv:", nrow(euro_call_chains), "rows\n")
+cat("  european_puts.csv:", nrow(euro_put_chains), "rows\n")
+```
+
 # Benchmark on 100 Options per Variant
 
 ```{r benchmark-100}
@@ -765,6 +780,32 @@ ggplot(contour_data, aes(x = moneyness, y = T, z = pricing_error)) +
 
 ``` {r output}
 write_csv(usa_call_chains, "././calculated_prices.csv")
+```
+
+# Analysis of Calculated Prices
+
+## Method Comparison by Regime
+
+```{r method-comparison-regime}
+
+```
+
+## Volatility Sensitivity Curves
+
+```{r volatility-sensitivity}
+
+```
+
+## Time Decay Analysis
+
+```{r time-decay-analysis}
+
+```
+
+## Method Agreement Scatter
+
+```{r method-agreement-scatter}
+
 ```
 
 

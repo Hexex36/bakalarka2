@@ -1,3 +1,5 @@
+import os
+
 import pandas as pd
 import numpy as np
 from datetime import datetime
@@ -216,6 +218,7 @@ class RateFuncer:
         self,
         options_df: pd.DataFrame,
         stock_calculator: "StockPriceVolatilityCalculator",
+        target_date: str = "2026-02-27",
     ) -> pd.DataFrame:
         """
         Add stock price, volatility, and dividend yield data to options DataFrame.
@@ -223,6 +226,7 @@ class RateFuncer:
         Args:
             options_df: DataFrame with options data
             stock_calculator: StockPriceVolatilityCalculator instance
+            target_date: Date to get stock price as of (YYYY-MM-DD)
             
         Returns:
             Enhanced DataFrame with stock price, volatility, and dividend columns
@@ -233,7 +237,7 @@ class RateFuncer:
         # Create mapping of ticker to stock data
         stock_data_map = {}
         for ticker in option_tickers:
-            stock_data_map[ticker] = stock_calculator.process_ticker_data(ticker)
+            stock_data_map[ticker] = stock_calculator.process_ticker_data(ticker, target_date)
         
         # Add current price column
         options_df["current_stock_price"] = options_df["Ticker"].map(
@@ -431,9 +435,11 @@ class EnhancedOptionsProcessor:
         self,
         rates_file: str = "rates_2026_02_26.txt",
         stock_prices_file: str = "stock_prices_2026-02-27.csv",
+        target_date: str = "2026-02-27",
     ):
         self.rate_funcer = RateFuncer(rates_file)
         self.stock_calculator = StockPriceVolatilityCalculator(stock_prices_file)
+        self.target_date = target_date
 
     def process_options_file(self, options_file_path: str) -> pd.DataFrame:
         """
@@ -449,72 +455,61 @@ class EnhancedOptionsProcessor:
         df = self.rate_funcer.process_options_file(options_file_path)
 
         # Add stock data
-        df = self.rate_funcer.add_stock_data_to_options(df, self.stock_calculator)
+        df = self.rate_funcer.add_stock_data_to_options(df, self.stock_calculator, self.target_date)
 
         return df
 
 
 if __name__ == "__main__":
-    # Test the enhanced processor
-    processor = EnhancedOptionsProcessor()
+    import glob
 
-    # Test with some sample expiration dates
-    test_dates = [
-        "2026-02-28",  # 1 day
-        "2026-03-27",  # 1 month
-        "2026-05-27",  # 3 months
-        "2026-08-27",  # 6 months
-        "2027-02-27",  # 1 year
-        "2028-02-27",  # 2 years
+    months = [
+        {
+            "rates_file": "rates_2026_01_26.txt",
+            "stock_file": "stock_prices_2026-01-26.csv",
+            "target_date": "2026-01-26",
+            "date_suffix": "2026-01-26",
+        },
+        {
+            "rates_file": "rates_2026_02_26.txt",
+            "stock_file": "stock_prices_2026-02-27.csv",
+            "target_date": "2026-02-27",
+            "date_suffix": "2026-02-27",
+        },
+        {
+            "rates_file": "rates_2026_03_27.txt",
+            "stock_file": "stock_prices_2026-03-27.csv",
+            "target_date": "2026-03-27",
+            "date_suffix": "2026-03-27",
+        },
     ]
 
-    print("Testing rate matching:")
-    for date in test_dates:
-        rate = processor.rate_funcer.get_interpolated_rate(date)
-        print(f"Expiration: {date}, Rate: {rate}")
+    for month in months:
+        print(f"\n{'=' * 60}")
+        print(f"Processing month: {month['date_suffix']}")
+        print(f"{'=' * 60}")
 
-    # Process European options file with enhanced data
-    options_df = processor.process_options_file("./european_options_2026-02-27.csv")
-    print(f"\nProcessed {len(options_df)} European options")
-    print(f"Sample with rates, stock data, and dividend yield:")
-    sample_cols = [
-        "Ticker",
-        "Expiration",
-        "strike",
-        "treasury_rate",
-        "current_stock_price",
-        "historical_volatility",
-        "dividend_yield",
-    ]
-    print(options_df[sample_cols].head(10))
-
-    # Save results to new CSV file
-    output_file = "./european_options_2026-02-27_enhanced.csv"
-    options_df.to_csv(output_file, index=False)
-    print(f"\nSaved enhanced European results to {output_file}")
-
-    # Process American options file with enhanced data
-    options_df = processor.process_options_file("./american_options_2026-02-27.csv")
-    print(f"\nProcessed {len(options_df)} American options")
-    print(f"Sample with rates, stock data, and dividend yield:")
-    print(options_df[sample_cols].head(10))
-
-    # Save results to new CSV file
-    output_file = "./american_options_2026-02-27_enhanced.csv"
-    options_df.to_csv(output_file, index=False)
-    print(f"\nSaved enhanced American results to {output_file}")
-
-    # Show some summary statistics
-    print(f"\nSummary Statistics:")
-    print(f"Unique tickers: {options_df['Ticker'].nunique()}")
-    print(
-        f"Date range: {options_df['Expiration'].min()} to {options_df['Expiration'].max()}"
-    )
-
-    for ticker in options_df["Ticker"].unique():
-        ticker_data = options_df[options_df["Ticker"] == ticker]
-        avg_vol = ticker_data["historical_volatility"].mean()
-        current_price = ticker_data["current_stock_price"].iloc[0]
-        print(
-            f"{ticker}: Current Price=${current_price:.2f}, Avg Volatility={avg_vol:.2%}"
+        processor = EnhancedOptionsProcessor(
+            rates_file=month["rates_file"],
+            stock_prices_file=month["stock_file"],
+            target_date=month["target_date"],
         )
+
+        for option_type in ["european", "american"]:
+            input_file = f"./{option_type}_options_{month['date_suffix']}.csv"
+            output_file = f"./{option_type}_options_{month['date_suffix']}_enhanced.csv"
+
+            if not os.path.exists(input_file):
+                print(f"  Warning: {input_file} not found, skipping...")
+                continue
+
+            options_df = processor.process_options_file(input_file)
+            options_df.to_csv(output_file, index=False)
+            print(f"  Processed {len(options_df)} {option_type} options -> {output_file}")
+
+            sample_cols = [
+                "Ticker", "Expiration", "strike", "treasury_rate",
+                "current_stock_price", "historical_volatility", "dividend_yield",
+            ]
+            print(f"  Sample:")
+            print(options_df[sample_cols].head(3).to_string(index=False))
