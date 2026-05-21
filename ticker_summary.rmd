@@ -1,0 +1,75 @@
+---
+title: "Sumarizace tickerů v options datasetu"
+author: "Bakalářská práce"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    keep_tex: true
+    toc: false
+    number_sections: false
+header-includes:
+  - \usepackage{booktabs}
+  - \usepackage{float}
+---
+
+```{r load_data, echo=FALSE, message=FALSE, warning=FALSE}
+library(readr)
+library(dplyr)
+library(knitr)
+library(tidyr)
+
+just_all <- read_csv("Data_fetch/complete_dataset.csv")
+```
+
+# Sumarizace tickerů
+
+```{r ticker_summary, echo = FALSE, results='asis'}
+ticker_summary <- just_all %>%
+  group_by(ticker) %>%
+  summarise(
+    dividend_status = ifelse(first(q) > 0, "Dividendový", "Bezdividendový"),
+    n_expirations = n_distinct(expiration),
+    min_expiration = min(expiration),
+    max_expiration = max(expiration),
+    n_strikes = n_distinct(K),
+    n_options = n(),
+    .groups = "drop"
+  ) %>%
+  arrange(ticker)
+
+kable(ticker_summary,
+      col.names = c("Ticker", "Status", "Počet expirací", "Min expirace", "Max expirace", "Počet strike", "Počet opcí"),
+      caption = "Sumarizace jednotlivých tickerů",
+      format = "latex",
+      booktabs = TRUE) %>%
+  kableExtra::kable_styling(latex_options = "hold_position")
+```
+
+# Dividendové vs bezdividendové opce
+
+```{r dividend_split, echo=FALSE, results='asis'}
+dividend_split <- just_all %>%
+  mutate(dividend_status = ifelse(q > 0, "Dividendové", "Bezdividendové")) %>%
+  group_by(dividend_status, option_style, option_type) %>%
+  summarise(pocet = n(), .groups = "drop") %>%
+  pivot_wider(names_from = c(option_style, option_type), values_from = pocet, values_fill = 0)
+
+kable(dividend_split,
+      col.names = c("Status", "American Call", "American Put", "European Call", "European Put"),
+      caption = "Počet opcí podle dividendového statusu a typu",
+      format = "latex",
+      booktabs = TRUE) %>%
+  kableExtra::kable_styling(latex_options = "hold_position")
+```
+
+# Celkový přehled
+
+```{r overview, echo=FALSE}
+cat("Celkový počet opcí:", nrow(just_all), "\n")
+cat("Počet tickerů:", n_distinct(just_all$ticker), "\n")
+cat("Dividendové tickery:", sum(ticker_summary$dividend_status == "Dividendový"), "\n")
+cat("Bezdividendové tickery:", sum(ticker_summary$dividend_status == "Bezdividendový"), "\n")
+cat("Rozsah expirací:", min(just_all$expiration), "až", max(just_all$expiration), "\n")
+cat("Rozsah strike cen:", min(just_all$K), "až", max(just_all$K), "\n")
+```

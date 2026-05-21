@@ -111,6 +111,10 @@
 \raggedbottom
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newtheorem{veta}{Věta}[section]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % vlastní začátek dokumentu
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -247,25 +251,82 @@ Text v této šabloně by Vám měl pomoci s tvorbou závěrečné práce. Je v�
 
 \section{Úvod do problematiky opcí}
 
-\subsection{Definice opce}
+  \subsection{Racionalizace existence opcí}
 
-  \textbf{Poznámka: Následující text je první draft práce. Bude obsahovat nespisovné výrazy, neobratné vyjadřování, a nepodpořené výroky.}
+  Ve světě obchodování je vývoj cen nevyzpytatelný. Nemůžeme předpovídat sto procent událostí, které v budoucnosti budou mít vliv na hodnotu zdrojů, služeb prostředků.
 
-  Ve světě obchodování je vývoj cen nevyzpytatelný, aspoň se stoprocentní jistotou a přesností. Následkem tohoto fakt nás při různých obchodech můžeme následkem nepředvídatelných událostí, nebo vlivem špatného úsudku, učinit obchod při kterém proděláme. Nebo například vlivem jiných údalostí klesne cena produktu, který nějaká firma vyrábí, čímž může přijít o část zisků, a může to narušit její fiskální rok.
+  Mějme teoretickou firmu F. Firma F vyrábí nespecifikovaný produkt, z určitého materiálu, prodávaného dodavatelem D. Předpokládejme, že firma F je na začátku nového fiskálního období a plánuje nákup surovin a produkci na další období. Pokud by mezi vytvořením plánu a časem koupě došlo k nějakému výpadku u dodavatele D, nebo k nějaké globální krizi, byla by ovlivněna i cena nakoupené suroviny, čímž bychom museli provést velké změny v rozpočtu. Jako pojištění proti této situaci, se mohou obě strany dohodnout předem, kdy, kolik a za jakou cenu bude surovina nakoupena, předem, a uzavřít o tomto faktu dohodu. Tomuto se říká "forwardový kontrakt".
 
-  Opce jsou druh finančního kontraktu, který držiteli dává právo, nikoliv povinnost, jako by bylo třeba u futures, uskutečnit prodej/koupi předem daného podkladového aktiva za předem stanovenou cenu.
+  Forwardový kontrakt je druh finančního derivátu, ve kterém se dvě strany zavazují k výměně zboží nebo měny v blíže specifikovaném bodě v čase. Tento kontrakt musí obsahovat: kvantitu a typ komodity nebo prostředku prodaného dodavatelem, detaily logistiky (čas, datum, místo), cena zaplacená za koupené zboží. \cite[str.~39]{McDonald2013} Čas směny nazveme expiračním datem a prodávanou komoditu či prostředek nazveme pokladovým aktivem.
 
-  Důležité je zde slovo "právo". Měly-li by obě strany povinnost uskutečnit tento obchod, držící by musel dané aktivum koupit, i v případě, kdy by tato akce šla proti jeho zájmům. Opce specificky umožnující držiteli v případě, kdy by obchod uznal za neoptimální, nevyžít svého práva, a nechat kontrakt propadnout. Právě tato skutečnost činí opce velmi efektivní formou pojistky proti nepříznívým pohybům na trhu.
+  Uzavřením forwardového kontraktu se obě strany zavazují k transakci. Dodavatel je povinnen své zboží dodat, kupující je povinnen jej zaplatit. Kupující drží tzv. "longovou" pozici, a prodávající "shortovou" pozici. \cite[str.~43]{McDonald2013}
 
-  Kupříkladu: Chtěli bychom-li koupit akcie společnosti $A$, za účelem jejich prodání za výdělek v pozdější době, lze porovnat dva přístupy: Koupě akcie napřímo, v momentálním bodě v čase, nebo koupě opce, 
+  Jak již bylo řečeno, nemůžeme přesně odhadnout vývoj ceny podkladového aktiva. Předpokládejme, že držíme longovou pozici ve forwardovém kontratku. Pokud se cena podkladového aktiva vyšplhá nad cenu dohodnutou ve forwardovém kontraktu, získáme dražší aktivum, za cenu menší než je na trhu, tím pádem ušetříme za koupi. Naopak, spadne-li cena pod cenu dohodnutou ve forwardovém kontraktu, jsme nuceni koupit aktivum za pro nás bezdůvodně vysokou cenu, a koupí proděláváme.
 
-  \subsection{Syntetická pozice}
+  Pokud bychom ovšem drželi shortovou pozici, celá situace funguje obráceně. Spadne-li cena pod dohodnutou prodejní cenu, prodáváme naše aktivum za větší cenu než na trhu, a vyděláváme. Vyšplhá-li se cena nad dohodnutou prodejní cenu, mohli jsme naše aktivum prodat za vyšší cenu na trhu, a nevyděláme tolik.
+
+  \begin{veta} \label{veta_forward_zisk}
+    Nechť S označuje cenu podkladového aktiva v dobu expirace, a K cenu dohodnutou. Celkový zisk z longové pozice forwardového kontraktu můžeme označit jako $S - K$, a celkový zisk z shortové pozice forwardového kontraktu můžeme označit jako $K - S$.
+  \end{veta}
+
+  Předpokládejme, že cena momentálního aktiva je 100 Kč, a očekáváme, že cena aktiva při expiraci bude 110 Kč, kvůli zhodnocení měny. % Je zhodnocení měny správný pojem?
+  Mějme tedy $S = 110$.
+  Firma F uzavře forwardový kontrakt na koupi nespecifikovaného množství aktiva s dodavetelem D. Při době expirace, mohou nastat tři situace:
+  \begin{enumerate}
+    \item{Cena aktiva bude 110 Kč. ($K = 110$). Výdělek pro longovou i shortovou pozici je $110 - 110$, čili $0$ Kč.}
+    \item{Cena aktiva stoupne nad 110 Kč. ($K = 120$). Firma F získává aktivum o větší hodnotě, než je placená cena, tudíž vydělává $120 - 110 = 10$ Kč. Doručovatel D prodává za malou cenu, tudíž jeho zisk činí $110 - 120 = -10$ Kč.}
+    \item{Cena aktiva klesne pod 110 Kč. ($K = 100$). Firma F získává aktivum o nižší hodnotě, než je placená cena, tudíž získává $100 - 110 = -10$ Kč. Doručovatel D prodává za vysokou cenu, tudíž jeho zisk činí $110 - 100 = 10$ Kč.}
+  \end{enumerate}
+
+  Uvažovali bychom-li tak, že bychom chtěli maximalizovat zisk z našeho kontraktu, jeví se jako optimální koupit aktivum za pomocí kontraktu, je-li tržní cena vyšší nebo rovna dohodnuté ceně, a koupit aktivum z trhu, klesne-li tržní cena pod cenu dohodnutou. Nicméně, uzavřením forwardového kontraktu jsme potom zavázáni aktivum koupit pomocí kontraktu. Tento problém řeší opce.
+
+  \subsection{Definice opce}
+
+  Opce jsou druh finančního kontraktu, který držiteli dává právo, nikoliv povinnost, jako by bylo u forwardových kontraktů, uskutečnit prodej/koupi předem daného podkladového aktiva za předem stanovenou cenu. 
+
+  Opce se od forwardových kontraktů liší tím, že opce nejsou vázány na dvě specifické entity, ale na vypisovatele a držitele, přičemž držitel opce se může změnit (např. držitel opce ji může prodat jinému), kdežto vypisovatel opce může být pouze jeden člověk, spefickovaný v kontraktu. Narozdíl od forwardového kontraktu, kde shortovou pozici zaujímal prodávající, a longovou kupující, u opcí je v shortové pozici vypisovatel, a v longové pozici držitel.
+
+  Stejně jako forwardové kontrakty, opce mohou být použity k transakci různých podkladových aktiv, od surovin, přes měny, až po akcie. Středem zájmu této práce jsou pouze opce na akciích, a nebude-li řečeno jinak, budeme termínem opce rozumět "opce nad akciemi".
+
+  Držitel opce má možnost se v času expirace rozhodnout, zda kontrakt využije, a získá tak aktivum na úkor placené ceny, nebo zda nechá kontrakt expirovat. Nicméně, toto právo získává pouze držitel opce, ne vypisovatel. Vypisovatel je vždy povinnen umožnit vykonání opce.
+
+  V rámci této asymetrie musíme také zadefinovat dva specifické typy opcí:
+  \begin{itemize}
+    \item Pokud vypisovatel prodává držiteli aktivum za specifikovanou cenu, jedná se o \textbf{call} opci. \cite{Hull2021} \cite{McDonald2013}
+    \item Pokud vypisovatel kupuje držitelovo aktivum za specifikovanou cenu, jedná se o \textbf{put} opci. \cite{Hull2021} \cite{McDonald2013}
+  \end{itemize}
+
+  Opce jsou konceptuálně složitější než forwardové kontrakty. Pro jejich správné pochopení a ohodnocení si zadefinujeme následující proměnné:
+  \begin{itemize}
+    \item $S$ - cena aktiva
+    \item $K$ - Strike cena (dohodlá cena při expiraci)
+    \item $T$ - doba do expirace (v závislosti na specifickou jednotku)
+    \item $\sigma$ - implikovaná volatilita aktiva
+  \end{itemize}
+
+  Předpokládejme, že firma F koupí call opci, vypsanou dodavatelem D, opravňující ji koupit potřebnou surovinu za strike cenu 110 Kč, přičemž momentální cena aktiva je 100 Kč. V tomto případě, v době expirace pro firmu F nastávají tři potenciální situace:
+  \begin{enumerate}
+    \item Cena aktiva je při expiraci stejná jako strike cena ($S = 110$) Kč. Využití opce je ekvivalentní koupi daného aktiva na trhu, nikdo nevydělává.
+    \item Cena aktiva je při expiraci vyšší než strike cena ($S = 120$) Kč. Využitím opce získává firma F aktivum levněji než na trhu, a ušetří $120 - 110 = 10$ Kč. Dodavatel musí prodat aktivum za menší cenu než na trhu, a prodělává $110 - 120 = -10$ Kč.
+    \item Cena aktiva je při expiraci menší než strike cena ($S = 100$) Kč. Využitím opce by firma F nakoupila aktivum dráž než na trhu, čímž by prodělala. Tudíž se rozhodne surovinu nekoupit, a nakoupí ji na trhu. Ani jedna strana nic nevydělala.
+  \end{enumerate}
+
+  Pro demonstraci put opce, předpokládejme že firma F koupí put opci, vypsanou firmou G, která ji umožňuje prodat její produkt za strike cenu 110 Kč. Při expiraci mohou nastat 3 situace:
+  \begin{enumerate}
+    \item Cena aktiva je při expiraci stejná jako strike cena ($S = 110$). Využití opce je ekvivalentní koupi daného aktiva na trhu, nikdo nevydělává.
+    \item Cena aktiva je při expiraci menší než strike cena ($S = 100$). Využitím opce by firma F prodala aktivum dráž než na trhu, čímž vydělává $110 - 100 = 10$ Kč. 
+    \item Cena aktiva je při expiraci vyšší než strike cena ($S = 120$). Využitím opce získává firma F aktivum levněji než na trhu, a ušetří $120 - 110 = 10$ Kč. Dodavatel musí prodat aktivum za menší cenu než na trhu, a prodělává $110 - 120 = -10$ Kč.
+  \end{enumerate}
+
+  Z přechozího příkladu lze vidět, že z momentálního znění opcí vypisovatel nemůže profitovat, což znamená, že žádný racionální hráč by nikdy nechtěl vypisovat opce. Abychom vypisovatele přesvědčili vypsat opci, zavedeme opční prémium.
+
+  Opční prémium je částka, kterou zaplatíme vypisujícímu, abychom vyrovnali potenciální riziko ztráty peněz. Prémium je jednoduše řečeno poplatek za možnost držení opce. Ve chvíli, kdyby držitel opce se rozhodl nechat opci expirovat bez využití, vypisovatel stále vlastní svoje zboží, které může prodat za tržní hodnotu, a k tomu vydělal opční prémium. % Doplň nahoru že forwardy neznají nic jako prémium, a že jsou +- fér
 
   \subsection{Put-call parita}
 
-  Stejně jako můžeme vytvořit syntetické opce, můžeme vytvořit i syntetickou forwardovou pozici pro specifickou akcii pomocí koupě call opce a vypsání put opce (se stejnou strike cenou a dobou expirace). Pokud cena při expiraci stoupne nad strike cenu, put opce nemá žádnou hodnotu, a její vlastník ji nevyužije, zatímco my, jako vlastníci call opce nad strikeovou cenou, můžeme koupit akcie levněji než jsou na trhu, což je v našem zájmu. Pokud cena při expiraci klesne pod strikeovou cenu, call opce se stane bezcennou, a vlastník put opce nás přinutí odkoupit od něj akcii za vyšší cenu než na trhu. Tak jako tak, dostaneme specifické množství akcie, za strikeovou cenu. Toto přímo napodobuje forwardový kontrakt: Koupíme specifické množství podkladového aktiva za předem danou cenu, v specifickém bodě v budoucnosti.
+  Můžeme vytvořit syntetickou forwardovou pozici pro specifickou akcii pomocí koupě call opce a vypsání put opce (se stejnou strike cenou a dobou expirace). \cite{McDonald2013} Pokud cena při expiraci stoupne nad strike cenu, put opce nemá žádnou hodnotu, a její vlastník ji nevyužije, zatímco my, jako vlastníci call opce nad strikeovou cenou, můžeme koupit akcie levněji než jsou na trhu, což je v našem zájmu. Pokud cena při expiraci klesne pod strikeovou cenu, call opce se stane bezcennou, a vlastník put opce nás přinutí odkoupit od něj akcii za vyšší cenu než na trhu. Tak jako tak, dostaneme specifické množství akcie, za strikeovou cenu. Toto přímo napodobuje forwardový kontrakt: Koupíme specifické množství podkladového aktiva za předem danou cenu, v specifickém bodě v budoucnosti.
 
-  Důležité je konstatovat, že oproti opcím, za forwardové kontrakty neplatíme prémium, poněvadž obě strany kontraktu mají stejnou příležitost vydělat. I toto je reprezentováno v systetické pozici. Máme-li forwardovou cenu $F$ pro forwardový kontrakt a strike cenu $K$ pro opce naší syntetické forwardové pozice, můžeme určit, co se stane, je-li $K$ větší nebo menší než $F$. Platí-li $K < F$, kupujeme danou akcii za pro nás výhodnou cenu. Tento fakt se musí promítnout na dražím prémiu call opce, jinak by prodávat tuto opci bylo nevýhodné. Naopak, je-li $K > F$, kupujeme akcii za pro nás nevýhodnou cenu, a chceme dostat vyšší prémium, pro případ že bychom museli prodávat akcii za nevýhodnou cenu. Pokud $K = F$, aby naše syntetická forwardová pozice napodobovala reálný forwardový kontrakt, musí zisk/prodělek z prémií být nulový. Tudíž, prémium call opce musí stát stejně co prémium put opce. Tímto se cena za syntetickou pozici rovná ceně koupě forwardového kontraktu. Tomuto konceptu říkáme put-call parita.
+  Důležité je konstatovat, že oproti opcím, za forwardové kontrakty neplatíme prémium, poněvadž obě strany kontraktu mají stejnou příležitost vydělat. \cite{McDonald2013} I toto je reprezentováno v systetické pozici. Máme-li forwardovou cenu $F$ pro forwardový kontrakt a strike cenu $K$ pro opce naší syntetické forwardové pozice, můžeme určit, co se stane, je-li $K$ větší nebo menší než $F$. Platí-li $K < F$, kupujeme danou akcii za pro nás výhodnou cenu. Tento fakt se musí promítnout na dražím prémiu call opce, jinak by prodávat tuto opci bylo nevýhodné. Naopak, je-li $K > F$, kupujeme akcii za pro nás nevýhodnou cenu, a chceme dostat vyšší prémium, pro případ že bychom museli prodávat akcii za nevýhodnou cenu. Pokud $K = F$, aby naše syntetická forwardová pozice napodobovala reálný forwardový kontrakt, musí zisk/prodělek z prémií být nulový. Tudíž, prémium call opce musí stát stejně co prémium put opce. Tímto se cena za syntetickou pozici rovná ceně koupě forwardového kontraktu. Tomuto konceptu říkáme put-call parita. \cite{McDonald2013}
 
   Pro matematickou formulaci musíme zavést trochu nové notace: Řekněme, že v čase 0 kupujeme forwardový kontrakt, kterým se vázáme koupit v čase $T$ podkladové aktivum za forwardovou cenu $F_{0, T}$. Současná hodnota kontraktu je rovná forwardové ceně aktiva, značeno jako $PV(F_{0, T})$. V syntetické pozici musí být současná hodnota vlastnění aktiva rovna prémiu z opcí (možnost koupě) a strikeové ceně (hodnota aktiva), čili $Call(K, T) - Put(K, T) + PV(K)$, kde $Call(K, T)$ a $Put(K, T)$ jsou prémia za danou opci. Dohromady vzniká takováto rovnice: 
 
@@ -304,6 +365,29 @@ Text v této šabloně by Vám měl pomoci s tvorbou závěrečné práce. Je v�
   \end{equation}
 
   Tímto jsme odvodili rovnici put-call parity pro opce na akciích.
+
+  % TODO: Dopsat důsledky a arbitráže
+
+  \subsection{Styly využití opcí}
+
+  Zatím jsme uvažovali pouze o kontraktech, které můžeme využít pouze v datum expirace. Tomuto stylu využití opce se říká \textbf{evropský} styl. \cite[str.~50]{McDonald2013}
+  Je to jeden ze dvou bežných stylů využití opce. Používá se primárně na akciové indexy, neb indexy jsou takzvaně "cash-settled" - vyrovnány měnou. Akciové indexy pouze sledují cenu a nedávájí žádné podkladové aktivum, jde čistě jen o zisk ze spekulace.
+
+  Pokud nám opce umožňuje ji využít před datem expirace, nazýváme tuto opci \textbf{americkou}. \cite[str.~50]{McDonald2013} Brzké využití je opět pouze právo, tudíž můžeme nechat opci nevyužitou až do data expirace. Tímto způsobem můžeme napodobit chování opce evropské. Důsledkem tohoto faktu můžeme na jakoukoliv obchodní strategii využít opce americké místo evropských. 
+
+  \begin{veta}
+    Cena libovolné americké akcie musí být větší než nebo rovna ceně stejné akcie (stejná strike cena, expirace, podkladové aktivum, apod.) evropského stylu. \cite[str.~50]{McDonald2013}
+  \end{veta}
+
+  Pro americké call opce na bezdividencové akcii je právo brzkého využití bezcenné. Využitím opce ztrácíme ochranu před náhlým poklesem hodnoty aktiva, urychlujeme čas, ve kterém musíme uhradit koupi aktiva, a který můžeme využít investicí do jiných prostředků, a ještě k tomu ztrácíme peníze vydělané potenciálním prodejem této opce.
+  Obecně platí, že $S - K$ je zisk nabytý skrze forwardový kontrakt, jak říká \ref{veta_forward_zisk}. Kvůli zisku práva nevyužít opci, musí být hodnota opce vyšší než forwardového kontraktu. Důsledkem, cena americké opce je vždy vyšší než $S - K$. Abychom z opce měli co největší možný zisk, je lepší opci prodat, než-li ji využít. \cite{McDonald2013} Pro dividendové opce dává brzké využití smysl, specificky před vyplácením dividendy \cite{McDonald2013}. Pro put opce dává brzké využití také smysl, kupříkladu v případě, kdy je cena aktiva nulová. Cena se níž propadnout nemůže, tudíž využitím získáme maximální možnou výplatu.
+
+  Evropské a americké opce jsou při obchodování s opcemi běžně využívané a jsou vhodné pro většinu našich normálních potřeb (co se týká opcí). Tyto opce nazýváme také \textbf{vanilkové}. Protikladem k vanilkovým opcím jsou opce exotické. Tyto opce většinou obsahují nějakou speciální vlastnost, která silně ztěžuje odhad jejich hodnoty, ale nechá nás pokrýt speciální situace a požadavky. Exotické opce nejsou využity v rámci této práce, nicméně jsou uváděny pro plnou informovanost čtenáře.
+
+  Někteří vypisovatelé mohou uplatnit určité limitace na americké opce. Mezi běžné modifikace možnosti brzkého využití patří možnost brzkého využití pouze ve specifické dny (Bermundská opce) a období, kdy je brzké využití zakázáno (lock-out perioda). \cite{Hull2021} Toto může být pro vypisovatele, kteří nemohou poskytnout podkladové aktivum nebo zaplatit koupi aktiva v libovolný moment.
+
+
+
 
   \section{Ohodnocování opcí pomocí binomických a trinomických stromů}
 
