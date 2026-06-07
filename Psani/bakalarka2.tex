@@ -255,49 +255,49 @@ Text v této šabloně by Vám měl pomoci s tvorbou závěrečné práce. Je v�
 
   \subsection{Definice opce}
 
-  Opce jsou druh finančního kontraktu, který držiteli dává právo, nikoliv povinnost, na rozdíl od forwardových kontraktů, uskutečnit prodej/koupi předem daného podkladového aktiva za předem stanovenou cenu. 
+  Opce jsou druh finančního kontraktu, který držiteli dává právo, nikoliv povinnost, uskutečnit prodej/koupi předem daného podkladového aktiva za předem stanovenou cenu. 
 
-  Držitel opce má možnost se v datum expirace opce rozhodnout, zda chce opci využít, čímž by získal předem dohodnuté podkladové aktivum za předem stanovenou cenu, nebo jestli ji chce nechat expirovat bez využití. Ceně, za kterou má držitel nakoupit dané aktivum nazýváme \textbf{Strike cena}. Datum, kdy má vypršet opce, označujeme jako \textbf{Datum expirace}. Podkladové aktivum může být cokoliv, co má smysl nějakým způsobem prodávat. Suroviny, akcie, měna, jiné finanční kontrakty, a mnoho dalších.
+  Držitel opce má možnost se k datu expirace opce rozhodnout, zda chce opci uplatnit, čímž by získal předem dohodnuté podkladové aktivum za předem stanovenou cenu, nebo jestli ji chce nechat expirovat bez uplatnění. Cenu, za kterou má držitel nakoupit dané aktivum, nazýváme \textbf{strike cena}. Datum, kdy má vypršet opce, označujeme jako \textbf{datum expirace}. Podkladové aktivum může být cokoliv, co lze smysluplně prodávat; suroviny, akcie, měny, jiné finanční kontrakty, a jiné.
 
-  Opce nejsou vázány na dvě konkrétní protistrany, nýbrž na vypisovatele a držitele, přičemž držitel se může změnit (např. držitel opce ji může prodat jinému), kdežto vypisovatel opce může být pouze jeden specifický člověk, napsaný v kontraktu. Říkáme, že držitel opce je v dlouhé (longové) pozici, zatímco vypisovatel je v krátké (shortové) pozici. Toto se liší od bežnějšího použití termínu dlouhá a krátká pozice, vyjadřující názor na trh, a následně i jednání dle tohoto názoru; termíny dlouhá a krátká pozice jsou v tomto případě zcela nesouvisející.
+  Opce nejsou vázány na dvě konkrétní protistrany, nýbrž na vypisovatele a držitele, přičemž držitel se může změnit (např. držitel opce ji může prodat jinému), kdežto vypisovatel opce může být pouze jedna specifická fyzická nebo právnická osoba, napsaná v kontraktu. Říkáme, že držitel opce je v dlouhé (longové) pozici, zatímco vypisovatel je v krátké (shortové) pozici. Toto se liší od běžnějšího použití termínu dlouhá a krátká pozice, vyjadřující názor na trh, a následně i jednání dle tohoto názoru, kde dlouhá pozice vyjadřuje koupi akcie a krátká pozice prodej akcie. U opcí se tyto termíny používají z hlediska koupě prodeje samotné opce.
 
-  Zatímco držitel opce může od kontraktu odstoupit, vypisovatel je vždy povinen splnit svoji část kontraktu. Pokud držitel využije svého práva prodat specifickou akcii za Strike cenu, vypisovatel musí tuto akcii koupit, i kdyby mu to způsobilo finanční ztrátu.
+  Zatímco držitel opce může od kontraktu odstoupit, vypisovatel je vždy povinen splnit svoji část kontraktu. Pokud držitel uplatní své právo a prodá specifickou akcii za strike cenu, vypisovatel musí tuto akcii koupit, i kdyby mu to způsobilo finanční ztrátu.
 
   V rámci této asymetrie musíme také zadefinovat dva specifické typy opcí:
   \begin{itemize}
-    \item Pokud držitel má právo nakoupit aktivum, jedná se o \textbf{call} opci. \citep[str.~31]{Hull2021} \citep[str.~49]{McDonald2013} 
-    \item Pokud držitel má právo prodat aktivum, jedná se o \textbf{put} opci. \citep[str.~31]{Hull2021} \citep[str.~55]{McDonald2013}
+    \item Pokud držitel má právo nakoupit aktivum, jedná se o \textbf{kupní} neboli \textbf{call} opci.
+    \item Pokud držitel má právo prodat aktivum, jedná se o \textbf{prodejní} neboli \textbf{put} opci.
   \end{itemize}
 
   Pro správné pochopení a ohodnocení opcí si zadefinujeme následující značení:
   \begin{itemize}
-    \item $S$ - cena aktiva
-    \item $K$ - Strike cena (dohodnutá cena při expiraci)
-    \item $T$ - doba do expirace (v závislosti na specifické jednotce)
-    \item $\sigma$ - implikovaná volatilita aktiva
+    \item $S$ - cena aktiva,
+    \item $K$ - strike cena (dohodnutá cena při expiraci),
+    \item $T$ - doba do expirace opce (jako poměrná část roku),
+    \item $\sigma$ - volatilita ceny podkladového aktiva per annum.
   \end{itemize}
 
-  Uveďme příklad využití call opce pro správné pochopení.
-  Předpokládejme, že firma F koupí call opci, vypsanou dodavatelem D, opravňující ji koupit potřebnou surovinu za strike cenu 110 Kč, přičemž momentální cena aktiva je 100 Kč. V tomto případě, v době expirace pro firmu F nastávají tři potenciální situace:
+  Uveďme příklad použití call opce pro správné pochopení.
+  Předpokládejme, že účastník trhu A koupí call opci, vypsanou účastníkem trhu B, opravňující účastníka A koupit akcii za strike cenu 110 Kč, přičemž momentální cena aktiva je 90 Kč. V tomto případě, v době expirace pro účastníka A nastávají tři potenciální situace:
   \begin{enumerate}
-    \item Cena aktiva je při expiraci stejná jako strike cena ($S = 110$) Kč. Využití opce je ekvivalentní koupi daného aktiva na trhu, nikdo nevydělává.
-    \item Cena aktiva je při expiraci vyšší než strike cena ($S = 120$) Kč. Využitím opce získává firma F aktivum levněji než na trhu, a ušetří $120 - 110 = 10$ Kč. Dodavatel musí prodat aktivum za menší cenu než na trhu, a prodělává $110 - 120 = -10$ Kč.
-    \item Cena aktiva je při expiraci menší než strike cena ($S = 100$) Kč. Využitím opce by firma F nakoupila aktivum dráž než na trhu, čímž by prodělala. Tudíž se rozhodne surovinu nekoupit, a nakoupí ji na trhu. Ani jedna strana nic nevydělala.
+    \item Cena aktiva je při expiraci stejná jako strike cena ($S = 110, K = 110$). Uplatnění opce je ekvivalentní koupi daného aktiva na trhu, nikdo nevydělává.
+    \item Cena aktiva je při expiraci vyšší než strike cena ($S = 120, K = 110$). Uplatněním opce získává účastník A aktivum levněji než na trhu, a ušetří $120 - 110 = 10$ Kč. Účastník B musí prodat aktivum za menší cenu než na trhu, a prodělává $110 - 120 = -10$ Kč.
+    \item Cena aktiva je při expiraci menší než strike cena ($S = 100, K = 110$). Uplatněním opce by účastník A nakoupil aktivum dráž než na trhu, čímž by prodělal. Tudíž se rozhodne aktivum nekoupit, a nakoupí jej na trhu. Ani jedna strana nic nevydělala.
   \end{enumerate}
 
-  Pro demonstraci put opce, předpokládejme, že firma F koupí put opci, vypsanou firmou G, která ji umožňuje prodat její produkt za strike cenu 110 Kč. Při expiraci mohou nastat 3 situace:
+  Pro demonstraci put opce, předpokládejme, že účastník trhu A koupí put opci, vypsanou účastníkem trhu B, která účastníkovi A umožňuje prodat jeho akcie za strike cenu 110 Kč. Při expiraci mohou nastat tři situace:
   \begin{enumerate}
-    \item Cena aktiva je při expiraci stejná jako strike cena ($S = 110$). Využití opce je ekvivalentní koupi daného aktiva na trhu, nikdo nevydělává.
-    \item Cena aktiva je při expiraci menší než strike cena ($S = 100$). Využitím opce firma F prodává aktivum dráž než na trhu, čímž vydělává $110 - 100 = 10$ Kč. Firma G kupuje za nadstandardní cenu, čímž ztrácí $100 - 110 = -10$ Kč. 
-    \item Cena aktiva je při expiraci vyšší než strike cena ($S = 120$). Využitím opce by firma F prodala aktivum levněji než na trhu, a ztratila by $110 - 120 = -10$ Kč. Firma F se rozhodne opci nevyužít, čímž ani jedna strana nevydělá.
+    \item Cena aktiva je při expiraci stejná jako strike cena ($S = 110, K = 110$). Uplatnění opce je ekvivalentní koupi daného aktiva na trhu, nikdo nevydělává.
+    \item Cena aktiva je při expiraci menší než strike cena ($S = 100, K = 110$). Uplatněním opce účastník A prodává aktivum dráž než na trhu, čímž vydělává $110 - 100 = 10$ Kč. Účastník B kupuje za nadstandardní cenu, čímž ztrácí $100 - 110 = -10$ Kč. 
+    \item Cena aktiva je při expiraci vyšší než strike cena ($S = 120, K = 110$). Uplatněním opce by účastník A prodal aktivum levněji než na trhu, a ztratil by $110 - 120 = -10$ Kč. Účastník A se rozhodne opci neuplatnit, čímž ani jedna strana nevydělá.
   \end{enumerate}
 
-  Opce, které by při využití ihned měly kladnou výplatu, budeme nazývat "in-the-money", nebo zkráceně ITM, zatímco opce, které by při využití ihned měly nulovou výplatu, nazveme "out-of-the-money", čili OTM. \citep[str.~58]{McDonald2013}
+  Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývají \uv{in-the-money}, nebo zkráceně ITM, zatímco opce, které by při okamžitém uplatnění měly zápornou výplatu, se nazývají \uv{out-of-the-money}, čili OTM. O těchto opcích říkáme, že mají nulovou vnitřní hodnotu. Pokud by opce měla nulovou výplatu, říkáme že je \uv{at-the-money}, čili ATM. \citep[s.~58]{McDonald2013} % TODO: Zkontroluj citaci
 
-  Z předchozího příkladu lze vidět, že z momentální definice opcí vypisovatel nemůže profitovat, což znamená, že žádný racionální hráč by nikdy nechtěl vypisovat opce. Abychom vypisovatele přesvědčili vypsat opci, zavedeme opční prémium.
-  Opční prémium je částka, kterou zaplatíme vypisujícímu, abychom vyrovnali potenciální riziko ztráty peněz. Prémium je jednoduše řečeno poplatek za možnost držení opce. Ve chvíli, kdyby se držitel opce rozhodl nechat opci expirovat bez využití, vypisovatel stále vlastní svoje zboží, které může prodat za tržní hodnotu, a k tomu inkasoval opční prémium. \citep[str.~9]{McDonald2013}
+  Z předchozího příkladu lze vidět, že z dosavadní definice opcí vypisovatel nemůže profitovat, což znamená, že žádný racionální účastník trhu by nikdy nechtěl vypisovat opce. Abychom vypisovatele přesvědčili vypsat opci, zavedeme opční prémii.
+  Opční prémie je částka, kterou zaplatíme vypisovateli, abychom vyrovnali potenciální riziko finanční ztráty. Prémie je jednoduše řečeno poplatek za možnost držení opce. Ve chvíli, kdyby se držitel opce rozhodl nechat opci expirovat bez uplatnění, vypisovatel stále vlastní své akcie, které může prodat za tržní hodnotu, a k tomu inkasoval opční prémii. \citep[s.~9]{McDonald2013}
 
-  V ukázkách jsme po zjednodušení vynechali z výpočtů zisku obou stran cenu opčního prémia. Pro opce počítáme výdělek (zisk/ztrátu) v čase využití opce následovně:
+  V ukázkách jsme pro zjednodušení vynechali z výpočtů zisku obou stran cenu opční prémie. Stanovíme-li $p$ jako označení výše opční prémie, pro opce počítáme výplatu (zisk/ztrátu) v čase uplatnění opce následovně:
   \begin{center}
   \begin{tabular}{lcc}
     \toprule
@@ -308,46 +308,56 @@ Text v této šabloně by Vám měl pomoci s tvorbou závěrečné práce. Je v�
     \bottomrule
   \end{tabular}
   \end{center}
-  kde $p$ značí opční prémium.
-  Existují specifické typy opcí, které umožňují jiné způsoby využití, či jinak vyhodnocují Strike cenu. Toto ocenění platí pro tzv. vanilkové opce, jak je vysvětleno v další sekci.
 
-  \subsection{Styly využití a typy opcí}
+  Existují specifické typy opcí, které umožňují jiné způsoby uplatnění, či jinak vyhodnocují strike cenu. Toto ocenění platí pro tzv. vanilkové opce, jak je vysvětleno v další sekci.
 
-  Zatím jsme uvažovali pouze o kontraktech, které můžeme využít pouze v den expirace. Tomuto stylu využití opce se říká \textbf{evropský} styl. \citep[str. 50]{McDonald2013}
-  Je to jeden ze dvou běžných stylů využití opce. Používá se primárně na akciové indexy, neb indexy jsou takzvaně "cash-settled" - vyrovnány měnou. Akciové indexy pouze sledují cenu a nedávají žádné podkladové aktivum, jde čistě jen o zisk ze spekulace.
+  \subsection{Styly uplatnění a typy opcí}
 
-  Pokud nám opce umožňuje ji využít před datem expirace, říkáme, že tato opce má \textbf{americký} styl využití. \citep[str.~50]{McDonald2013} Brzké využití je opět pouze právo, tudíž můžeme nechat opci nevyužitou až do data expirace. Tímto způsobem můžeme napodobit chování opce evropské. Důsledkem můžeme v zásadě na jakoukoliv obchodní strategii použít opce americké namísto evropských, je-li to výhodné. Jelikož kupující získává extra výsadu, která mu dává lepší možnost vydělat na úkor vypisovatele, platíme větší prémium než za opci evropskou.
+  Zatím jsme uvažovali pouze o kontraktech, které můžeme uplatnit pouze v den expirace. Tomuto stylu uplatnění opce se říká \textbf{evropský} styl. 
+  Je to jeden ze dvou běžných stylů uplatnění opce. Používá se nejčastěji na akciové indexy, neboť indexy jsou takzvaně \uv{cash-settled} - vyrovnány měnou. Akciové indexy pouze sledují cenu a nedávají žádné podkladové aktivum, jde čistě jen o zisk ze spekulace, či k zajištění se proti negativnímu vývoji cen.
 
-  Pro americké call opce na akcie bez dividend je právo brzkého využití bezcenné. Využitím opce ztrácíme ochranu před náhlým poklesem hodnoty aktiva, urychlujeme čas, ve kterém musíme uhradit koupi aktiva, a který můžeme využít investicí do jiných prostředků, a ještě k tomu ztrácíme peníze vydělané potenciálním prodejem této opce.
-  Obecně platí, že $S - K$ je zisk nabytý skrze forwardový kontrakt. Kvůli zisku práva nevyužít opci, musí být hodnota opce vyšší než hodnota forwardového kontraktu. Důsledkem toho, cena americké opce je vždy vyšší než $S - K$. Abychom z držení opce měli co největší možný zisk, je lepší opci prodat, než ji využít. Pro opce na akcie vyplácející dividendy dává brzké využití smysl, specificky před vyplácením dividendy \citep[str.~291-293]{McDonald2013}. Pro put opce dává brzké využití také smysl, kupříkladu v případě, kdy je cena aktiva nulová. Cena se níž propadnout nemůže, tudíž využitím získáme maximální možnou výplatu.
+  Pokud nám opce umožňuje ji uplatnit před datem expirace, říkáme, že tato opce má \textbf{americký} styl uplatnění. Předčasné uplatnění je opět pouze právo, tudíž můžeme nechat opci neuplatněnou až do data expirace. Tímto způsobem můžeme napodobit chování opce evropské. Důsledkem můžeme v zásadě na jakoukoliv obchodní strategii použít opce americké namísto evropských, je-li to výhodné. Jelikož kupující získává výhodu navíc, která mu dává lepší možnost vydělat na úkor vypisovatele, platíme větší prémii než za opci evropskou.
 
-  Evropské a americké opce jsou při obchodování s opcemi běžně využívané a jsou vhodné pro většinu našich normálních potřeb (co se týká opcí). Tento typ opcí nazýváme také \textbf{vanilkový}. Protikladem k vanilkovým opcím jsou opce exotické. Tyto opce většinou obsahují nějakou speciální vlastnost, která silně ztěžuje odhad jejich hodnoty, ale umožňuje pokrýt speciální situace a požadavky. Exotické opce nejsou využity v rámci této práce, nicméně jsou uváděny pro plnou informovanost čtenáře.
+  Pro americké call opce na akcie bez dividend je právo předčasného uplatnění bezcenné. Uplatněním opce ztrácíme ochranu před náhlým poklesem hodnoty aktiva, urychlujeme čas, ve kterém musíme uhradit koupi aktiva, a který můžeme využít investicí do jiných prostředků, a ještě k tomu ztrácíme peníze vydělané potenciálním prodejem této opce.
+  Pokud by cena americké call opce $C$ byla nižší než $S - K$, účastník trhu by opci koupil, ihned uplatnil a akcii prodal na trhu, čímž by dosáhl okamžitého bezrizikového zisku $S - K - C > 0$. Na efektivním trhu proto musí platit $C \ge S - K$. Před expirací je cena dokonce přísně větší než $S - K$, protože opce poskytuje ochranu před poklesem – držitel nemusí uplatnit, pokud cena klesne, což je právo, za které se platí \citep[s.~287--289]{McDonald2013}. Abychom z držení opce měli co největší možnou výplatu, je lepší opci prodat, než ji uplatnit. Pro opce na akcie vyplácející dividendy dává předčasné uplatnění smysl, specificky před vyplácením dividendy \citep[s.~291-293]{McDonald2013}. Pro put opce dává předčasné uplatnění také smysl, kupříkladu v případě, kdy je cena aktiva nulová. Cena se níže propadnout nemůže, tudíž uplatněním získáme maximální možnou výplatu. % TODO: Správná citace?
 
-  Někteří vypisovatelé mohou uplatnit určité limitace na americké opce. Mezi běžné modifikace možnosti brzkého využití patří možnost brzkého využití pouze ve specifické dny (Bermudská opce) a období, kdy je brzké využití zakázáno (lock-out perioda). \citep[str.~616]{Hull2021} Toto může být pro vypisovatele, kteří nemohou poskytnout podkladové aktivum nebo zaplatit koupi aktiva v libovolný moment.
+  Evropské a americké opce jsou při obchodování s opcemi běžně využívané a jsou vhodné pro většinu uplatnění. Tento typ opcí nazýváme také \textbf{vanilkový}. Protikladem k vanilkovým opcím jsou opce exotické. Tyto opce většinou obsahují nějakou speciální vlastnost, která silně ztěžuje odhad jejich hodnoty, ale umožňuje pokrýt speciální situace a požadavky. Exotické opce nejsou v rámci této práce použity, nicméně jsou uváděny pro plnou informovanost čtenáře.
 
-  Gapová opce se vyznačuje rozdělením funkcí strikeové ceny. U běžné evropské opce, strikeová cena se používá jak k určení, kdy je opce hodnotná ($S > K$), tak i pro určení samotné výplaty ($S - K$ pro call opce). \citep[str.~617]{Hull2021} U gapové opce máme dvě strikeové ceny ($K_1, K_2$), jednu určující hranici, kdy je opce in-the-money ($S > K_1$), a druhou, která určuje velikost výplaty ($S - K_2$). Záleží na nastavení opce, ale u gapové opce lze prodělat, i když je technicky ITM. \citep[str.~436]{McDonald2013} 
+  Někteří vypisovatelé mohou uplatnit určité limitace na americké opce. Mezi běžné modifikace možnosti předčasného uplatnění patří možnost předčasného uplatnění pouze ve specifické dny (bermudská opce) a období, kdy je předčasné uplatnění zakázáno. Toto období se nazývá lock-out perioda \citep[s.~616]{Hull2021}. Tato modifikace může být výhodná pro vypisovatele, kteří nemohou poskytnout podkladové aktivum nebo zaplatit koupi aktiva v libovolný moment.
 
-  Bariérová opce je opce, u které možnost ji využít je závislá na tom, zda nabyla během svého života specifikovanou hodnotu. \citep[str.~428]{McDonald2013}. Této hodnotě se říká bariéra \citep[str.~428]{McDonald2013}. Existují tři typy bariérových opcí: Knock-outové opce (po nabytí nelze opci využít a je bezcenná), Knock-inové opce (lze využít pouze po nabytí) a Rebate opce (platba učiněna vždy, když je dosažena bariéra.) \citep[str.~429]{McDonald2013} Tyto opce bývají populární kvůli nižší ceně oproti vanilkovým. \citep[str.~620]{Hull2021}
+  Gapová opce se vyznačuje rozdělením funkcí strike ceny \citep[s.~617]{Hull2021}. U běžné evropské opce se strike cena používá jak k určení, kdy je opce hodnotná ($S > K$ pro call opce), tak i pro určení samotné výplaty ($S - K$ pro call opce). U gapové opce máme dvě strike ceny ($K_1, K_2$ pro call opce), jednu určující hranici, kdy je opce in-the-money ($S > K_1$ pro call opce), a druhou, která určuje velikost výplaty ($S - K_2$ pro call opce). Záleží na nastavení opce, ale u gapové opce lze prodělat, i když je technicky ITM \citep[s.~436]{McDonald2013}.
 
-  Asijské opce jsou opce, u kterých je výplata založena na průměru přes určité časové období. U asijských opcí záleží na třech hlavních faktorech při určování výplaty: typ opce (put a call), typ průměru (aritmetický ($A(t)$) a geometrický ($G(t)$)) a průměrovaná hodnota (průměrná cena akcie a průměrná cena strikeu). \citep[str.~426]{McDonald2013} Jako typ průměru se častěji počítá průměr aritmetický. \citep[str.~426]{McDonald2013} Zde je přehled způsobů počítání výplat pro opce s aritmetickým průměrem (bez prémia):
+  Bariérová opce je opce, u které možnost ji uplatnit je závislá na tom, zda nabyla během svého života specifikovanou hodnotu \citep[s.~428]{McDonald2013}. Této hodnotě se říká bariéra \citep[s.~429]{McDonald2013}. 
+
+  Typy bariérových opcí: 
   \begin{itemize}
-    \item Call nad průměrnou akciovou cenou: $max(0, A(t) - K)$
-    \item Call nad průměrnou strikeovou cenou: $max(0, S - A(t))$
-    \item Put nad průměrnou akciovou cenou: $max(0, K - A(t))$
-    \item Put nad průměrnou strikeovou cenou: $max(0, A(t) - S)$
+   \item Knock-outové opce (po nabytí nelze opci uplatnit a je bezcenná),
+   \item Knock-inové opce (lze uplatnit pouze po nabytí),
+   \item Rebate opce – opce poskytující kompenzaci (rebate) při dosažení bariéry.
   \end{itemize}
+
+  Tyto opce bývají populární kvůli nižší ceně oproti vanilkovým \citep[s.~620]{Hull2021}.
+
+  Asijské opce jsou opce, u kterých je výplata založena na průměru přes určité časové období. U asijských opcí záleží na třech hlavních faktorech při určování výplaty: typ opce (put a call), typ průměru (aritmetický a geometrický) a průměrovaná hodnota (průměrná cena akcie a průměrná strike cena) \citep[s.~426]{McDonald2013}. Jako typ průměru se častěji používá aritmetický průměr \citep[s.~426]{McDonald2013}. Zde je přehled způsobů počítání výplat pro opce s aritmetickým průměrem (bez prémie):
+  \begin{itemize}
+    \item Call nad průměrnou akciovou cenou: $\max(0, A(t) - K)$,
+    \item Call nad průměrnou strike cenou: $\max(0, S - A(t))$,
+    \item Put nad průměrnou akciovou cenou: $\max(0, K - A(t))$,
+    \item Put nad průměrnou strike cenou: $\max(0, A(t) - S)$,
+  \end{itemize}
+  kde $A(t)$ je průměrná cena aktiva v čase $t$ z posledních $n$ období. Použití geometrického průměru v čase $t$ za posledních $n$ období značíme jako $G(t)$.
 
   \subsection{Put-call parita}
 
-  V této sekci si odvodíme vztah Put-call parity, který nám říká, že prémia pro dané opce by měly být jednoznačně určitelné.
+  V této sekci si odvodíme vztah put-call parity, který nám říká, že prémie pro dané opce by měly být jednoznačně určitelné.
 
-  Jiným typem finančního kontraktu je forwardový kontrakt. Forwardovým kontraktem rozumíme kontrakt, kterým se obě strany zavazují k výměně podkladového aktiva za měnu či jiné podkladové aktivum. Obě strany jsou tímto kontraktem vázány, tudíž narozdíl od opcí. Tudíž, riziko pro obě strany je stejné (cena buď klesne, což postaví kupujícího do nevýhodné pozice, nebo stoupne, což postaví do nevýhodné pozice prodávajícího). U forwardového kontraktu se místo pojmu Strike cena používá termín Forwardová cena, reprezentující očekávanou hodnotu aktiva v budoucnosti.
+  Jiným typem finančního kontraktu je forwardový kontrakt. Forwardovým kontraktem rozumíme kontrakt, kterým se obě strany zavazují k výměně podkladového aktiva za měnu či jiné podkladové aktivum. Obě strany jsou tímto kontraktem vázány, tudíž na rozdíl od opcí ani jedna strana nemůže odstoupit v případě potenciální ztráty. Z toho vyplývá, že riziko pro obě strany je stejné (cena buď klesne, což postaví kupujícího do nevýhodné pozice, nebo stoupne, což postaví do nevýhodné pozice prodávajícího). U forwardového kontraktu se místo pojmu strike cena používá termín forwardová cena, reprezentující očekávanou hodnotu aktiva v budoucnosti.
 
-  Můžeme vytvořit syntetickou forwardovou pozici pro konkrétní akcii pomocí koupě call opce a vypsání put opce (se stejnou strike cenou a dobou expirace). \citep[str.~82-84]{McDonald2013} Pokud cena při expiraci stoupne nad strike cenu, put opce nemá žádnou hodnotu, a její vlastník ji nevyužije, zatímco my, jako vlastníci call opce nad strikeovou cenou, můžeme koupit akcie levněji než jsou na trhu, což je v našem zájmu. Pokud cena při expiraci klesne pod strikeovou cenu, call opce se stane bezcennou, a vlastník put opce nás přinutí odkoupit od něj akcii za vyšší cenu než na trhu. Tak jako tak, získáme specifické množství akcie, za strikeovou cenu. Toto přímo napodobuje forwardový kontrakt: Koupíme specifické množství podkladového aktiva za předem danou cenu, ve specifickém bodě v budoucnosti. Tímto způsobem můžeme perfektně replikovat chování forwardového kontraku pomocí akcie.
+  Můžeme vytvořit syntetický fixní terminovaný kontrakt forwardového typu pro konkrétní akcii pomocí koupě call opce a vypsání put opce (se stejnou strike cenou a dobou expirace). Pokud cena při expiraci stoupne nad strike cenu, put opce nemá žádnou hodnotu, a její vlastník ji nevyužije, zatímco my, jako vlastníci call opce nad strike cenou, můžeme koupit akcie levněji než jsou na trhu, což je v našem zájmu. Pokud cena při expiraci klesne pod strike cenu, call opce se stane bezcennou, a vlastník put opce nás přinutí odkoupit od něj akcii za vyšší cenu než na trhu. Tak jako tak, získáme specifické množství akcie, za strike cenu. Toto přímo napodobuje fixní terminovaný kontrakt forwardového typu: Koupíme specifické množství podkladového aktiva za předem danou cenu, ve specifickém bodě v budoucnosti \citep[s.~82-84]{McDonald2013}. 
 
-  Důležité je konstatovat, že oproti opcím, za forwardové kontrakty neplatíme prémium, poněvadž obě strany kontraktu mají stejnou příležitost vydělat. I toto je reprezentováno v syntetické pozici. Máme-li forwardovou cenu $F$ pro forwardový kontrakt a strike cenu $K$ pro opce naší syntetické forwardové pozice, můžeme určit, co se stane, je-li $K$ větší nebo menší než $F$. Platí-li $K < F$, kupujeme danou akcii za pro nás výhodnou cenu. Tento fakt se musí promítnout na dražím prémiu call opce, jinak by prodávat tuto opci bylo nevýhodné. Naopak, je-li $K > F$, kupujeme akcii za pro nás nevýhodnou cenu, a chceme dostat vyšší prémium, pro případ, že bychom museli kupovat akcii za nevýhodnou cenu. Pokud $K = F$, aby naše syntetická forwardová pozice napodobovala reálný forwardový kontrakt, musí být zisk/prodělek z prémií nulový. Tudíž, prémium call opce musí stát stejně jako prémium put opce. Tímto se cena za syntetickou pozici rovná ceně koupě forwardového kontraktu. Tomuto konceptu říkáme put-call parita. \citep[str.~82-85]{McDonald2013}
+  Důležité je konstatovat, že oproti opcím, za forwardové kontrakty neplatíme prémii, poněvadž obě strany kontraktu mají stejnou příležitost vydělat. I toto je reprezentováno v syntetické pozici. Máme-li forwardovou cenu $F$ pro forwardový kontrakt a strike cenu $K$ pro opce naší syntetické forwardové pozice, můžeme určit, co se stane, je-li $K$ větší nebo menší než $F$. Platí-li $K < F$, kupujeme danou akcii za pro nás výhodnou cenu. Tento fakt se musí promítnout na dražším prémiu call opce, jinak by prodávat tuto opci bylo nevýhodné. Naopak, je-li $K > F$, kupujeme akcii za pro nás nevýhodnou cenu, a chceme dostat vyšší prémium, pro případ, že bychom museli kupovat akcii za nevýhodnou cenu. Pokud $K = F$, aby naše syntetická forwardová pozice napodobovala reálný forwardový kontrakt, musí být zisk/prodělek z prémií nulový. Tudíž, prémium call opce musí stát stejně jako prémium put opce. Tímto se cena za syntetickou pozici rovná ceně koupě forwardového kontraktu. Tomuto konceptu říkáme put-call parita. \citep[s.~82-85]{McDonald2013}
 
-  Pro matematickou formulaci musíme zavést trochu nové notace: Řekněme, že v čase 0 kupujeme forwardový kontrakt, kterým se vázáme koupit v čase $T$ podkladové aktivum za forwardovou cenu $F_{0, T}$. Současná hodnota forwardové ceny je značena jako $PV(F_{0, T})$. V syntetické pozici musí být současná hodnota vlastnění aktiva rovna prémiu z opcí (možnost koupě) a strikeové ceně (hodnota aktiva), čili $Call(K, T) - Put(K, T) + PV(K)$, kde $Call(K, T)$ a $Put(K, T)$ jsou prémia za danou opci. Dohromady vzniká takováto rovnice: 
+  Pro matematickou formulaci musíme zavést novou notaci: Řekněme, že v čase 0 kupujeme forwardový kontrakt, kterým se vázáme koupit v čase $T$ podkladové aktivum za forwardovou cenu $F_{0, T}$. Současná hodnota forwardové ceny je značena jako $PV(F_{0, T})$. V syntetické pozici musí být současná hodnota vlastnění aktiva rovna prémiu z opcí (možnost koupě) a strike ceně (hodnota aktiva), čili $Call(K, T) - Put(K, T) + PV(K)$, kde $Call(K, T)$ a $Put(K, T)$ jsou prémie za danou opci. Dohromady vzniká takováto rovnice: 
 
   \begin{equation}
     PV(F_{0, T}) = Call(K, T) - Put(K, T) + PV(K),
@@ -359,46 +369,44 @@ Text v této šabloně by Vám měl pomoci s tvorbou závěrečné práce. Je v�
      Call(K, T) - Put(K, T) = PV(F_{0, T}) - PV(K).
   \end{equation}
 
-  Takto vypadá rovnice pro obecnou put-call paritu. Pro náš specifický případ (opce na akcie) můžeme forwardovou cenu vyjádřit jako cenu akcie zlevněnou o míru vyplácené dividendy, značenou jako $q$. To vychází z faktu, že forwardová cena se rovná ceně akcie upravené o náklady držení ($r - q$). Současnou hodnotu pak získáme diskontováním bezrizikovou úrokovou mírou.
+  Takto vypadá rovnice pro obecnou put-call paritu. Pro oceňování opcí na akcie můžeme forwardovou cenu vyjádřit jako cenu akcie diskontovanou o míru vyplácené dividendy, značenou jako $q$. To vychází z faktu, že forwardová cena se rovná ceně akcie upravené o náklady držení ($r - q$). Současnou hodnotu pak získáme diskontováním bezrizikovou úrokovou mírou.
   \begin{equation}
-    F_{0, T} = S \cdot e^{(r - q) T},
+    F_{0, T} = Se^{(r - q) T},
   \end{equation}
 
   \begin{align}
-    PV(F_{0, T}) &= S \cdot e^{(r - q) T} \cdot e^{-rT} \\
-                 &= S \cdot e^{(r - r - q) T} \\
-                 &= S \cdot e^{- q T}.
+    PV(F_{0, T}) &= Se^{(r - q) T}e^{-rT} \\
+                 &= Se^{(r - r - q) T} \\
+                 &= Se^{- q T}.
   \end{align}
 
-  Stejně tak současná hodnota strike ceny je jen strike cena zlevněná o bezrizikovou úrokovou míru.
+Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota po diskontování bezrizikovou mírou je \(PV(F) = Se^{-qT}\).
 
   \begin{equation}
-    PV(K) = K \cdot e^{- rT}.
+    PV(K) = Ke^{- rT}.
   \end{equation}
 
-  Dosadíme-li do obecné rovnice o put-call paritě:
+  Dosadíme-li do obecné rovnice o put-call paritě, získáme:
 
   \begin{equation}
-    Call(K, T) - Put(K, T) = S \cdot e^{-qT} - K \cdot e^{-rT}.
+    Call(K, T) - Put(K, T) = Se^{-qT} - Ke^{-rT}.
   \end{equation}
 
-  \citep[str.~279-281]{McDonald2013}
+  Tímto jsme odvodili rovnici put-call parity pro opce na akcie \citep[s.~279-281]{McDonald2013}.
 
-  Tímto jsme odvodili rovnici put-call parity pro opce na akcie.
-
-  % TODO: Dopsat důsledky a arbitráže
+  Z rovnice put-call parity vyplývá, že ceny call a put opcí nejsou nezávislé – známe-li jednu, můžeme druhou přímo určit. Porušení této rovnosti vytváří arbitrážní příležitost: pokud je call opce oproti put opci předražená (resp. podhodnocená), lze sestavit zajištěné portfolio s jistým ziskem. \citep[s.~283--285]{McDonald2013} % TODO: Správná citace?
 
   \subsection{Ohodnocování opcí}
 
   %TODO: Ocitovat
 
-  (TODO: Dopsat důvody obtížnosti oceňování opcí; risk-neutrální oceňování, bez-arbitrážní oceňování a replikace)
+  (%TODO: Dopsat důvody obtížnosti oceňování opcí; risk-neutrální oceňování, bez-arbitrážní oceňování a replikace)
 
   Pro oceňování opcí se používají různé způsoby, které mají své výhody a nevýhody v závislosti na vyhodnocovaném typu opce. V této práci budou popsány ty nejběžnější, použité pouze na vanilkových opcích. Následuje stručný úvod k principu každé z metod. Všechny zmíněné způsoby vyhodnocení jsou blíže specifikovány a zkoumány ve svých vlastních kapitolách.
 
-  Základním způsobem oceňování opcí jsou binomické stromy. Binomickým stromem můžeme modelovat vývoj ceny aktiva dle implikované volatility, kde každý vrchol reprezentuje cenu po určitém množství vzestupů a poklesů o implikovanou volatilitu. \cite[Kapitola 13]{McDonald2013} Tímto vytvoříme reprezentaci možných cen aktiva a jejich pravděpodobností. Stromy mají několik variant (Coxův-Rossův-Rubensteinův model, Jarrov-Rudd, trinomický strom, ad.), my se budeme zabývat primárně modelem Cox-Ross-Rubenstein, neb to je efektivně základní varianta.
+  Základním způsobem oceňování opcí jsou binomické stromy. Binomickým stromem můžeme modelovat vývoj ceny aktiva dle implikované volatility, kde každý vrchol reprezentuje cenu po určitém množství vzestupů a poklesů o implikovanou volatilitu. \cite[Kapitola 13]{McDonald2013} Tímto vytvoříme reprezentaci možných cen aktiva a jejich pravděpodobností. Stromy mají několik variant (Coxův-Rossův-Rubensteinův model, Jarrov-Rudd, trinomický strom, ad.), my se budeme zabývat primárně modelem Cox-Ross-Rubenstein, neboť to je efektivně základní varianta.
 
-  Binomické stromy mají variabilní přesnost dle počtu kroků mezi začátkem a datem expirace. Blackův-Scholesův model lze chápat jako limitu binomického stromu s nekonečným počtem kroků. \citep[str.~363]{McDonald2013}. Narozdíl od binomických stromů, kde musíme pracně konstruovat celý strom a počítat ceny v jeho vrcholech, Blackův-Scholesův model využívá jeden vzorec k výpočtu optimálního prémia. Blackův-Scholesův vzorec je (přinejmenším zdánlivě) výpočetně nejjednodušší pro využití počítačem, a vyplývají z něj další užitečné skutečnosti, kupříkladu greeks - proměnné popisující specifické chování opce. Nicméně, tento model je limitován na evropské opce, a pokud bychom chtěli oceňovat jiné typy opcí, museli bychom jej přepočítat a vytvořit novou rovnici. U amerických opcí k zachycení přidané hodnoty z možnosti brzkého využití použijeme Barone-Adesi a Whaley metodu.
+  Binomické stromy mají variabilní přesnost dle počtu kroků mezi začátkem a datem expirace. Blackův-Scholesův model lze chápat jako limitu binomického stromu s nekonečným počtem kroků. \citep[s.~363]{McDonald2013}. Narozdíl od binomických stromů, kde musíme pracně konstruovat celý strom a počítat ceny v jeho vrcholech, Blackův-Scholesův model využívá jeden vzorec k výpočtu optimálního prémie. Blackův-Scholesův vzorec je (přinejmenším zdánlivě) výpočetně nejjednodušší pro využití počítačem, a vyplývají z něj další užitečné skutečnosti, kupříkladu greeks - proměnné popisující specifické chování opce. Nicméně, tento model je limitován na evropské opce, a pokud bychom chtěli oceňovat jiné typy opcí, museli bychom jej přepočítat a vytvořit novou rovnici. U amerických opcí k zachycení přidané hodnoty z možnosti předčasného uplatnění použijeme Barone-Adesi a Whaley metodu.
   % TODO: Víc ocitovat
 
   Metodou Monte Carlo rozumíme způsob vyhodnocování, ve kterém simulujeme velké množství náhodných vývojů ceny (v rámci volatility), a bereme průměrnou hodnotu opce ze všech simulací. Tento způsob ohodnocení je založen na principu velkých čísel, který říká, že vezmeme-li $n$ náhodných veličin se stejnou střední hodnotou, jejich aritmetický průměr se blíží střední hodnotě. Monte Carlo je výpočetně nejnáročnější, protože musíme simulovat velké množství náhodných cest ceny akcie (minimálně $25 000 \text{ až } 100 000$), nicméně je také nejflexibilnější, protože opci pro danou simulaci můžeme ocenit opci přímo z nasimulovaných cest, aniž bychom museli upravovat model; není třeba různě manipulovat se stromy nebo Blackovou-Scholesovou rovnicí.
@@ -440,12 +448,12 @@ Text v této šabloně by Vám měl pomoci s tvorbou závěrečné práce. Je v�
   Z put-call parity můžeme odvodit Blackovu-Scholesovu formuli pro put opce:
 
   \begin{gather*}
-    Call(S, K, \sigma, r, T) - Put(S, K, \sigma, r, T) = S - K \cdot e^{-rT} \\
-    Put(S, K, \sigma, r, T) = Call(S, K, \sigma, r, T) + K \cdot e^{-rT} - S \\
-    Put(S, K, \sigma, r, T) = SN(d_1) - S + K \cdot e{-rT} - K \cdot e^{-rT}N(d_2) \\
-    Put(S, K, \sigma, r, T) = S(N(d_1) - 1) + K \cdot e{-rT} (1 - N(d_2))  \\
-    Put(S, K, \sigma, r, T) = -S(1 - N(d_1)) + K \cdot e{-rT} (1 - N(d_2))  \\
-    Put(S, K, \sigma, r, T) = -S(N(-d_1)) + K \cdot e{-rT} (N(-d_2)) \\
+    Call(S, K, \sigma, r, T) - Put(S, K, \sigma, r, T) = S - Ke^{-rT} \\
+    Put(S, K, \sigma, r, T) = Call(S, K, \sigma, r, T) + Ke^{-rT} - S \\
+    Put(S, K, \sigma, r, T) = SN(d_1) - S + Ke{-rT} - Ke^{-rT}N(d_2) \\
+    Put(S, K, \sigma, r, T) = S(N(d_1) - 1) + Ke{-rT} (1 - N(d_2))  \\
+    Put(S, K, \sigma, r, T) = -S(1 - N(d_1)) + Ke{-rT} (1 - N(d_2))  \\
+    Put(S, K, \sigma, r, T) = -S(N(-d_1)) + Ke{-rT} (N(-d_2)) \\
   \end{gather*}
 
   Tím pádem, můžeme Blackovu-Scholesovu formuli pro evropské put opce bez dividend zapsat jako:
@@ -456,7 +464,7 @@ Text v této šabloně by Vám měl pomoci s tvorbou závěrečné práce. Je v�
 
   kde $d_1$ a $d_2$ je stejné jako v \ref{d_1 and d_2}.
 
-  Nicméně, v praxi se pravěpodobně setkáme s opcemi na akcie, které platí dividendu. Co potom? Dle Mertona, musíme zlevnit $S$ o míru rovnou spojitému yieldu (TODO: Špatný slovo) dividend, čili převézt $S$ na $S \cdot e^{-\delta T}$. Tudíž, Blackova-Scholesova-Mertonova formule pro evropské call opce má následující znění:
+  Nicméně, v praxi se pravěpodobně setkáme s opcemi na akcie, které platí dividendu. Co potom? Dle Mertona, musíme zlevnit $S$ o míru rovnou spojitému yieldu (TODO: Špatný slovo) dividend, čili převézt $S$ na $Se^{-\delta T}$. Tudíž, Blackova-Scholesova-Mertonova formule pro evropské call opce má následující znění:
 
   \begin{equation}
     C(S, K, \sigma, r, T, \delta) = Se^{-\delta T}N(d_1) - Ke^{-rT}N(d_2)
@@ -476,9 +484,9 @@ Text v této šabloně by Vám měl pomoci s tvorbou závěrečné práce. Je v�
 
   \subsection{Americké opce}
 
-  Blackův-Scholesův-Mertonův model nelze aplikovat na (všechny) americké opce, poněvadž nebere v potaz dřívější využití opce. Pro americké call opce bez dividend toto není problém, poněvadž u těch se dřívější využití nevyplatí (TODO: Odůvodnit), nicméně u všech ostatních toto představuje problém.
+  Blackův-Scholesův-Mertonův model nelze aplikovat na (všechny) americké opce, poněvadž nebere v potaz předčasné uplatnění opce. Pro americké call opce bez dividend toto není problém, poněvadž u těch se předčasné uplatnění nevyplatí (TODO: Odůvodnit), nicméně u všech ostatních toto představuje problém.
 
-  Pro tento problém existuje několik způsobů, jak aproximovat hodnotu americké opce pomocí Blackova-Scholesova-Mertonova modelu. Mnou vybraný je \textbf{Baroneova-Adesiho a Whaleyho metoda}. Tato metoda zavádí bonus pro hodnotu opce za možnost dřívějšího využití, který se přičítá k základní hodnotě Blackova-Scholesova-Mertonova modelu. Obecná definice pro call opce vypadá takto:
+  Pro tento problém existuje několik způsobů, jak aproximovat hodnotu americké opce pomocí Blackova-Scholesova-Mertonova modelu. Mnou vybraný je \textbf{Baroneova-Adesiho a Whaleyho metoda}. Tato metoda zavádí bonus pro hodnotu opce za možnost předčasného uplatnění, který se přičítá k základní hodnotě Blackova-Scholesova-Mertonova modelu. Obecná definice pro call opce vypadá takto:
 
   \begin{equation}
     C_a(S, K, \sigma, r, T, \delta) = 
@@ -497,7 +505,7 @@ Text v této šabloně by Vám měl pomoci s tvorbou závěrečné práce. Je v�
   Tento princip lze aplikovat i na ocenování opcí. V tomto případě náhodným experimentem bude vývoj podkladového aktiva opce: Budeme simulovat vývoj aktiva, a zjistíme výdělek z opce. Následně získáme cenu opce jako průměrný výdělek náhodného experimentu.
 
   Vývoj aktiva budeme simulovat jako Geometrický Brownovský pohyb (TODO: Zkontroluj, zda to je správný překlad fráze "Geometric Brownian Motion") (TODO: Vysvětli co to je). Rovnice, pro získání ceny aktiva $S$, s počáteční cenou $S_t$ v čase $t$, v čase $t + m$, má následující tvar:
-  $$ S(t + m) = S_t \cdot exp((b - \frac{\sigma}{2}) \cdot m + \sigma \cdot Z \cdot \sqrt{m}) $$ (Zdroj: Haug)
+  $$ S(t + m) = S_texp((b - \frac{\sigma}{2})m + \sigmaZ\sqrt{m}) $$ (Zdroj: Haug)
   
   Vysvětlení rovnice:
   \begin{enumerate}
@@ -508,12 +516,12 @@ Text v této šabloně by Vám měl pomoci s tvorbou závěrečné práce. Je v�
 
   \subsection{Americké opce}
 
-  Pro opce evropského typu je vyhodnocení v celku jednoduché: Stačí vzít finální cenu aktiva, dle typu opce spočíst výdělek, získat průměr a ten následně slevit o růst ceny měny za daný čas. Nicméně pro opce amerického typu musíme počítat s možností dřívějšího využití opce.
+  Pro opce evropského typu je vyhodnocení v celku jednoduché: Stačí vzít finální cenu aktiva, dle typu opce spočíst výdělek, získat průměr a ten následně slevit o růst ceny měny za daný čas. Nicméně pro opce amerického typu musíme počítat s možností předčasného uplatnění opce.
 
-  (Dle prezentace) Nacházení bodu předčasného výkonu opce je antithetické pro Monte Carlo metody, poněvadž pro nalezení bodu předčasného výkonu musíme cestovat od konce k začátku(známe cenu na konci, musíme najít nejlepší hodnotu dané cesty), přičemž Monte Carlo jde od začátku ke konci (generování ceny aktiva pomocí Geometrického Brownovského pohybu).
-  Formulace problému nalezení předčasného výkonu spadá pod dynamické programování. Dynamické programování je kategorie problémů (TODO: Dopsat definici).
+  (Dle prezentace) Nacházení bodu předčasného uplatnění opce je antithetické pro Monte Carlo metody, poněvadž pro nalezení bodu předčasného uplatnění musíme cestovat od konce k začátku(známe cenu na konci, musíme najít nejlepší hodnotu dané cesty), přičemž Monte Carlo jde od začátku ke konci (generování ceny aktiva pomocí Geometrického Brownovského pohybu).
+  Formulace problému nalezení předčasného uplatnění spadá pod dynamické programování. Dynamické programování je kategorie problémů (TODO: Dopsat definici).
 
-  V rámci zjednodušení, zaveďme si dvě funkce: $h_i(x)$ a $V_i(x)$, kde $h_i(x)$ označuje hodnotu předčasného výkonu opce $x$ v čase $t_i$, diskontovánou o diskontní faktor pro interval $(t_0; t_i)$, což by pro opce na akcie je $e^{-r \cdot (t_i - t_0)}$, a $V_i(x)$ označuje hodnotu opce v čase $t_i$, pokud nebyla již vykonána.
+  V rámci zjednodušení, zaveďme si dvě funkce: $h_i(x)$ a $V_i(x)$, kde $h_i(x)$ označuje hodnotu předčasného uplatnění opce $x$ v čase $t_i$, diskontovánou o diskontní faktor pro interval $(t_0; t_i)$, což by pro opce na akcie je $e^{-r(t_i - t_0)}$, a $V_i(x)$ označuje hodnotu opce v čase $t_i$, pokud nebyla již uplatněna.
 
   Dle Glassermana (TODO: Zdroj z prezentace, přečíst, aspoň trochu.) můžeme problém stanovení hodnoty opce formulovat takto:
 
@@ -523,7 +531,7 @@ Text v této šabloně by Vám měl pomoci s tvorbou závěrečné práce. Je v�
 
   ...kde $\mathbb(E)$ je označená pro očekávanou hodnotu závorky.
 
-  Nicméně, musíme určit také tzv. pokračovací hodnotu, která udává potenciální zisk z nevyužití opce v tento daný moment. Pokračovací hodnotu budeme označovat $C_i(x)$, a definujeme ji takto:
+  Nicméně, musíme určit také tzv. pokračovací hodnotu, která udává potenciální zisk z neuplatnění opce v tento daný moment. Pokračovací hodnotu budeme označovat $C_i(x)$, a definujeme ji takto:
   $$C_i(x) = \mathbb(E)[V_{i+1}(X_{i+1} | X_i = x)]$$
 
   Nejpoužívanější metodou pro zjištění hodnoty americké opce pomocí Monte Carla je Longstaff-Schwartzova metoda. (TODO: Zdroj prezentace) Mějme $N$ simulovaných cest, počínajících v $t_0$, expirujících v čase $t_m$. V čase expirace je hodnota opce:
@@ -539,7 +547,7 @@ Text v této šabloně by Vám měl pomoci s tvorbou závěrečné práce. Je v�
 
   \begin{gather}
     \mathbb(E)\left\{ (\mathbb(E)[V_m(X_m) | X{m-1}] - \hat{C}_{m-1}(X_{m-1}))^2 \right\}^\prime = 0 \\
-    \mathbb(E)\left\{ (\mathbb(E)[V_m(X_m) | X{m-1}] - \hat{C}_{m-1}(X_{m-1})) \cdot \psi_r(X_{m-1}) \right\} = 0
+    \mathbb(E)\left\{ (\mathbb(E)[V_m(X_m) | X{m-1}] - \hat{C}_{m-1}(X_{m-1}))\psi_r(X_{m-1}) \right\} = 0
   \end{gather}
 
   \begin{align*}
@@ -570,7 +578,7 @@ Text v této šabloně by Vám měl pomoci s tvorbou závěrečné práce. Je v�
   \end{itemize}
 
   Data byla sbírána pomocí pythonovské knihovny "yfinance". Tato knihovna umožňuje bezbolestný přístup k API serveru Yahoo Finance, který sbírá finanční informace k rozmanitému množství akcií a indexů.
-  Informace k opčním řetezcům takto získané zahrnují identifikátor titulu, minimum, maximum a průměr poptávané ceny, strikeovou cenu, a informace o objemu obchodu.
+  Informace k opčním řetezcům takto získané zahrnují identifikátor titulu, minimum, maximum a průměr poptávané ceny, strike cenu, a informace o objemu obchodu.
   K těmto informacím bylo nutno doplnit některé další informace, specificky cena akcie v čase získání dat, délka časového úseku v poměru k roku, implikovaná (historická) volatilita a bezriziková úroková míra.
   Momentální cena akcie byla získána pomocí knihovny yfinance.
   Délka periody byla spočtena v R souboru analyzujícím metody ohodnocení opcí.
