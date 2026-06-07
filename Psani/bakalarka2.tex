@@ -81,8 +81,8 @@
 
 
 % TOTO JE POTŘEBA ZMĚNIT !!!!!!
-\newcommand{\nazevcz}{Oceňování opcí na akcie za pomocí \\ různých oceňovacích přístupů}        % zde VYPLŇTE český název práce (přesně podle zadání!)
-\newcommand{\nazeven}{\ZT{Valuation of stock options by using \\ various valuation approaches}}     % zde VYPLŇTE anglický název práce (přesně podle zadání!)
+\newcommand{\nazevcz}{Oceňování opcí na akcie za pomocí různých oceňovacích přístupů}        % zde VYPLŇTE český název práce (přesně podle zadání!)
+\newcommand{\nazeven}{\ZT{Valuation of stock options by using various valuation approaches}}     % zde VYPLŇTE anglický název práce (přesně podle zadání!)
 \newcommand{\autor}{\ZT{Matěj Sloup}}           % zde VYPLŇTE své jméno a příjmení
 \newcommand{\rok}{\the\year}                
 \newcommand{\vedouci}{\ZT{doc. PhDr. Ing. Martin Boďa, DrSc.}}         
@@ -138,7 +138,7 @@
 \vspace{2cm}
 {
 \Huge\sffamily
-\nazevcz\par
+Oceňování opcí na akcie za pomocí různých oceňovacích přístupů\par
 \vspace{0.6cm}
 \Large\scshape \ifthenelse{\boolean{bc}}{bakalářská}{diplomová} práce
 }
@@ -218,9 +218,9 @@ V Ústí nad Labem dne \today   \hfill Podpis: \makebox[4cm][s]{\dotfill}
 
 \textbf{Abstrakt:}
 
-Cílem bakalářské práce je systemizovat a porovnat modely oceňování opcí na akcie. Použité budou modely pro spojitý i diskrétní čas, specificky Blackův-Scholesův model, numerické oceňovací přístupy, simulace Monte Carlo a pravdědpodobně také markovovské řetezce. Práce vyhodnotí v kontextu případových studií vhodnost a přesnost uvažovaných přístupů, bude zvažovat různé typy opcí a vyhodnotí citlivost modelů na čase a volatilitě podkladového finančního aktiva. Výsledkem práce je porovnání modelů pro praktické oceňování ve firemní sféře a určení vhodnosti každého modelu pro opce se specifickými vlastnostmi.
+Cílem bakalářské práce je systemizovat a porovnat modely oceňování opcí na podíly. Použité jsou modely pro spojitý i diskrétní čas, specificky Blackův-Scholesův model, numerické oceňovací přístupy a simulace Monte Carlo. Práce hodnotí v kontextu případových studií vhodnost a přesnost uvažovaných přístupů, zvažuje různé typy opcí a vyhodnocuje citlivost modelů na čase a volatilitě podkladového finančního aktiva. Výsledkem práce je porovnání modelů pro praktické oceňování ve firemní sféře a určení vhodnosti každého modelu pro opce se specifickými vlastnostmi.
 
-\textbf{Klíčová slova:} Opce, binomické stromy, Blackův-Scholesův model, Monte Carlo, americké opce
+\textbf{Klíčová slova:} Opce na podíly, binomické stromy, Blackův-Scholesův model, Monte Carlo, komparativní studie
 
 \bigskip
 
@@ -229,9 +229,9 @@ Cílem bakalářské práce je systemizovat a porovnat modely oceňování opcí
 
 \textbf{Abstract:}
 
-The goal of this bachelor's thesis is to systematize and compare stock option pricing models. Both continuous-time and discrete-time models will be used, specifically the Black-Scholes model, numerical pricing approaches, Monte Carlo simulations, and likely Markov chains as well. The thesis will evaluate the suitability and accuracy of the considered approaches in the context of case studies, consider various option types, and assess the sensitivity of the models to time and the volatility of the underlying financial asset. The output of the thesis is a comparison of models for practical pricing in corporate settings, and a determination of the suitability of each model for options with specific characteristics.
+The goal of this bachelor's thesis is to systematize and compare stock option pricing models. Both continuous-time and discrete-time models will be used, specifically the Black-Scholes model, numerical pricing approaches and Monte Carlo simulations. The thesis evaluates the suitability and accuracy of the considered approaches in the context of case studies, considers various option types, and assesses the sensitivity of the models to time and the volatility of the underlying financial asset. The output of the thesis is a comparison of models for practical pricing in corporate settings, and a determination of the suitability of each model for options with specific characteristics.
 
-\textbf{Keywords:} Options, binomial trees, Black-Scholes model, Monte Carlo, american options
+\textbf{Keywords:} Stock options, binomial trees, Black-Scholes model, Monte Carlo, comparative study
 
 \tableofcontents
 
@@ -271,11 +271,31 @@ Text v této šabloně by Vám měl pomoci s tvorbou závěrečné práce. Je v�
 
   Pro správné pochopení a ohodnocení opcí si zadefinujeme následující značení:
   \begin{itemize}
-    \item $S$ - cena aktiva,
-    \item $K$ - strike cena (dohodnutá cena při expiraci),
-    \item $T$ - doba do expirace opce (jako poměrná část roku),
-    \item $\sigma$ - volatilita ceny podkladového aktiva per annum.
+    \item $S$ -- cena podkladového aktiva,
+    \item $K$ -- strike cena (dohodnutá cena při expiraci),
+    \item $T$ -- doba do expirace opce (jako poměrná část roku),
+    \item $\sigma$ -- volatilita ceny podkladového aktiva per annum.
+      % TODO: Doplnit bezrizikovou míru a dividendu
   \end{itemize}
+
+  Cena opce není ovlivněna pouze cenou podkladového aktiva a strike cenou, ale také dobou do expirace, volatilitou, bezrizikovou úrokovou mírou $r$ a případnými dividendami (jejichž spojitou míru označujeme $q$). Následující tabulka shrnuje, jak změna každého faktoru (při zachování ostatních) ovlivňuje cenu call a put opce:
+
+  \begin{center}
+  \begin{tabular}{lcc}
+    \toprule
+    \textbf{Faktor} & \textbf{Call opce} & \textbf{Put opce} \\
+    \midrule
+    Cena podkladového aktiva $S$ $\uparrow$ & $\uparrow$ & $\downarrow$ \\
+    Strike cena $K$ $\uparrow$ & $\downarrow$ & $\uparrow$ \\
+    Doba do expirace $T$ $\uparrow$ & $\uparrow$ & $\uparrow$ \\
+    Volatilita $\sigma$ $\uparrow$ & $\uparrow$ & $\uparrow$ \\
+    Bezriziková míra $r$ $\uparrow$ & $\uparrow$ & $\downarrow$ \\
+    Dividenda $q$ $\uparrow$ & $\downarrow$ & $\uparrow$ \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+
+  Tento přehled je užitečný pro rychlé posouzení, jak se změní cena opce při změně tržních podmínek. \citep[Kapitola~11.1]{Hull2021}
 
   Uveďme příklad použití call opce pro správné pochopení.
   Předpokládejme, že účastník trhu A koupí call opci, vypsanou účastníkem trhu B, opravňující účastníka A koupit akcii za strike cenu 110 Kč, přičemž momentální cena aktiva je 90 Kč. V tomto případě, v době expirace pro účastníka A nastávají tři potenciální situace:
@@ -292,7 +312,9 @@ Text v této šabloně by Vám měl pomoci s tvorbou závěrečné práce. Je v�
     \item Cena aktiva je při expiraci vyšší než strike cena ($S = 120, K = 110$). Uplatněním opce by účastník A prodal aktivum levněji než na trhu, a ztratil by $110 - 120 = -10$ Kč. Účastník A se rozhodne opci neuplatnit, čímž ani jedna strana nevydělá.
   \end{enumerate}
 
-  Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývají \uv{in-the-money}, nebo zkráceně ITM, zatímco opce, které by při okamžitém uplatnění měly zápornou výplatu, se nazývají \uv{out-of-the-money}, čili OTM. O těchto opcích říkáme, že mají nulovou vnitřní hodnotu. Pokud by opce měla nulovou výplatu, říkáme že je \uv{at-the-money}, čili ATM. \citep[s.~58]{McDonald2013} % TODO: Zkontroluj citaci
+  Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývají \uv{in-the-money}, nebo zkráceně ITM, zatímco opce, které by při okamžitém uplatnění měly zápornou výplatu, se nazývají \uv{out-of-the-money}, čili OTM. O těchto opcích říkáme, že mají nulovou vnitřní hodnotu. Pokud by opce měla nulovou výplatu, říkáme že je \uv{at-the-money}, čili ATM. \citep[s.~58-59]{McDonald2013} 
+
+  Cenu opce lze rozdělit na dvě složky: vnitřní hodnotu a časovou hodnotu. Vnitřní hodnota je výplata, kterou by opce přinesla při okamžitém uplatnění -- pro call opci $\max(0, S-K)$, pro put opci $\max(0, K-S)$. Opce ITM mají kladnou vnitřní hodnotu, zatímco opce OTM a ATM mají vnitřní hodnotu nulovou. Časová hodnota je rozdíl mezi tržní cenou opce a její vnitřní hodnotou; představuje prémii za možnost, že se cena podkladového aktiva do expirace změní ve prospěch držitele. Časová hodnota s blížící se expirací klesá (time decay) a v den expirace je nulová. \citep[s.~234]{Hull2021}
 
   Z předchozího příkladu lze vidět, že z dosavadní definice opcí vypisovatel nemůže profitovat, což znamená, že žádný racionální účastník trhu by nikdy nechtěl vypisovat opce. Abychom vypisovatele přesvědčili vypsat opci, zavedeme opční prémii.
   Opční prémie je částka, kterou zaplatíme vypisovateli, abychom vyrovnali potenciální riziko finanční ztráty. Prémie je jednoduše řečeno poplatek za možnost držení opce. Ve chvíli, kdyby se držitel opce rozhodl nechat opci expirovat bez uplatnění, vypisovatel stále vlastní své akcie, které může prodat za tržní hodnotu, a k tomu inkasoval opční prémii. \citep[s.~9]{McDonald2013}
@@ -319,7 +341,7 @@ Text v této šabloně by Vám měl pomoci s tvorbou závěrečné práce. Je v�
   Pokud nám opce umožňuje ji uplatnit před datem expirace, říkáme, že tato opce má \textbf{americký} styl uplatnění. Předčasné uplatnění je opět pouze právo, tudíž můžeme nechat opci neuplatněnou až do data expirace. Tímto způsobem můžeme napodobit chování opce evropské. Důsledkem můžeme v zásadě na jakoukoliv obchodní strategii použít opce americké namísto evropských, je-li to výhodné. Jelikož kupující získává výhodu navíc, která mu dává lepší možnost vydělat na úkor vypisovatele, platíme větší prémii než za opci evropskou.
 
   Pro americké call opce na akcie bez dividend je právo předčasného uplatnění bezcenné. Uplatněním opce ztrácíme ochranu před náhlým poklesem hodnoty aktiva, urychlujeme čas, ve kterém musíme uhradit koupi aktiva, a který můžeme využít investicí do jiných prostředků, a ještě k tomu ztrácíme peníze vydělané potenciálním prodejem této opce.
-  Pokud by cena americké call opce $C$ byla nižší než $S - K$, účastník trhu by opci koupil, ihned uplatnil a akcii prodal na trhu, čímž by dosáhl okamžitého bezrizikového zisku $S - K - C > 0$. Na efektivním trhu proto musí platit $C \ge S - K$. Před expirací je cena dokonce přísně větší než $S - K$, protože opce poskytuje ochranu před poklesem – držitel nemusí uplatnit, pokud cena klesne, což je právo, za které se platí \citep[s.~287--289]{McDonald2013}. Abychom z držení opce měli co největší možnou výplatu, je lepší opci prodat, než ji uplatnit. Pro opce na akcie vyplácející dividendy dává předčasné uplatnění smysl, specificky před vyplácením dividendy \citep[s.~291-293]{McDonald2013}. Pro put opce dává předčasné uplatnění také smysl, kupříkladu v případě, kdy je cena aktiva nulová. Cena se níže propadnout nemůže, tudíž uplatněním získáme maximální možnou výplatu. % TODO: Správná citace?
+  Pokud by cena americké call opce $C$ byla nižší než $S - K$, účastník trhu by opci koupil, ihned uplatnil a akcii prodal na trhu, čímž by dosáhl okamžitého bezrizikového zisku $S - K - C > 0$. Na efektivním trhu proto musí platit $C \ge S - K$. Před expirací je cena dokonce přísně větší než $S - K$, protože opce poskytuje ochranu před poklesem – držitel nemusí uplatnit, pokud cena klesne, což je právo, za které se platí. Abychom z držení opce měli co největší možnou výplatu, je lepší opci prodat, než ji uplatnit. Pro opce na akcie vyplácející dividendy dává předčasné uplatnění smysl, specificky před vyplácením dividendy \citep[s.~291-293]{McDonald2013}. Pro put opce dává předčasné uplatnění také smysl, kupříkladu v případě, kdy je cena aktiva nulová. Cena se níže propadnout nemůže, tudíž uplatněním získáme maximální možnou výplatu. % TODO: Správná citace?
 
   Evropské a americké opce jsou při obchodování s opcemi běžně využívané a jsou vhodné pro většinu uplatnění. Tento typ opcí nazýváme také \textbf{vanilkový}. Protikladem k vanilkovým opcím jsou opce exotické. Tyto opce většinou obsahují nějakou speciální vlastnost, která silně ztěžuje odhad jejich hodnoty, ale umožňuje pokrýt speciální situace a požadavky. Exotické opce nejsou v rámci této práce použity, nicméně jsou uváděny pro plnou informovanost čtenáře.
 
@@ -394,7 +416,9 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
 
   Tímto jsme odvodili rovnici put-call parity pro opce na akcie \citep[s.~279-281]{McDonald2013}.
 
-  Z rovnice put-call parity vyplývá, že ceny call a put opcí nejsou nezávislé – známe-li jednu, můžeme druhou přímo určit. Porušení této rovnosti vytváří arbitrážní příležitost: pokud je call opce oproti put opci předražená (resp. podhodnocená), lze sestavit zajištěné portfolio s jistým ziskem. \citep[s.~283--285]{McDonald2013} % TODO: Správná citace?
+  Z rovnice put-call parity vyplývá, že ceny call a put opcí nejsou nezávislé – známe-li jednu, můžeme druhou přímo určit. Porušení této rovnosti vytváří arbitrážní příležitost: pokud je call opce oproti put opci předražená (resp. podhodnocená), lze sestavit zajištěné portfolio s jistým ziskem. \citep[s.~85]{McDonald2013} % TODO: Správná citace?
+
+  Je však třeba mít na paměti, že put-call parita odvozená výše platí pouze za určitých předpokladů. Předpokládá evropský styl uplatnění – u amerických opcí nelze tuto rovnost použít přímo, protože možnost předčasného uplatnění vytváří nerovnost. Dále vyžaduje, aby obě opce měly stejné datum expirace a stejnou strike cenu, a neuvažuje transakční náklady, které by v praxi mohly arbitrážní zisk pohlcovat. I přes tato omezení je put-call parita užitečným nástrojem pro kontrolu konzistence cen opcí na trhu. \citep[Kaptitola~11.4]{Hull2021} % TODO: Zkontrolovat citaci
 
   \subsection{Ohodnocování opcí}
 
@@ -410,7 +434,12 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
 
   Tyto tři principy jsou vzájemně provázané – za předpokladu neexistence arbitráže vedou replikace i risk-neutrální oceňování ke stejnému výsledku. \citep[s.~365]{McDonald2013}
 
-  % TODO: Zkontrolovat citace sekce nahoře
+  Všechny dále uvedené metody vyžadují jako vstup odhad volatility ceny podkladového aktiva. Zde je nutné rozlišovat dva typy volatility:
+  \begin{itemize}
+    \item \textbf{Historická volatilita} je spočtena z minulých cen podkladového aktiva (např. jako standardní odchylka denních výnosů přepočtená na roční bázi). Zachycuje, jak moc cena aktiva kolísala v minulosti.
+    \item \textbf{Implikovaná volatilita} je odvozena z aktuálních tržních cen opcí -- dosadíme ji do oceňovacího modelu (např. Blackova-Scholesova) tak, aby modelová cena odpovídala ceně tržní. Vyjadřuje očekávání trhu ohledně budoucí volatility.
+  \end{itemize}
+  Historická volatilita slouží jako vstup pro ocenění opce, zatímco implikovaná volatilita se používá k porovnání, zda je opce na trhu nadhodnocená či podhodnocená. \citep[Kapitoly~29.1-29.2]{McDonald2013} % TODO: Zkontrolovat citaci
 
   Pro oceňování opcí se používají různé způsoby, které mají své výhody a nevýhody v závislosti na vyhodnocovaném typu opce. V této práci budou popsány ty nejběžnější, použité pouze na vanilkových opcích. Následuje stručný úvod k principu každé z metod. Všechny zmíněné způsoby vyhodnocení jsou blíže specifikovány a zkoumány ve svých vlastních kapitolách.
 
