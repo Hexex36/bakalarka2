@@ -467,33 +467,37 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
 
   \section{Ohodnocování opcí pomocí Blackova-Scholesova modelu}
 
-  U binomických stromů musíme jako parametr stanovit počet kroků od začátku až po expiraci opce, čímž diskretizujeme vývoj ceny pokladového aktiva, což nereflektuje realitu, kde se cena aktiva vyvíjí konstantně vlimem okolních vlivů. Abychom dosáhli spojistosti vývoje ceny podkladového aktiva, museli bychom mít nekonečné množství kroků, což by trochu prodloužilo čekání na ukončení algoritmu. Naštěstí, dvě chytré hlavy, specificky Black a Scholes, vytvořili formuli, která funguje jako zobecnění výpočtu ceny opce pomocí binomického stromu, jehož počet kroků se limitně blíží nekonečnu.
+  U binomických stromů musíme jako parametr stanovit počet kroků od začátku až po expiraci opce, čímž diskretizujeme vývoj ceny pokladového aktiva, což nereflektuje realitu, kde se cena aktiva vyvíjí konstantně vlimem okolních vlivů. Abychom dosáhli spojistosti vývoje ceny podkladového aktiva, museli bychom mít nekonečné množství kroků, což by trochu prodloužilo čekání na ukončení algoritmu. Naštěstí, dvě chytré hlavy, specificky Black a Scholes, vytvořili formuli, která funguje jako zobecnění výpočtu ceny opce pomocí binomického stromu, jehož počet kroků se limitně blíží nekonečnu. % TODO: Ocitovat
 
   Blackova-Scholesova formule má kompletně separátní znění pro call i pro put opce, nicméně známe-li jedno, to druhé můžeme odvodit pomocí put-call parity.
 
+  %TODO: Definovat odvození Black-Scholese zkráceně dle článku
+
   Blackova-Scholesova formule pro evropské call opce bez dividend se definuje jako:
   \begin{equation}
-    C(S, K, \sigma, r, T) = SN(d_1) - Ke^{-rT}N(d_2)
+    C(S, K, \sigma, r, T) = SN(d_1) - Ke^{-rT}N(d_2),
   \end{equation}
 
   kde $N(x)$ je kumulativní normálová distribuční funkce a platí:
 
   \begin{gather}
     \label{d_1 and d_2}
-    d_1 = \frac{ln(S/K) + (r + \frac{1}{2}\sigma ^ 2)T}{\sigma \sqrt{T}} \\
-    d_2 = d_1 - \sigma \sqrt{T}
+    d_1 = \frac{ln(S/K) + (r + \frac{1}{2}\sigma ^ 2)T}{\sigma \sqrt{T}}, \\
+    d_2 = d_1 - \sigma \sqrt{T}.
   \end{gather}
 
   Z put-call parity můžeme odvodit Blackovu-Scholesovu formuli pro put opce:
 
   \begin{gather*}
-    Call(S, K, \sigma, r, T) - Put(S, K, \sigma, r, T) = S - Ke^{-rT} \\
-    Put(S, K, \sigma, r, T) = Call(S, K, \sigma, r, T) + Ke^{-rT} - S \\
-    Put(S, K, \sigma, r, T) = SN(d_1) - S + Ke{-rT} - Ke^{-rT}N(d_2) \\
-    Put(S, K, \sigma, r, T) = S(N(d_1) - 1) + Ke{-rT} (1 - N(d_2))  \\
-    Put(S, K, \sigma, r, T) = -S(1 - N(d_1)) + Ke{-rT} (1 - N(d_2))  \\
-    Put(S, K, \sigma, r, T) = -S(N(-d_1)) + Ke{-rT} (N(-d_2)) \\
+    Call(S, K, \sigma, r, T) - Put(S, K, \sigma, r, T) = S - Ke^{-rT}, \\
+    Put(S, K, \sigma, r, T) = Call(S, K, \sigma, r, T) + Ke^{-rT} - S, \\
+    Put(S, K, \sigma, r, T) = SN(d_1) - S + Ke{-rT} - Ke^{-rT}N(d_2), \\
+    Put(S, K, \sigma, r, T) = S(N(d_1) - 1) + Ke{-rT} (1 - N(d_2)),  \\
+    Put(S, K, \sigma, r, T) = -S(1 - N(d_1)) + Ke{-rT} (1 - N(d_2)),  \\
+    Put(S, K, \sigma, r, T) = -S(N(-d_1)) + Ke{-rT} (N(-d_2)), \\
   \end{gather*}
+
+  kde $Call(S, K, \sigma, r, T)$ je prémie utracená za koupi call opce a $Put(S, K, \sigma, r, T)$ je prémie získaná vypsáním put opce.
 
   Tím pádem, můžeme Blackovu-Scholesovu formuli pro evropské put opce bez dividend zapsat jako:
 
@@ -503,11 +507,15 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
 
   kde $d_1$ a $d_2$ je stejné jako v \ref{d_1 and d_2}.
 
+  % TODO: Ocitovat
+
   Nicméně, v praxi se pravěpodobně setkáme s opcemi na akcie, které platí dividendu. Co potom? Dle Mertona, musíme zlevnit $S$ o míru rovnou spojitému yieldu (TODO: Špatný slovo) dividend, čili převézt $S$ na $Se^{-\delta T}$. Tudíž, Blackova-Scholesova-Mertonova formule pro evropské call opce má následující znění:
 
   \begin{equation}
     C(S, K, \sigma, r, T, \delta) = Se^{-\delta T}N(d_1) - Ke^{-rT}N(d_2)
   \end{equation}
+
+  % TODO: Ocitovat a odvodit dle článku
 
   Mimo to, musíme také zohlednit, že dividenda snižuje hodnotu akcie také v $d_1$, tudíž si $d_1$ a $d_2$ definujeme jako:
 
@@ -530,10 +538,99 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
   \begin{equation}
     C_a(S, K, \sigma, r, T, \delta) = 
     \begin{cases}
-      C(S, K, \sigma, r, T, \delta) + A_2\left(\frac{S}{S*}\right)^{q_2} & \text{pro } S < S*, \\
-      S - X & \text{pro } S \le S*
+      C(S, K, \sigma, r, T, \delta) + A_2\left(\frac{S}{S^*}\right)^{q_2} & \text{pro } S < S^*, \\
+      S - K & \text{pro } S \le S^*,
     \end{cases}
   \end{equation}
+
+  kde platí, že:
+
+  \begin{align}
+    \label{BAW_params}
+    A_2 &= \frac{S^*}{q_2} (1 - e^{-qT} N[d_1 (S^*)]),
+    d_1(S) &= \frac{ln(S / K) + (r - q + \sigma^2 / 2)T}{\sigma \sqrt{T}},
+    q_2 &= \frac{-(N - 1) + \sqrt{(N - 1)^2 + 4M / K}},
+    M &= 2r / \sigma^2,
+    N &= 2(r - q) / \sigma^2,
+    K &= 1 - e^-rT.
+  \end{align}
+
+  $S^*$ vyjadřuje kritickou cenu komodity pro danou call opci. Tato kritická cena musí splnit podmínky:
+
+  \begin{equation}
+    S^* - K = c(S^*, K, \sigma, r, T, \delta) + (1 - e^(-qT) N[d_1(S^*)])S^*\frac{1}{q_2}.
+  \end{equation}
+
+  Pro americké put opce Barone-Adesiho a Whaleyho metoda má následující znění:
+
+  \begin{equation}
+    P_a(S, K, \sigma, r, T, \delta) = 
+    \begin{cases}
+      P(S, K, \sigma, r, T, \delta) + A_1\left(\frac{S}{S^{**}}\right)^{q_1} & \text{pro } S > S^{**}, \\
+      S - K & \text{pro } S \ge S^{**},
+    \end{cases},
+  \end{equation}
+
+  kde $P(S, K, \sigma, r, T, \delta)$ značí cenu evropské put opce pro dané parametry, $P_a(S, K, \sigma, r, T, \delta)$ značí cenu americké put opce pro dané parametry a:
+
+  \begin{align}
+    A_1 &= \frac{S^{**}}{q_2} (1 - e^{-qT} N[d_1 (S^{**})]),
+    q_2 &= \frac{-(N - 1) + \sqrt{(N - 1)^2 + 4M / K}},
+  \end{align}
+
+  a parametry $d_1(S), M, N, K$ jsou stejné jako v \ref{BAW_params}.
+
+  $S^{**}$ značí kritickou cenu komodity pro put opci. Tato cena musí splňovat:
+
+  \begin{equation}
+    K - S^{**} = P(S^{**}, K, \sigma, r, T, \delta) - (1 - e^{-qT}N[-d_1(S^{**})])S^{**} \frac{1}{q_1}
+  \end{equation}
+
+  % TODO: Dopsat americké opce
+
+  \subsection{Nalezení kritické ceny komodity}
+
+  Kritické ceny komodit $S^*$ a $S^{**}$ hledáme pomocí iterativních metod. V této práci je použita Newton-Raphsonova metoda.
+
+  % TODO: Popiš Newton-Raphsonův algoritmus.
+
+  % TODO: Odvoď derivace RHS obou cen komodit.
+
+  % TODO: Přesuň sekce spojené s Newton-Raphsonem.
+
+  Pro inicální odhad hodnoty $S^*$ použijeme:
+  \begin{multline}
+    h_2 = -(bT + 2 \sigma \sqrt{T}) \left[ \frac{K}{S^*(\inf) - K} \right],
+    S^*_1 = K + [S^*(\inf) - K][1 - e^h_2],
+  \end{multline}
+
+  kde $S^*(\inf)$ odpovídá kritické ceně komodity v nekonečném čase expirace:
+
+  \begin{equation}
+    S^*(\inf) = \frac{K}{1 - 2[-(N - 1) + \sqrt{(N - 1)^2 + 4M}]^{-1}}.
+  \end{equation}
+
+  Následně můžeme zlepšit i-tý odhad kritické ceny, značený jako $S_i$, nastavením $S_{i+1}$ jako:
+
+  \begin{equation}
+    S_{i+1} = \frac{[K - RHS(S_i) - b_i S_i]}{1 - b_i},
+  \end{equation}
+
+  kde $RHS(S_i)$ odpovídá hodnotě pravé strany rovnice kritické ceny komodity (TODO: Doplnit odkaz na kritickou cenu komodity) a $b_i$ je parciální derivace dle $S_i$, čili směrnice $RHS(S_i)$, s hodnotou:
+
+  \begin{equation}
+    b_i = \frac{\partial RHS}{\partial \S_i} = e^{-qT} N[d_1(S_i)](1 - \frac{1}{q_2}) + \left{ 1 - \frac{e^{-qT}n[d_1](S_i)}{\sigma \sqrt{T}} \right} \frac{1}{q_2}
+  \end{equation}
+
+  Se zlepšováním odhadů pokračujeme, dokud není splněno:
+
+  \begin{equation}
+    |LHS(S_i) - RHS(S_i)| / K < \alpha,
+  \end{equation}
+
+  kde \alpha znační maximální toleranci chyby.
+
+
 
   \section{Ohodnocování opcí pomocí přístupu Monte Carlo}
 
