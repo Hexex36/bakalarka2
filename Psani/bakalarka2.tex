@@ -312,7 +312,7 @@ Text v této šabloně by Vám měl pomoci s tvorbou závěrečné práce. Je v�
     \item Cena aktiva je při expiraci vyšší než strike cena ($S = 120, K = 110$). Uplatněním opce by účastník A prodal aktivum levněji než na trhu, a ztratil by $110 - 120 = -10$ Kč. Účastník A se rozhodne opci neuplatnit, čímž ani jedna strana nevydělá.
   \end{enumerate}
 
-  Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývají \uv{in-the-money}, nebo zkráceně ITM, zatímco opce, které by při okamžitém uplatnění měly zápornou výplatu, se nazývají \uv{out-of-the-money}, čili OTM. O těchto opcích říkáme, že mají nulovou vnitřní hodnotu. Pokud by opce měla nulovou výplatu, říkáme že je \uv{at-the-money}, čili ATM. \citep[s.~58-59]{McDonald2013} 
+  Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývají \UV{in-the-money}, nebo zkráceně ITM, zatímco opce, které by při okamžitém uplatnění měly zápornou výplatu, se nazývají \UV{out-of-the-money}, čili OTM. O těchto opcích říkáme, že mají nulovou vnitřní hodnotu. Pokud by opce měla nulovou výplatu, říkáme že je \UV{at-the-money}, čili ATM. \citep[s.~58-59]{McDonald2013} 
 
   Cenu opce lze rozdělit na dvě složky: vnitřní hodnotu a časovou hodnotu. Vnitřní hodnota je výplata, kterou by opce přinesla při okamžitém uplatnění -- pro call opci $\max(0, S-K)$, pro put opci $\max(0, K-S)$. Opce ITM mají kladnou vnitřní hodnotu, zatímco opce OTM a ATM mají vnitřní hodnotu nulovou. Časová hodnota je rozdíl mezi tržní cenou opce a její vnitřní hodnotou; představuje prémii za možnost, že se cena podkladového aktiva do expirace změní ve prospěch držitele. Časová hodnota s blížící se expirací klesá (time decay) a v den expirace je nulová. \citep[s.~234]{Hull2021}
 
@@ -336,7 +336,7 @@ Text v této šabloně by Vám měl pomoci s tvorbou závěrečné práce. Je v�
   \subsection{Styly uplatnění a typy opcí}
 
   Zatím jsme uvažovali pouze o kontraktech, které můžeme uplatnit pouze v den expirace. Tomuto stylu uplatnění opce se říká \textbf{evropský} styl. 
-  Je to jeden ze dvou běžných stylů uplatnění opce. Používá se nejčastěji na akciové indexy, neboť indexy jsou takzvaně \uv{cash-settled} - vyrovnány měnou. Akciové indexy pouze sledují cenu a nedávají žádné podkladové aktivum, jde čistě jen o zisk ze spekulace, či k zajištění se proti negativnímu vývoji cen.
+  Je to jeden ze dvou běžných stylů uplatnění opce. Používá se nejčastěji na akciové indexy, neboť indexy jsou takzvaně \UV{cash-settled} - vyrovnány měnou. Akciové indexy pouze sledují cenu a nedávají žádné podkladové aktivum, jde čistě jen o zisk ze spekulace, či k zajištění se proti negativnímu vývoji cen.
 
   Pokud nám opce umožňuje ji uplatnit před datem expirace, říkáme, že tato opce má \textbf{americký} styl uplatnění. Předčasné uplatnění je opět pouze právo, tudíž můžeme nechat opci neuplatněnou až do data expirace. Tímto způsobem můžeme napodobit chování opce evropské. Důsledkem můžeme v zásadě na jakoukoliv obchodní strategii použít opce americké namísto evropských, je-li to výhodné. Jelikož kupující získává výhodu navíc, která mu dává lepší možnost vydělat na úkor vypisovatele, platíme větší prémii než za opci evropskou.
 
@@ -453,6 +453,9 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
 
   \section{Ohodnocování opcí pomocí binomických a trinomických stromů}
 
+  \subsection{Geometrický Brownův pohyb a Wienerův proces}
+
+  \subsection{Binomické stromy}
     Binomické a trinomické stromy zjednodušují náš model vnímání opcí zúžením možných hodnot podkladového aktiva na konci jednoho časového úsek na dvě možné hodnoty. Mějme dvě konstanty: $u$ a $d$, kde $u$ je míra o kterou se cena aktiva zvedne, roste-li cena, a kde $d$ je míra o kterou cena klesne, snižuje-li se cena. Výsledně, na konci jednoho časového období, značeného jako $t$, se z původní ceny aktiva $S$, dostaneme buďto na cenu $uS$ nebo $dS$.
 
   Při tomto uvažování lze jednoznačně určit cena opce pro dané aktivum. Můžeme vytvořit syntetickou opci tím, že si půčíme peníze na držení $\delta$ kusů aktiva (v našem případě podílů akcie) a investujeme bezrizikově $B$ hodnoty peněz, při bezrizikové úrokové míře $r$. Toto nám umožňuje stejné benefity jako u opce. (Rozepiš proč)
@@ -467,13 +470,113 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
 
   \section{Ohodnocování opcí pomocí Blackova-Scholesova modelu}
 
-  U binomických stromů musíme jako parametr stanovit počet kroků od začátku až po expiraci opce, čímž diskretizujeme vývoj ceny pokladového aktiva, což nereflektuje realitu, kde se cena aktiva vyvíjí konstantně vlimem okolních vlivů. Abychom dosáhli spojistosti vývoje ceny podkladového aktiva, museli bychom mít nekonečné množství kroků, což by trochu prodloužilo čekání na ukončení algoritmu. Naštěstí, dvě chytré hlavy, specificky Black a Scholes, vytvořili formuli, která funguje jako zobecnění výpočtu ceny opce pomocí binomického stromu, jehož počet kroků se limitně blíží nekonečnu. % TODO: Ocitovat
+  U binomických stromů musíme jako parametr stanovit počet kroků od začátku až po expiraci opce, čímž diskretizujeme vývoj ceny podkladového aktiva, což nereflektuje realitu, kde se cena aktiva vyvíjí spojitě vlivem okolních podmínek. Abychom dosáhli spojitosti vývoje ceny podkladového aktiva, museli bychom mít nekonečné množství kroků, což by trochu prodloužilo čekání na ukončení algoritmu. Na tomto principu funguje Blackův-Scholesův model, který funguje jako zobecnění binomických stromů v nekonečnu. \citep{McDonald2013}
 
-  Blackova-Scholesova formule má kompletně separátní znění pro call i pro put opce, nicméně známe-li jedno, to druhé můžeme odvodit pomocí put-call parity.
+  \subsection{Odvození Blackova-Scholesova modelu skrze parciální derivace}
 
-  %TODO: Definovat odvození Black-Scholese zkráceně dle článku
+  \subsubsection{Itôovo lemma}
 
-  Blackova-Scholesova formule pro evropské call opce bez dividend se definuje jako:
+  Pro pokračování musíme zadefinovat Itôovo lemma.
+
+  Mějme proměnnou $x$, která se hodnotou podobá Itôovu procesu:
+  \begin{equation}
+    dx = a(x, t) dt + b(x, t) dz
+  \end{equation}
+
+  kde $dz$ je Wienerův proces, a $a$ a $b$ jsou libovolné funkce. Proměnná $x$ má míru driftu $a$ a varianci $b^2$. Itôovo lemma říká, že funkce $G$ o parametrech $x$ a $t$ následuje proces:
+
+  \begin{equation}
+    dG = \left( \frac{\partial G}{\partial x}a + \frac{\partial G}{\partial t} + \frac{1}{2} \frac{\partial^2 G}{\partial x^2} b^2 \right) dt + \frac{\partial G}{\partial x}b dz
+  \end{equation}
+
+  \subsubsection{Odvození modelu}
+
+  Pro odvození modelu budeme předpokládat:
+  
+  \begin{itemize}
+    \item Bezriziková úroková míra je známá a konstantní v čase,
+    \item Cena podílu je náhodným procesem ve spojitém čase, který je lognormální v každém konečném intervalu a má konstantní variaci,
+    \item Neplatíme žádné poplaty za koupi či prodání podílu nebo opce,
+    \item Je možné si půjčit jakýkoliv zlomek ceny finančního instrumentu při bezrizikové úrokové míře, ať už na koupi nebo držení,
+    \item Neexistují žádné penalizace za prodej,
+    \item Akcie neplatí žádné dividendy,
+    \item Opce je evropská.
+  \end{itemize}
+
+  \citep{BlackScholes1973}
+
+  Poslední dva nejsou pevnou limitací modelu jako takového, a níže v této sekci ukážeme, jak hodnotit opce americké, i s dividendou.
+
+  Zavedeme si cenu akcie jako Geometrický Brownův pohyb.
+
+  \begin{equation}
+    dS = \mu S dt + \sigma S dz,
+  \end{equation}
+
+  kde $\mu$ je očekávaný výnos akcie, $\sigma$ volatilita a $dz$ je Wienerův proces.
+  
+  Předpokládejme, že $f$ je cena call opce na akcii ceny $S$. Cenu opce $f$ můžeme modelovat jako funkci o parametrech $S$ a $t$. Tím pádem na funkci $f$ můžeme využít Itôovo lemma:
+  \begin{equation}
+    df = \left( \frac{\partial f}{\partial S} \mu S + \frac{\partial f}{\partial t} + \frac{1}{2} \frac{\partial^2 f}{\partial S^2} \sigma^2 S^2 \right) dt + \frac{\partial f}{\partial S} \sigma S dz
+  \end{equation}
+
+  Cenu akcie i cenu opce zdiskretizujeme pro následující zpracování:
+
+  \begin{gather}
+    \Delta S = \mu S \Delta t + \sigma S \Delta z, \\
+    \Delta f = \left( \frac{\partial f}{\partial S} \mu S + \frac{\partial f}{\partial t} + \frac{1}{2} \frac{\partial^2 f}{\partial S^2} \sigma^2 S^2 \right) \Delta t + \frac{\partial f}{\partial S} \sigma S \Delta z
+  \end{gather}
+
+  Z Itôova lemmatu vychází, že Wienerův proces ve funkci $f$ a pro cenu akcie $S$ je stejný. \citep[Kapitola~15.6]{Hull2021} Důsledkem tohoto faktu můžeme vyvodit, $\Delta z$ v obou rovnicích cen musí být stejné. Potom můžeme vytvořit takové portfolio, obsahující akcii s cenou $S$ a opci s cenou $f$ takové, že eliminujeme Wienerův proces. Toto portfolio vytvoříme zaujetím krátké pozice na jednom kusu opce, a koupením $\frac{\partial f}{\partial S}$ akcií. Můžeme zavést hodnotu portfolia jako:
+
+  \begin{equation}
+    \Pi = -f + \frac{\partial f}{\partial S} S
+  \end{equation}
+
+  Změna hodnoty portfolia v časovém intervalu $\Delta t$ je modelována jako:
+  \begin{equation}
+    \Delta \Pi = - \Delta f + \frac{\partial f}{\partial S} \Delta S
+  \end{equation}
+
+  Dosadíme cenu akcie a cenu opce.
+
+  \begin{align}
+    \Delta \Pi &= \left(- \frac{\partial f}{\partial S} \mu S - \frac{\partial f}{\partial t} - \frac{1}{2} \frac{\partial^2 f}{\partial S^2} \sigma^2 S^2 \right) \Delta t - \frac{\partial f}{\partial S} \sigma S \Delta z + \frac{\partial f}{\partial S} \mu S \Delta t + \frac{\partial f}{\partial S} \sigma S \Delta z, \\
+               &= - \frac{\partial f}{\partial S} \mu S \Delta t + \frac{\partial f}{\partial S} \mu S \Delta t - \frac{\partial f}{\partial t} \Delta t - \frac{1}{2} \frac{\partial^2 f}{\partial S^2} \sigma^2 S^2 \Delta t - \frac{\partial f}{\partial S} \sigma S \Delta z + \frac{\partial f}{\partial S} \sigma S \Delta z, \\
+               &= \left( - \frac{\partial f}{\partial t} - \frac{1}{2} \frac{\partial^2 f}{\partial S^2} \sigma^2 S^2 \right) \Delta t
+  \end{align}
+
+  Poněvadž portfolio neobsahuje $\Delta z$, je během času $\Delta t$ bezrizikové. Portfolio musí vynášet stejně jako jiné bezrizikové finanční instrumenty, jinak bychom vytvořili příležitost pro arbitráž. %TODO: Přidat arbitráže jako poznámky pod čarou
+  Tudíž:
+
+  \begin{equation}
+    \Delta \Pi = r \Pi \Delta t
+  \end{equation}
+
+  Dosadíme-li cenu portfolia a její změnu:
+
+  \begin{equation}
+    \left( \frac{\partial f}{\partial t} + \frac{1}{2} \frac{\partial^2 f}{\partial S^2} \sigma^2 S^2 \right) \Delta t = r \left(f - \frac{\partial f}{\partial S}S \right) \Delta t
+  \end{equation}
+
+  Upravíme diferenciální rovnici do finálního tvaru:
+
+  \begin{equation}
+    \frac{\partial f}{\partial t} + rS \frac{\partial f}{\partial S} + \frac{1}{2} \frac{\partial^2 f}{\partial S^2} \sigma^2 S^2 = rf.
+    \label{BS_PDE}
+  \end{equation}
+
+  Tímto jsme odvodili diferenciální rovnici Blacka-Scholese-Mertona \citep[Kapitola~15.6]{Hull2021} \citep{BlackScholes1973}.
+
+  \subsubsection{Řešení diferenciální rovnice}
+
+  Rovnici \ref{BS_PDE} řešíme pro evropskou call opci s okrajovou
+  podmínkou $C(S,T) = \max(S-K, 0)$. Nejprve zavedeme zpětný čas
+  $\tau = T - t$ a poté substituci $x = \ln(S/K)$, čímž rovnici
+  převedeme na tvar klasické rovnice vedení tepla. Jejím řešením
+  s danou okrajovou podmínkou a následným návratem k původním
+  proměnným získáme explicitní vzorec: %TODO: Zdroj
+
   \begin{equation}
     C(S, K, \sigma, r, T) = SN(d_1) - Ke^{-rT}N(d_2),
   \end{equation}
@@ -482,22 +585,24 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
 
   \begin{gather}
     \label{d_1 and d_2}
-    d_1 = \frac{ln(S/K) + (r + \frac{1}{2}\sigma ^ 2)T}{\sigma \sqrt{T}}, \\
-    d_2 = d_1 - \sigma \sqrt{T}.
+    d_1 = \frac{ln(S/K) + (r + \frac{1}{2}\sigma^2)T}{\sigma \sqrt{T}}, \\
+    d_2 = d_1 - \sigma \sqrt{T},
   \end{gather}
+
+  což je vzorec pro Blackovu-Scholesovu formuli pro evropské call opce \citep{McDonald2013} \citep{BlackScholes1973}.
 
   Z put-call parity můžeme odvodit Blackovu-Scholesovu formuli pro put opce:
 
   \begin{gather*}
     Call(S, K, \sigma, r, T) - Put(S, K, \sigma, r, T) = S - Ke^{-rT}, \\
     Put(S, K, \sigma, r, T) = Call(S, K, \sigma, r, T) + Ke^{-rT} - S, \\
-    Put(S, K, \sigma, r, T) = SN(d_1) - S + Ke{-rT} - Ke^{-rT}N(d_2), \\
-    Put(S, K, \sigma, r, T) = S(N(d_1) - 1) + Ke{-rT} (1 - N(d_2)),  \\
-    Put(S, K, \sigma, r, T) = -S(1 - N(d_1)) + Ke{-rT} (1 - N(d_2)),  \\
-    Put(S, K, \sigma, r, T) = -S(N(-d_1)) + Ke{-rT} (N(-d_2)), \\
+    Put(S, K, \sigma, r, T) = SN(d_1) - S + Ke^{-rT} - Ke^{-rT}N(d_2), \\
+    Put(S, K, \sigma, r, T) = S(N(d_1) - 1) + Ke^{-rT} (1 - N(d_2)),  \\
+    Put(S, K, \sigma, r, T) = -S(1 - N(d_1)) + Ke^{-rT} (1 - N(d_2)),  \\
+    Put(S, K, \sigma, r, T) = -S(N(-d_1)) + Ke^{-rT} (N(-d_2)), \\
   \end{gather*}
 
-  kde $Call(S, K, \sigma, r, T)$ je prémie utracená za koupi call opce a $Put(S, K, \sigma, r, T)$ je prémie získaná vypsáním put opce.
+  kde $Call(S, K, \sigma, r, T)$ je prémie utracená za koupi call opce a $Put(S, K, \sigma, r, T)$ je prémie utracená za koupi put opce.
 
   Tím pádem, můžeme Blackovu-Scholesovu formuli pro evropské put opce bez dividend zapsat jako:
 
@@ -505,11 +610,11 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
     P(S, K, \sigma, r, T) = Ke^{-rT}N(-d_2) - SN(-d_1)
   \end{equation}
 
-  kde $d_1$ a $d_2$ je stejné jako v \ref{d_1 and d_2}.
+  kde $d_1$ a $d_2$ jsou stejné jako v \ref{d_1 and d_2}.
 
   % TODO: Ocitovat
 
-  Nicméně, v praxi se pravěpodobně setkáme s opcemi na akcie, které platí dividendu. Co potom? Dle Mertona, musíme zlevnit $S$ o míru rovnou spojitému yieldu (TODO: Špatný slovo) dividend, čili převézt $S$ na $Se^{-\delta T}$. Tudíž, Blackova-Scholesova-Mertonova formule pro evropské call opce má následující znění:
+  Nicméně, v praxi se pravděpodobně setkáme s opcemi na akcie, které platí dividendu. Dle Mertona musíme snížit $S$ o míru rovnou spojitému dividendovému výnosu $\delta$, čili převést $S$ na $Se^{-\delta T}$. Blackova-Scholesova-Mertonova formule pro evropské call opce má následující znění:
 
   \begin{equation}
     C(S, K, \sigma, r, T, \delta) = Se^{-\delta T}N(d_1) - Ke^{-rT}N(d_2)
@@ -520,13 +625,13 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
   Mimo to, musíme také zohlednit, že dividenda snižuje hodnotu akcie také v $d_1$, tudíž si $d_1$ a $d_2$ definujeme jako:
 
   \begin{gather}
-    d_1 = \frac{ln(S/K) + (r - \delta + \frac{1}{2}\sigma ^ 2)T}{\sigma \sqrt{T}} \\
+    d_1 = \frac{ln(S/K) + (r - \delta + \frac{1}{2}\sigma^2)T}{\sigma \sqrt{T}} \\
     d_2 = d_1 - \sigma \sqrt{T}
   \end{gather}
 
   Stejně jako u Blackova-Scholesova modelu, můžeme odvodit Mertonovo rozšíření pomocí put-call parity:
   \begin{equation}
-    P(S, K, \sigma, r, T, \delta) = Ke^{-rT}N(-d_2) - Se^{-\delta T}N(-d_1) 
+    P(S, K, \sigma, r, T, \delta) = Ke^{-rT}N(-d_2) - Se^{-\delta T}N(-d_1)
   \end{equation}
 
   \subsection{Americké opce}
@@ -539,7 +644,7 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
     C_a(S, K, \sigma, r, T, \delta) = 
     \begin{cases}
       C(S, K, \sigma, r, T, \delta) + A_2\left(\frac{S}{S^*}\right)^{q_2} & \text{pro } S < S^*, \\
-      S - K & \text{pro } S \le S^*,
+      S - K & \text{pro } S \ge S^*,
     \end{cases}
   \end{equation}
 
@@ -549,16 +654,16 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
     \label{BAW_params}
     A_2 &= \frac{S^*}{q_2} (1 - e^{-qT} N[d_1 (S^*)]),
     d_1(S) &= \frac{ln(S / K) + (r - q + \sigma^2 / 2)T}{\sigma \sqrt{T}},
-    q_2 &= \frac{-(N - 1) + \sqrt{(N - 1)^2 + 4M / K}},
+    q_2 &= \frac{-(N - 1) + \sqrt{(N - 1)^2 + 4M / \kappa}},
     M &= 2r / \sigma^2,
     N &= 2(r - q) / \sigma^2,
-    K &= 1 - e^-rT.
+    \kappa &= 1 - e^{-rT}.
   \end{align}
 
   $S^*$ vyjadřuje kritickou cenu komodity pro danou call opci. Tato kritická cena musí splnit podmínky:
 
   \begin{equation}
-    S^* - K = c(S^*, K, \sigma, r, T, \delta) + (1 - e^(-qT) N[d_1(S^*)])S^*\frac{1}{q_2}.
+    S^* - K = C(S^*, K, \sigma, r, T, \delta) + (1 - e^{-qT} N[d_1(S^*)])S^*\frac{1}{q_2}.
   \end{equation}
 
   Pro americké put opce Barone-Adesiho a Whaleyho metoda má následující znění:
@@ -567,18 +672,18 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
     P_a(S, K, \sigma, r, T, \delta) = 
     \begin{cases}
       P(S, K, \sigma, r, T, \delta) + A_1\left(\frac{S}{S^{**}}\right)^{q_1} & \text{pro } S > S^{**}, \\
-      S - K & \text{pro } S \ge S^{**},
+      K - S & \text{pro } S \le S^{**},
     \end{cases},
   \end{equation}
 
   kde $P(S, K, \sigma, r, T, \delta)$ značí cenu evropské put opce pro dané parametry, $P_a(S, K, \sigma, r, T, \delta)$ značí cenu americké put opce pro dané parametry a:
 
   \begin{align}
-    A_1 &= \frac{S^{**}}{q_2} (1 - e^{-qT} N[d_1 (S^{**})]),
-    q_2 &= \frac{-(N - 1) + \sqrt{(N - 1)^2 + 4M / K}},
+    A_1 &= \frac{S^{**}}{q_1} (1 - e^{-qT} N[d_1 (S^{**})]),
+    q_1 &= \frac{-(N - 1) + \sqrt{(N - 1)^2 + 4M / \kappa}},
   \end{align}
 
-  a parametry $d_1(S), M, N, K$ jsou stejné jako v \ref{BAW_params}.
+  a parametry $d_1(S), M, N, \kappa$ jsou stejné jako v \ref{BAW_params}.
 
   $S^{**}$ značí kritickou cenu komodity pro put opci. Tato cena musí splňovat:
 
@@ -588,17 +693,74 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
 
   % TODO: Dopsat americké opce
 
-  \subsection{Nalezení kritické ceny komodity}
 
   Kritické ceny komodit $S^*$ a $S^{**}$ hledáme pomocí iterativních metod. V této práci je použita Newton-Raphsonova metoda.
 
   % TODO: Popiš Newton-Raphsonův algoritmus.
 
-  % TODO: Odvoď derivace RHS obou cen komodit.
+  \subsubsection{Newton-Raphsonova metoda}
 
-  % TODO: Přesuň sekce spojené s Newton-Raphsonem.
+  Newton-Raphsonova metoda je numerická metoda využívající derivaci funkce k přiblížení se k hledané hodnotě. Využití metody je pro nalezení kořenu dané funkce.
+  Mějme funkci $f(x)$ a iniciální odhad $x_0$. Chceme najít $x$ takové, že $f(x) = 0$. Principem algoritmu je prodloužení směrnice funkce v bodě iniciálního odhadu až do nulové funkční hodnoty. Pro $x_0$ nastavíme jako zlepšení odhadu bod $x$ takový, že $x$ leží na průniku směrnice $f(x_0)$ a osy $x$. Takto můžeme postupně zlepšovat $x$, dokud $f(x) = 0$. \citep[Kapitola~9.4]{Press2007}
 
-  Pro inicální odhad hodnoty $S^*$ použijeme:
+  V matematickém předpise:
+
+  \begin{equation}
+    x_{i+1} = x_i - \frac{f(x_i)}{f'(x_i)}
+  \end{equation}
+
+  Této rovnici říkáme Newton-Raphsonova formule \citep[Kapitola~9.4].
+
+  Algoritmus se dá zapsat ve formě podobné Taylorovu polynomu:
+
+  \begin{equation}
+    f(x + \delta) \approx f(x) + f'(x) \delta + \frac{f''(x)}{2} \delta^2 + ...
+  \end{equation}
+
+  kde $x$ je střed rozvoje Taylorova polynomu a $\delta$ je přírůstek.
+
+  Za předpokladu dostatečně malých hodnot $\delta$ a předpokladu, že funkce $f$:
+
+  \begin{itemize}
+    \item Je spojitá a hladká v okolí kořene,
+    \item Všechny body mají nenulovou derivaci v okolí kořene,
+    \item Je dvakrát diferencovatelná,
+  \end{itemize}
+
+  potom můžeme říct: 
+
+  \begin{equation}
+    f(x + \delta) = 0 \implies \delta = - \frac{f(x)}{f'(x)}.
+  \end{equation}
+
+  \citep[Kapitola~9.4]{Press2007}
+
+  Naopak při předpokladu dostatečně velkých hodnot pro $\delta$, může algoritmus selhat. Pokud by se algoritmus dostal do okolí lokálního minima či maxima, další odhad může být nastaven na hodnotu velmi vzdálenou od kořene, což může zabránit konvergenci algoritmu. Alternativně se můžeme dostat na takový odhad, ve kterém se dostaneme do cyklu a funkce nekonverguje \citep[Kapitola~9.4]{Press2007}.
+
+  V blízkém okolí $\epsilon$ od $x$, můžeme aproximovat funkci $f$ a její derivaci jako:
+
+  \begin{align}
+    \label{rootedness}
+    f(x + \epsilon) &= f(x) + \epsilon f'(x) + \epsilon^2 \frac{f''(x)}{2} + ... \\
+    f'(x + \epsilon) &= f'(x) + \epsilon f''(x) + \epsilon^2 \frac{f'''(x)}{2} + ...
+  \end{align}
+
+  Dle Newton-Raphsonovy formule platí:
+
+  \begin{equation}
+    \epsilon_{i+1} = \epsilon_i - \frac{f(x_i)}{f'(x_i)}
+  \end{equation}
+
+  Když se odhad $x_i$ liší od kořene $x$ o $\epsilon$, můžeme využít formulaci \ref{rootedness} a vyjádřit funkci $f$ a její derivaci pomocí $\epsilon_i$ a derivací v kořenu. Výsledkem vznikne rekurentní vztah:
+  \begin{equation}
+    \epsilon_{i+1} = - \epsilon^2_i \frac{f''(x)}{2 f'(x)}
+  \end{equation}
+
+  \citep[Kapitola~9.4]{Press2007}
+
+  \subsubsection{Nalezení kritické ceny komodity}
+
+  Pro iniciální odhad hodnoty $S^*$ použijeme:
   \begin{multline}
     h_2 = -(bT + 2 \sigma \sqrt{T}) \left[ \frac{K}{S^*(\inf) - K} \right],
     S^*_1 = K + [S^*(\inf) - K][1 - e^h_2],
@@ -613,23 +775,60 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
   Následně můžeme zlepšit i-tý odhad kritické ceny, značený jako $S_i$, nastavením $S_{i+1}$ jako:
 
   \begin{equation}
-    S_{i+1} = \frac{[K - RHS(S_i) - b_i S_i]}{1 - b_i},
+    S_{i+1} = \frac{[K - RHS_c(S_i) - b_i S_i]}{1 - b_i},
   \end{equation}
 
-  kde $RHS(S_i)$ odpovídá hodnotě pravé strany rovnice kritické ceny komodity (TODO: Doplnit odkaz na kritickou cenu komodity) a $b_i$ je parciální derivace dle $S_i$, čili směrnice $RHS(S_i)$, s hodnotou:
+  kde $RHS_c(S_i)$ odpovídá hodnotě pravé strany rovnice kritické ceny komodity pro odhad kritické ceny $S_i$ a $b_i$ je derivace $RHS_c(S_i)$ dle $S_i$, čili směrnice $RHS_c(S_i)$, s hodnotou:
 
   \begin{equation}
-    b_i = \frac{\partial RHS}{\partial \S_i} = e^{-qT} N[d_1(S_i)](1 - \frac{1}{q_2}) + \left{ 1 - \frac{e^{-qT}n[d_1](S_i)}{\sigma \sqrt{T}} \right} \frac{1}{q_2}
+    b_i = \frac{\partial RHS_c}{\partial S_i} = e^{-qT} N[d_1(S_i)](1 - \frac{1}{q_2}) + \left( 1 - \frac{e^{-qT}n[d_1](S_i)}{\sigma \sqrt{T}} \right) \frac{1}{q_2}
   \end{equation}
 
   Se zlepšováním odhadů pokračujeme, dokud není splněno:
 
   \begin{equation}
-    |LHS(S_i) - RHS(S_i)| / K < \alpha,
+    |LHS_c(S_i) - RHS_c(S_i)| / K < \alpha,
   \end{equation}
 
-  kde \alpha znační maximální toleranci chyby.
+  kde $LHS_c(S_i)$ značí levou stranu rovnice podmínky kritické ceny komodity pro call opce a \alpha značí maximální toleranci chyby.
 
+  Pro $S^{**}$ použijeme jako iniciální odhad
+
+  \begin{equation}
+    S_1^{**} = S^{**}(\inf) + [K - S^{**}(\inf)]e^{h_1},
+  \end{equation}
+
+  kde platí:
+
+  \begin{equation}
+    h_1 = (bT - 2 \sigma \sqrt{T}) \left[ \frac{K}{K - S^{**}(\inf)} \right].
+  \end{equation}
+
+  $S^{**}(\inf)$ reprezentuje kritickou cenu komodity s datem expirace v nekonečnu:
+
+  \begin{equation}
+    S^{**}(\inf) = \frac{K}{1 - 2 [-(N -1) - \sqrt{(N - 1)^2 + 4M}]^{-1}}.
+  \end{equation}
+
+  Zlepšením i-tého odhadu kritické ceny, značené jako $S_j$, rozumíme nastavení $S_{j+1}$ jako:
+
+  \begin{equation}
+    S_{j+1} = \frac{K - RHS_p(S_j) + b_j S_j}{1 + b_j},
+  \end{equation}
+
+  kde $RHS_p(S_j)$ rozumíme pravou stranu rovnice podmínky kritické ceny komodity pro put opci při odhadu $S_j$ a $b_j$ rozumíme derivaci $RHS_p(S_j)$ dle $S_j$:
+
+  \begin{equation}
+    b_j = \frac{\partial RHS_p(S_j)}{\partial S_j} = -e^{-qT} N [-d_1(S_j)] (1 - 1/q_1) - \left( 1 + \frac{e^{-qT}n[-d_1(S^{**})]}{\sigma \sqrt{T}} \right) \frac{1}{q_1}
+  \end{equation}
+
+  Opět zlepšujeme odhad dokud neplatí:
+
+  \begin{equation}
+    |LHS_p(S_j) - RHS_p(S_j)| / K < \alpha,
+  \end{equation}
+
+  kde $LHS_p(S_j)$ značí levou stranu rovnice podmínky pro kritickou cenu komodity pro put opci a \alpha značí maximální toleranci chyby.
 
 
   \section{Ohodnocování opcí pomocí přístupu Monte Carlo}
@@ -641,7 +840,7 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
   Tento princip lze aplikovat i na ocenování opcí. V tomto případě náhodným experimentem bude vývoj podkladového aktiva opce: Budeme simulovat vývoj aktiva, a zjistíme výdělek z opce. Následně získáme cenu opce jako průměrný výdělek náhodného experimentu.
 
   Vývoj aktiva budeme simulovat jako Geometrický Brownovský pohyb (TODO: Zkontroluj, zda to je správný překlad fráze "Geometric Brownian Motion") (TODO: Vysvětli co to je). Rovnice, pro získání ceny aktiva $S$, s počáteční cenou $S_t$ v čase $t$, v čase $t + m$, má následující tvar:
-  $$ S(t + m) = S_texp((b - \frac{\sigma}{2})m + \sigmaZ\sqrt{m}) $$ (Zdroj: Haug)
+  $$ S(t + m) = S_texp((b - \frac{\sigma}{2})m + \sigma Z\sqrt{m}) $$ (Zdroj: Haug)
   
   Vysvětlení rovnice:
   \begin{enumerate}
