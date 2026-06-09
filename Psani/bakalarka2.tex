@@ -546,7 +546,7 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
                &= \left( - \frac{\partial f}{\partial t} - \frac{1}{2} \frac{\partial^2 f}{\partial S^2} \sigma^2 S^2 \right) \Delta t
   \end{align}
 
-  Poněvadž portfolio neobsahuje $\Delta z$, je během času $\Delta t$ bezrizikové. Portfolio musí vynášet stejně jako jiné bezrizikové finanční instrumenty, jinak bychom vytvořili příležitost pro arbitráž. %TODO: Přidat arbitráže jako poznámky pod čarou
+  Poněvadž portfolio neobsahuje $\Delta z$, je během času $\Delta t$ bezrizikové. Portfolio musí vynášet stejně jako jiné bezrizikové finanční instrumenty, jinak bychom vytvořili příležitost pro arbitráž.\footnote{Kdyby $\Delta\Pi > r\Pi\Delta t$, arbitražér by si půjčil za bezrizikovou míru $r$, investoval do portfolia $\Pi$ a dosáhl bezrizikového zisku. Kdyby $\Delta\Pi < r\Pi\Delta t$, arbitražér by portfolio vyshortoval a výnos uložil za $r$, opět s jistým ziskem.}
   Tudíž:
 
   \begin{equation}
@@ -594,15 +594,15 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
   Z put-call parity můžeme odvodit Blackovu-Scholesovu formuli pro put opce:
 
   \begin{gather*}
-    Call(S, K, \sigma, r, T) - Put(S, K, \sigma, r, T) = S - Ke^{-rT}, \\
-    Put(S, K, \sigma, r, T) = Call(S, K, \sigma, r, T) + Ke^{-rT} - S, \\
-    Put(S, K, \sigma, r, T) = SN(d_1) - S + Ke^{-rT} - Ke^{-rT}N(d_2), \\
-    Put(S, K, \sigma, r, T) = S(N(d_1) - 1) + Ke^{-rT} (1 - N(d_2)),  \\
-    Put(S, K, \sigma, r, T) = -S(1 - N(d_1)) + Ke^{-rT} (1 - N(d_2)),  \\
-    Put(S, K, \sigma, r, T) = -S(N(-d_1)) + Ke^{-rT} (N(-d_2)), \\
+    C(S, K, \sigma, r, T) - P(S, K, \sigma, r, T) = S - Ke^{-rT}, \\
+    P(S, K, \sigma, r, T) = C(S, K, \sigma, r, T) + Ke^{-rT} - S, \\
+    P(S, K, \sigma, r, T) = SN(d_1) - S + Ke^{-rT} - Ke^{-rT}N(d_2), \\
+    P(S, K, \sigma, r, T) = S(N(d_1) - 1) + Ke^{-rT} (1 - N(d_2)),  \\
+    P(S, K, \sigma, r, T) = -S(1 - N(d_1)) + Ke^{-rT} (1 - N(d_2)),  \\
+    P(S, K, \sigma, r, T) = -S(N(-d_1)) + Ke^{-rT} (N(-d_2)), \\
   \end{gather*}
 
-  kde $Call(S, K, \sigma, r, T)$ je prémie utracená za koupi call opce a $Put(S, K, \sigma, r, T)$ je prémie utracená za koupi put opce.
+  kde $C(S, K, \sigma, r, T)$ je prémie utracená za koupi call opce a $P(S, K, \sigma, r, T)$ je prémie utracená za koupi put opce.
 
   Tím pádem, můžeme Blackovu-Scholesovu formuli pro evropské put opce bez dividend zapsat jako:
 
@@ -652,11 +652,11 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
 
   \begin{align}
     \label{BAW_params}
-    A_2 &= \frac{S^*}{q_2} (1 - e^{-qT} N[d_1 (S^*)]),
-    d_1(S) &= \frac{ln(S / K) + (r - q + \sigma^2 / 2)T}{\sigma \sqrt{T}},
-    q_2 &= \frac{-(N - 1) + \sqrt{(N - 1)^2 + 4M / \kappa}},
-    M &= 2r / \sigma^2,
-    N &= 2(r - q) / \sigma^2,
+    A_2 &= \frac{S^*}{q_2} (1 - e^{-qT} N[d_1 (S^*)]), \\
+    d_1(S) &= \frac{ln(S / K) + (r - q + \sigma^2 / 2)T}{\sigma \sqrt{T}}, \\
+    q_2 &= \frac{-(N - 1) + \sqrt{(N - 1)^2 + 4M / \kappa}}, \\
+    M &= 2r / \sigma^2, \\
+    N &= 2(r - q) / \sigma^2, \\
     \kappa &= 1 - e^{-rT}.
   \end{align}
 
@@ -679,7 +679,7 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
   kde $P(S, K, \sigma, r, T, \delta)$ značí cenu evropské put opce pro dané parametry, $P_a(S, K, \sigma, r, T, \delta)$ značí cenu americké put opce pro dané parametry a:
 
   \begin{align}
-    A_1 &= \frac{S^{**}}{q_1} (1 - e^{-qT} N[d_1 (S^{**})]),
+    A_1 &= \frac{S^{**}}{q_1} (1 - e^{-qT} N[d_1 (S^{**})]), \\
     q_1 &= \frac{-(N - 1) + \sqrt{(N - 1)^2 + 4M / \kappa}},
   \end{align}
 
@@ -761,15 +761,15 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
   \subsubsection{Nalezení kritické ceny komodity}
 
   Pro iniciální odhad hodnoty $S^*$ použijeme:
-  \begin{multline}
-    h_2 = -(bT + 2 \sigma \sqrt{T}) \left[ \frac{K}{S^*(\inf) - K} \right],
-    S^*_1 = K + [S^*(\inf) - K][1 - e^h_2],
-  \end{multline}
+  \begin{gather}
+    h_2 = -(bT + 2 \sigma \sqrt{T}) \left[ \frac{K}{S^*(\infty) - K} \right], \\
+    S^*_1 = K + [S^*(\infty) - K][1 - e^h_2],
+  \end{gather}
 
-  kde $S^*(\inf)$ odpovídá kritické ceně komodity v nekonečném čase expirace:
+  kde $S^*(\infty)$ odpovídá kritické ceně komodity v nekonečném čase expirace:
 
   \begin{equation}
-    S^*(\inf) = \frac{K}{1 - 2[-(N - 1) + \sqrt{(N - 1)^2 + 4M}]^{-1}}.
+    S^*(\infty) = \frac{K}{1 - 2[-(N - 1) + \sqrt{(N - 1)^2 + 4M}]^{-1}}.
   \end{equation}
 
   Následně můžeme zlepšit i-tý odhad kritické ceny, značený jako $S_i$, nastavením $S_{i+1}$ jako:
@@ -795,19 +795,19 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
   Pro $S^{**}$ použijeme jako iniciální odhad
 
   \begin{equation}
-    S_1^{**} = S^{**}(\inf) + [K - S^{**}(\inf)]e^{h_1},
+    S_1^{**} = S^{**}(\infty) + [K - S^{**}(\infty)]e^{h_1},
   \end{equation}
 
   kde platí:
 
   \begin{equation}
-    h_1 = (bT - 2 \sigma \sqrt{T}) \left[ \frac{K}{K - S^{**}(\inf)} \right].
+    h_1 = (bT - 2 \sigma \sqrt{T}) \left[ \frac{K}{K - S^{**}(\infty)} \right].
   \end{equation}
 
-  $S^{**}(\inf)$ reprezentuje kritickou cenu komodity s datem expirace v nekonečnu:
+  $S^{**}(\infty)$ reprezentuje kritickou cenu komodity s datem expirace v nekonečnu:
 
   \begin{equation}
-    S^{**}(\inf) = \frac{K}{1 - 2 [-(N -1) - \sqrt{(N - 1)^2 + 4M}]^{-1}}.
+    S^{**}(\infty) = \frac{K}{1 - 2 [-(N -1) - \sqrt{(N - 1)^2 + 4M}]^{-1}}.
   \end{equation}
 
   Zlepšením i-tého odhadu kritické ceny, značené jako $S_j$, rozumíme nastavení $S_{j+1}$ jako:
