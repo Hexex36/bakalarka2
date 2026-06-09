@@ -453,7 +453,73 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
 
   \section{Ohodnocování opcí pomocí binomických a trinomických stromů}
 
-  \subsection{Geometrický Brownův pohyb a Wienerův proces}
+  \subsection{Geometrický Brownův pohyb}
+
+  Pro definování Brownova pohybu uděláme následující experiment:
+
+  Mějme férovou minci. Férová mince je taková mince, u niž předpokládáme, že pravděpodobnost dopadu jednu ze dvou stran je $0.5$, tudíž nemůže nastat, že by mince dopadla na hranu, nebo že by jedna strana padala častěji. Touto mincí hodíme $n$ krát, kde n je libovolné přirozené číslo. Pro všechna přirozená čísla $k; k \le n$ zavedeme:
+
+  \begin{equation}
+    X_j = 
+    \begin{cases}
+      1 &... \text{výsledek $n$-tého hodu je panna} \\
+      -1 &... \text{výsledek $n$-tého hodu je orel}
+    \end{cases}.
+  \end{equation}
+
+  Následně zavedeme pro všechna přirozená čísla $k; k \le n$:
+
+  \begin{equation}
+    M_k = \sum \limits^k_{j=1} X_j.
+  \end{equation}
+
+  Říkáme, že $M_k$ je symetrická náhodná procházka. \citep[Kapitola~3.2.1]{Shreve2004}
+
+  Z tohoto můžeme definovat škálovanou symetrickou náhodnou procházku jako:
+
+  \begin{equation}
+    W^{(n)}(t) = \frac{1}{\sqrt{n}} M_{nt},
+  \end{equation}
+
+  kde $nt$ je buď celočíselné, nebo vzniká jako interpolace dvou nejbližších celočíselných hodnot \citep[Kapitola~3.2.5]{Shreve2004}.
+
+  Tímto jsme získali náhodný proces s diskrétním počtem mezikroků. Abychom získali Brownovský pohyb, musíme učinit škálovanou symetrickou náhodnou procházku spojitou pomocí poslání $n \rightarrow \infty$.
+
+  Alternativně můžeme Brownův pohyb definovat jako spojitou funkci $W(t)$ pro všechna $t \ge 0$, pro niž platí, že pro všechny momenty času $t_0 < t_1 < ... < t_m; t_0 = 0$ jsou inkrementy $W(t_1) - W(t_0), W(t_2) - W(t_1), ..., W(t_m) - W(t_{m-1})$ vzájemně nezávislé a pro libovolné $t_i$ platí:
+
+  %TODO: Přepsat na \Delta z
+
+  \begin{gather}
+    \mathbb{E}[W(t_{i+1}) - W(t_i)] = 0, \\
+    Var[W(t_{i+1}) - W(t_i)] = t_{i+1} - t_i.
+  \end{gather}
+
+  \citep[Kapitola~3.3.1]{Shreve2004}
+
+  Brownův pohyb je také často nazýván jako Wienerův proces.
+
+  Pro odvození geometrického Brownova pohybu se musíme vrátit do ekonomiky. První si musíme uvědomit, že očekávaná výplata z růstu akcie je nezávislá na ceně akcie. Investor, který požaduje 14 \% per annum, jej bude chtít ať už má akcie cenu 10 \$ nebo 100 \$. Abychom zavedli konstatní očekávaný návrat, určíme jako směrnici (= drift) $\mu$. Pokud je cena akcie v čase $t$ v hodnotě $S$, potom očekávaný drift je $\mu S$. Očekávané zvednutí ceny $S$ v čase $\Delta t$ je $\mu S \Delta t$. $\mu$ je také tedy očekávaný poměr návratu na akcii, čili v rizikově-neutrálním světě $r$.
+
+  Jestliže $\Delta t \rightarrow 0$, potom:
+
+  \begin{gather}
+    dS = \mu S dt, \\
+    \frac{dS}{S} = \mu dt.
+  \end{gather}
+
+  Zintegrujeme mezi časem $0$ a časem $T$, a získáme:
+
+  \begin{equation}
+    S_T = S_0 e^{\mu T}.
+  \end{equation}
+
+  Tato rovnice říká, že při vývoji ceny akcie bez náhodnosti, cena akcie roste složitým úročením s úrokovou hodnotou $\mu$ za jednu jednotku času. Toto ovšem neodpovídá realitě, kde máme nejistý vývoj akcie. Stejně jako u návratu, variabilita ceny akcie je nezávislá na ceně samotné. Nejistota návratu stejná při libovolné ceně akcie. Tudíž, směrodatná odchylka změny v čase $\Delta t$ musí být přiměřená ceně akcie. Z tohoto vyplývá, že finální model musí být:
+
+  \begin{equation}
+    dS = \mu S dt + \sigma S dz.
+  \end{equation}
+
+  kde $dz$ je Brownův pohyb. Tuto rovnici označujeme jako geometrický Brownův pohyb ve spojitém čase.
 
   \subsection{Binomické stromy}
     Binomické a trinomické stromy zjednodušují náš model vnímání opcí zúžením možných hodnot podkladového aktiva na konci jednoho časového úsek na dvě možné hodnoty. Mějme dvě konstanty: $u$ a $d$, kde $u$ je míra o kterou se cena aktiva zvedne, roste-li cena, a kde $d$ je míra o kterou cena klesne, snižuje-li se cena. Výsledně, na konci jednoho časového období, značeného jako $t$, se z původní ceny aktiva $S$, dostaneme buďto na cenu $uS$ nebo $dS$.
