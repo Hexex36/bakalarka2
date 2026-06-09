@@ -482,6 +482,12 @@ if __name__ == "__main__":
             "target_date": "2026-03-27",
             "date_suffix": "2026-03-27",
         },
+        {
+            "rates_file": "rates_2026_05_26.txt",
+            "stock_file": "stock_prices_2026-05-26.csv",
+            "target_date": "2026-05-26",
+            "date_suffix": "2026-05-26",
+        },
     ]
 
     for month in months:

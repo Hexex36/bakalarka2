@@ -116,6 +116,18 @@ def main():
         },
     ])
 
+    # May files
+    files_to_process.extend([
+        {
+            "input": "./american_options_2026-05-26_enhanced.csv",
+            "output": "./american_options_2026-05-26_greeks.csv",
+        },
+        {
+            "input": "./european_options_2026-05-26_enhanced.csv",
+            "output": "./european_options_2026-05-26_greeks.csv",
+        },
+    ])
+
     print("=" * 60)
     print("RENAMING COLUMNS TO GREEK NOTATION")
     print("=" * 60)
