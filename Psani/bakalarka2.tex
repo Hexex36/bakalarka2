@@ -457,13 +457,13 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
 
   Pro definování Brownova pohybu uděláme následující experiment:
 
-  Mějme férovou minci. Férová mince je taková mince, u niž předpokládáme, že pravděpodobnost dopadu jednu ze dvou stran je $0.5$, tudíž nemůže nastat, že by mince dopadla na hranu, nebo že by jedna strana padala častěji. Touto mincí hodíme $n$ krát, kde n je libovolné přirozené číslo. Pro všechna přirozená čísla $k; k \le n$ zavedeme:
+  Mějme férovou minci. Férová mince je taková mince, u níž předpokládáme, že pravděpodobnost dopadu jednu ze dvou stran je $0.5$, tudíž nemůže nastat, že by mince dopadla na hranu, nebo že by jedna strana padala častěji. Touto mincí hodíme $n$ krát, kde $n$ je libovolné přirozené číslo. Pro všechna přirozená čísla $k;\ k \le n$ zavedeme:
 
   \begin{equation}
     X_j = 
     \begin{cases}
-      1 &... \text{výsledek $n$-tého hodu je panna} \\
-      -1 &... \text{výsledek $n$-tého hodu je orel}
+      1 &... \text{výsledek $j$-tého hodu je panna} \\
+      -1 &... \text{výsledek $j$-tého hodu je orel}
     \end{cases}.
   \end{equation}
 
@@ -483,22 +483,20 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
 
   kde $nt$ je buď celočíselné, nebo vzniká jako interpolace dvou nejbližších celočíselných hodnot \citep[Kapitola~3.2.5]{Shreve2004}.
 
-  Tímto jsme získali náhodný proces s diskrétním počtem mezikroků. Abychom získali Brownovský pohyb, musíme učinit škálovanou symetrickou náhodnou procházku spojitou pomocí poslání $n \rightarrow \infty$.
+  Tímto jsme získali náhodný proces s diskrétním počtem mezikroků. Abychom získali Brownův pohyb, musíme učinit škálovanou symetrickou náhodnou procházku spojitou pomocí poslání $n \rightarrow \infty$.
 
-  Alternativně můžeme Brownův pohyb definovat jako spojitou funkci $W(t)$ pro všechna $t \ge 0$, pro niž platí, že pro všechny momenty času $t_0 < t_1 < ... < t_m; t_0 = 0$ jsou inkrementy $W(t_1) - W(t_0), W(t_2) - W(t_1), ..., W(t_m) - W(t_{m-1})$ vzájemně nezávislé a pro libovolné $t_i$ platí:
-
-  %TODO: Přepsat na \Delta z
+  Alternativně můžeme Brownův pohyb definovat jako spojitou funkci $W(t)$ pro všechna $t \ge 0$. Pro všechny momenty času $t_0 < t_1 < ... < t_{m-1}; t_0 = 0$ definujeme $\Delta z_i$ jako $W(t_{i + 1}) - W(t_i)$. Musí platit, že inkrementy $\Delta z_0, \Delta z_1, ..., \Delta z_{m-1}$ jsou vzájemně nezávislé, a pro libovolné $i; 0 \le i \le m-1$ platí:
 
   \begin{gather}
-    \mathbb{E}[W(t_{i+1}) - W(t_i)] = 0, \\
-    Var[W(t_{i+1}) - W(t_i)] = t_{i+1} - t_i.
+    \mathbb{E}[\Delta z_i] = 0, \\
+    Var[\Delta z_i] = t_{i+1} - t_i.
   \end{gather}
 
   \citep[Kapitola~3.3.1]{Shreve2004}
 
   Brownův pohyb je také často nazýván jako Wienerův proces.
 
-  Pro odvození geometrického Brownova pohybu se musíme vrátit do ekonomiky. První si musíme uvědomit, že očekávaná výplata z růstu akcie je nezávislá na ceně akcie. Investor, který požaduje 14 \% per annum, jej bude chtít ať už má akcie cenu 10 \$ nebo 100 \$. Abychom zavedli konstatní očekávaný návrat, určíme jako směrnici (= drift) $\mu$. Pokud je cena akcie v čase $t$ v hodnotě $S$, potom očekávaný drift je $\mu S$. Očekávané zvednutí ceny $S$ v čase $\Delta t$ je $\mu S \Delta t$. $\mu$ je také tedy očekávaný poměr návratu na akcii, čili v rizikově-neutrálním světě $r$.
+  Pro odvození geometrického Brownova pohybu se musíme vrátit do ekonomiky. Nejprve si musíme uvědomit, že očekávaná výplata z růstu akcie je nezávislá na ceně akcie. Investor, který požaduje 14 \% per annum, jej bude chtít ať už má akcie cenu 10 \$ nebo 100 \$. Abychom zavedli konstantní očekávaný návrat, určíme jako směrnici (= drift) $\mu$. Pokud je cena akcie v čase $t$ v hodnotě $S$, potom očekávaný drift je $\mu S$. Očekávané zvednutí ceny $S$ v čase $\Delta t$ je $\mu S \Delta t$. $\mu$ je také tedy očekávaný poměr návratu na akcii, čili v risk-neutrálním světě $r$.
 
   Jestliže $\Delta t \rightarrow 0$, potom:
 
@@ -513,13 +511,13 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
     S_T = S_0 e^{\mu T}.
   \end{equation}
 
-  Tato rovnice říká, že při vývoji ceny akcie bez náhodnosti, cena akcie roste složitým úročením s úrokovou hodnotou $\mu$ za jednu jednotku času. Toto ovšem neodpovídá realitě, kde máme nejistý vývoj akcie. Stejně jako u návratu, variabilita ceny akcie je nezávislá na ceně samotné. Nejistota návratu stejná při libovolné ceně akcie. Tudíž, směrodatná odchylka změny v čase $\Delta t$ musí být přiměřená ceně akcie. Z tohoto vyplývá, že finální model musí být:
+  Tato rovnice říká, že při vývoji ceny akcie bez náhodnosti, cena akcie roste složitým úročením s úrokovou hodnotou $\mu$ za jednu jednotku času. Toto ovšem neodpovídá realitě, kde máme nejistý vývoj akcie. Stejně jako u návratu, variabilita ceny akcie je nezávislá na ceně samotné. Nejistota návratu je stejná při libovolné ceně akcie. Tudíž, směrodatná odchylka změny v čase $\Delta t$ musí být úměrná ceně akcie. Z tohoto vyplývá, že finální model musí být:
 
   \begin{equation}
     dS = \mu S dt + \sigma S dz.
   \end{equation}
 
-  kde $dz$ je Brownův pohyb. Tuto rovnici označujeme jako geometrický Brownův pohyb ve spojitém čase.
+  kde $dz$ je Brownův pohyb. Tuto rovnici označujeme jako geometrický Brownův pohyb ve spojitém čase. \citep[Kapitola~14.3]{Hull2021}
 
   \subsection{Binomické stromy}
     Binomické a trinomické stromy zjednodušují náš model vnímání opcí zúžením možných hodnot podkladového aktiva na konci jednoho časového úsek na dvě možné hodnoty. Mějme dvě konstanty: $u$ a $d$, kde $u$ je míra o kterou se cena aktiva zvedne, roste-li cena, a kde $d$ je míra o kterou cena klesne, snižuje-li se cena. Výsledně, na konci jednoho časového období, značeného jako $t$, se z původní ceny aktiva $S$, dostaneme buďto na cenu $uS$ nebo $dS$.
@@ -529,6 +527,10 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
   Pokud by neplatilo, že můžeme jednoznačně určit cenu opce, nastávají příležitosti pro arbitráž. (Rozepiš případy)
 
   Cenu opce můžeme získat jako očekávanou hodnotu při expiraci dle binomického stromu.
+
+  \subsection{Coxův-Rossův-Rubensteinův binomický strom}
+
+  
 
   Jako běžný model binomických stromů se typicky považuje Cox-Ross-Rubensteinův model binomického stromu.
 
@@ -680,10 +682,10 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
 
   % TODO: Ocitovat
 
-  Nicméně, v praxi se pravděpodobně setkáme s opcemi na akcie, které platí dividendu. Dle Mertona musíme snížit $S$ o míru rovnou spojitému dividendovému výnosu $\delta$, čili převést $S$ na $Se^{-\delta T}$. Blackova-Scholesova-Mertonova formule pro evropské call opce má následující znění:
+  Nicméně, v praxi se pravděpodobně setkáme s opcemi na akcie, které platí dividendu. Dle Mertona musíme snížit $S$ o míru rovnou spojitému dividendovému výnosu $q$, čili převést $S$ na $Se^{-qT}$. Blackova-Scholesova-Mertonova formule pro evropské call opce má následující znění:
 
   \begin{equation}
-    C(S, K, \sigma, r, T, \delta) = Se^{-\delta T}N(d_1) - Ke^{-rT}N(d_2)
+    C(S, K, \sigma, r, T, q) = Se^{-qT}N(d_1) - Ke^{-rT}N(d_2)
   \end{equation}
 
   % TODO: Ocitovat a odvodit dle článku
@@ -691,13 +693,13 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
   Mimo to, musíme také zohlednit, že dividenda snižuje hodnotu akcie také v $d_1$, tudíž si $d_1$ a $d_2$ definujeme jako:
 
   \begin{gather}
-    d_1 = \frac{ln(S/K) + (r - \delta + \frac{1}{2}\sigma^2)T}{\sigma \sqrt{T}} \\
+    d_1 = \frac{ln(S/K) + (r - q + \frac{1}{2}\sigma^2)T}{\sigma \sqrt{T}} \\
     d_2 = d_1 - \sigma \sqrt{T}
   \end{gather}
 
   Stejně jako u Blackova-Scholesova modelu, můžeme odvodit Mertonovo rozšíření pomocí put-call parity:
   \begin{equation}
-    P(S, K, \sigma, r, T, \delta) = Ke^{-rT}N(-d_2) - Se^{-\delta T}N(-d_1)
+    P(S, K, \sigma, r, T, q) = Ke^{-rT}N(-d_2) - Se^{-qT}N(-d_1)
   \end{equation}
 
   \subsection{Americké opce}
@@ -707,9 +709,9 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
   Pro tento problém existuje několik způsobů, jak aproximovat hodnotu americké opce pomocí Blackova-Scholesova-Mertonova modelu. Mnou vybraný je \textbf{Baroneova-Adesiho a Whaleyho metoda}. Tato metoda zavádí bonus pro hodnotu opce za možnost předčasného uplatnění, který se přičítá k základní hodnotě Blackova-Scholesova-Mertonova modelu. Obecná definice pro call opce vypadá takto:
 
   \begin{equation}
-    C_a(S, K, \sigma, r, T, \delta) = 
+    C_a(S, K, \sigma, r, T, q) = 
     \begin{cases}
-      C(S, K, \sigma, r, T, \delta) + A_2\left(\frac{S}{S^*}\right)^{q_2} & \text{pro } S < S^*, \\
+      C(S, K, \sigma, r, T, q) + A_2\left(\frac{S}{S^*}\right)^{q_2} & \text{pro } S < S^*, \\
       S - K & \text{pro } S \ge S^*,
     \end{cases}
   \end{equation}
@@ -729,20 +731,20 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
   $S^*$ vyjadřuje kritickou cenu komodity pro danou call opci. Tato kritická cena musí splnit podmínky:
 
   \begin{equation}
-    S^* - K = C(S^*, K, \sigma, r, T, \delta) + (1 - e^{-qT} N[d_1(S^*)])S^*\frac{1}{q_2}.
+    S^* - K = C(S^*, K, \sigma, r, T, q) + (1 - e^{-qT} N[d_1(S^*)])S^*\frac{1}{q_2}.
   \end{equation}
 
   Pro americké put opce Barone-Adesiho a Whaleyho metoda má následující znění:
 
   \begin{equation}
-    P_a(S, K, \sigma, r, T, \delta) = 
+    P_a(S, K, \sigma, r, T, q) = 
     \begin{cases}
-      P(S, K, \sigma, r, T, \delta) + A_1\left(\frac{S}{S^{**}}\right)^{q_1} & \text{pro } S > S^{**}, \\
+      P(S, K, \sigma, r, T, q) + A_1\left(\frac{S}{S^{**}}\right)^{q_1} & \text{pro } S > S^{**}, \\
       K - S & \text{pro } S \le S^{**},
     \end{cases},
   \end{equation}
 
-  kde $P(S, K, \sigma, r, T, \delta)$ značí cenu evropské put opce pro dané parametry, $P_a(S, K, \sigma, r, T, \delta)$ značí cenu americké put opce pro dané parametry a:
+  kde $P(S, K, \sigma, r, T, q)$ značí cenu evropské put opce pro dané parametry, $P_a(S, K, \sigma, r, T, q)$ značí cenu americké put opce pro dané parametry a:
 
   \begin{align}
     A_1 &= \frac{S^{**}}{q_1} (1 - e^{-qT} N[d_1 (S^{**})]), \\
@@ -754,7 +756,7 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
   $S^{**}$ značí kritickou cenu komodity pro put opci. Tato cena musí splňovat:
 
   \begin{equation}
-    K - S^{**} = P(S^{**}, K, \sigma, r, T, \delta) - (1 - e^{-qT}N[-d_1(S^{**})])S^{**} \frac{1}{q_1}
+    K - S^{**} = P(S^{**}, K, \sigma, r, T, q) - (1 - e^{-qT}N[-d_1(S^{**})])S^{**} \frac{1}{q_1}
   \end{equation}
 
   % TODO: Dopsat americké opce
@@ -896,6 +898,34 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
 
   kde $LHS_p(S_j)$ značí levou stranu rovnice podmínky pro kritickou cenu komodity pro put opci a \alpha značí maximální toleranci chyby.
 
+  \subsection{Greeky}
+
+  Greekama rozumíme různé derivace diferenciální rovnice Black-Scholes-Mertonova modelu, které nám mohou sdělit různé užitečné informace o vztahu ceny opce a různých vstupních parametrů.
+
+  V tabulce níže je přehled greeků, za předpokladů:
+  \begin{itemize}
+    \item $c$ je cena kupní opce $C(S, K, \sigma, r, T, q)$,
+    \item $q$ je implikovaná volatilita.
+  \end{itemize}
+
+  \begin{table}[h]
+  \centering
+  \caption{Greeky - přehled}
+  \label{tab:greeks}
+  \begin{tabular}{lcc}  % l=levě, c=centrovaně, r=pravě; počet sloupců = počet písmen
+    \toprule
+    Písmeno & Derivace & Význam \\
+    \midrule
+    $\Delta$ (delta) & ${\partial c}/{\partial S}$ & Poměr změny opční ceny proti ceně aktiva \\
+    $\Theta$ (théta) & ${\partial \Pi}/{\partial T}$ & Změna ceny portfolia s časem \\
+    $\Gamma$ (gamma) & $\partial^2 \Pi / \partial S^2$ & Změna delty proti ceně aktiva \\
+    $\nu$ (vega) & $\partial f / \partial \sigma$ & Změna ceny opce proti volatilitě \\
+    $\rho$ (ró) & $\partial f / \partial r$ & Změna ceny opce vlivem změny bezrizikové úrokové míry \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+  \textit{Poznámka: Vega není písmeno alfabety. Zavádíme jako náhradní zkrácené značení písmeno nu.}
 
   \section{Ohodnocování opcí pomocí přístupu Monte Carlo}
 
