@@ -123,13 +123,13 @@ Při počítání evropských opcí nám stačí pouze cena v datu expirace. Fun
 Tudíž, pro kupní opce vypadá výsledný odhad ceny jako:
 
 \begin{equation}
-  C = e^{-rT} \frac{1}{N} \sum_{i=1}^N max(0, S_i - K),
+  C = e^{-rT} \frac{1}{N} \sum_{i=1}^N \max(0, S_i - K),
 \end{equation}
 
 a pro prodejní opce:
 
 \begin{equation}
-  C = e^{-rT} \frac{1}{N} \sum_{i=1}^N max(0, K - S_i).
+  P = e^{-rT} \frac{1}{N} \sum_{i=1}^N \max(0, K - S_i).
 \end{equation}
 
 \citep[Kapitola~24.4]{McDonald2013}
@@ -154,14 +154,14 @@ je rozptyl Monte Carlo metody. Potom směrodatná odchylka je $\frac{\sigma}{\sq
 
 \subsubsection{Kontrolní proměnné (control variates)}
 
-Metoda kontrolní proměnné využívá podobné opce, u které máme známou přesnou cenu opce (skrze Black-Scholes či jiné metody).
-Pro obě opce vytvoříme odhad na stejné sadě náhodně generovaných čísel. Odhad ceny opce, kterou chceme ocenit označíme $V_1^*$, odhad ceny opce, u které známe cenu označíme $V_2^*$ a cenu této opce označíme $V_2$. Potom můžeme vytvořit alternativní odhad ceny opce, označený $V_1$, jako:
+Metoda kontrolní proměnné využívá podobnou opci, u které máme známou přesnou cenu (skrze Black-Scholes či jiné metody).
+Pro obě opce vytvoříme odhad na stejné sadě náhodně generovaných čísel. Odhad ceny opce, kterou chceme ocenit, označíme $V_1^*$, odhad ceny opce, u které známe cenu, označíme $V_2^*$ a cenu této opce označíme $V_2$. Potom můžeme vytvořit alternativní odhad ceny opce $V_1$ jako:
 
 \begin{equation}
-  V_1 = V_1^* - V_2^* + V_2
+  V_1 = V_1^* - V_2^* + V_2.
 \end{equation}
 
-Kvůli stejné kvalitě/náhodnosti generovaných čísel u $V_1^*$ a $V_2^*$, můžeme očekávat, že chyba u odhadu opce s již známou cenou je stejný jako u odhadu opce bez známé ceny.
+Díky použití stejné sady náhodných čísel pro $V_1^*$ i $V_2^*$ můžeme očekávat, že chyby obou odhadů jsou vzájemně korelované, a jejich odečtením se rozptyl sníží.
 
 \citep[Kapitola~80.13.2]{Wilmott2006}
 
@@ -171,15 +171,21 @@ Směrodatná odchylka odhadu ceny opcí vypočtených Monte Carlo metodou s kont
 
 \subsubsection{Antitetické proměnné (antithetic variates)}
 
-Metoda antitetických proměnných nás nechává z jedné sady náhodných čísel vygenerovat dva odhady opčních cen.
+Metoda antitetických proměnných umožňuje z jedné sady náhodných čísel vygenerovat dva odhady opčních cen.
 
-Mějme $z_1, z_2, \dots, z_N$ takové, že $z_i$ je náhodná veličina v odhadu $S_i$. První odhad opčních cen vypočteme normálně z generovaných náhodných čísel. Druhý odhad můžeme získat aditivní inverzí náhodné veličiny pro každý vygenerovaný odhad vývoje ceny, čili:
+Mějme $Z_1, Z_2, \dots, Z_N$ nezávislé $\mathcal{N}(0,1)$ použité pro generování cen $S_i$ v~rovnici~\eqref{eq:exact_gbm}. První odhad opčních cen vypočteme standardně. Druhý odhad získáme aditivní inverzí každé náhodné veličiny:
 
 \begin{equation}
-  z^*_i = -z_i,
+  Z_i^* = -Z_i,
 \end{equation}
 
-čímž efektivně získáme vývoj o stejné síle, s opačným směřováním (růst místo poklesu, a naopak). Následně můžeme vypočíst odhad ceny opce z potenciálních vývojů ceny $S^*_1, S^*_2, \dots, S^*_N$, a tyto odhady zprůměrovat. 
+čímž získáme symetrický vývoj s opačným směrem (růst místo poklesu a naopak). Výsledný odhad je průměr obou:
+
+\begin{equation}
+  \hat{V}_{AV} = \frac{1}{N} \sum_{i=1}^N \frac{V(Z_i) + V(-Z_i)}{2}.
+\end{equation}
+
+\citep[Kapitola~24.5]{McDonald2013}, \citep[Kapitola~4.2]{Glasserman2004} 
 
 \subsection{Americké opce}
 
