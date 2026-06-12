@@ -1,0 +1,151 @@
+\documentclass{article}
+
+\usepackage{amsmath}
+\usepackage[style=apa,natbib=true]{biblatex}
+\addbibresource{thesis.bib}
+
+\begin{document}
+
+\section{Binomické stromy}\label{sec:binom}
+
+Nemůžeme s jistotou odhadnout, jak se bude vyvíjet cena akcie. Jedním ze způsobů jak se s tímto vypořádat, je modelovat očekávanou hodnotu zvětšení či zmenšení hodnoty akcie. Na tomto principu funguje modelování ohodnocení opce skrze binomické stromy.
+
+Binomický strom je strom, jehož vrcholy zobrazují jednu z očekávaných cest vývoje akcie. Nicméně, vzhledem k faktu, že množina potenciálních cen akcie je spojitá, modelování tohoto stromu bez nějaké abstrakce by bylo nemožné. Proto zavedeme dvě reálná čísla $u$ a $d$. $u$ popisuje procentuální růst akcie, stoupá-li cena akcie, a $d$ popisuje pokles ceny akcie, klesá-li cena akcie. Platí $u$ > $d$, intuitivně platí i $u > 1 > d$. %TODO: Citace — zavedení binomického stromu (Cox-Ross-Rubinstein 1979 nebo McDonald/Hull)
+
+Uvažujme akcii s hodnotou $S$. Chceme vyobrazit vývoj akcie pro jedno časové období v rámci binomického stromu. V našem zjednodušeném modelu vývoje akcie uvažujeme na konci časového období dva stavy: cena akcie se zvýšila, nebo se cena akcie snížila. Pokud se cena zvýšila, cena akcie se zvýšila na $uS$, pokud se cena snížila, sníží se na $dS$. 
+
+%TODO: Obrázek stromu
+
+V rámci tohoto zjednodušeného modelu vývoje ceny akcie můžeme vytvořit dvě portfolia: 
+
+\begin{description}
+  \item[Opční portfolio] skládající se z jedné call opce o ceně $C$.
+  \item[Syntetické portfolio] skládající se z $\Delta$ podílů akcie (stejné jako call opce) a množství měny $\beta$ půjčené při bezrizikové úrokové míře.
+\end{description}
+
+$\Delta$ a $\beta$ nastavíme tak, aby při obou možnostech vývoje ceny akcie se hodnota obou portfolií rovnala. Čili:
+
+\begin{gather}
+  \Delta uS e^{qT} + \beta e^{rT} = C_u, \\ 
+  \Delta dS e^{qT} + \beta e^{rT} = C_d,
+\end{gather}
+
+kde $C_u$ vyjadřuje cenu opce při růstu ceny akcie, $C_d$ vyjadřuje cenu opce při poklesu ceny akcie a $T$ vyjadřuje délku periody. Cenu akcie musíme diskontovat o $e^{qT}$, což je výše vyplácené dividendy, o které očekáváme, že ji reinvestujeme, a půjčené peníze musíme diskontovat o $e^{rT}$. \citep{CoxRossRubinstein1979} \citep[Kapitola~13]{McDonald2013}
+
+Odečtením rovnic a následnou úpravou získáme: 
+
+\begin{equation}
+  \Delta = e^{-qT} \frac{C_u - C_d}{S(u - d)},
+\end{equation}
+
+Následně osamostatněním $\Delta$, opět odečtením rovnic a následnou úpravou vyplyne:
+
+\begin{equation}
+  \beta = e^{-rT} \frac{u C_d - d C_u}{u - d}
+\end{equation}
+
+Jelikož jsme nastavili obě portfolia tak, aby se rovnala, jsme schopni vyjádřit cenu opce jako:
+
+\begin{equation}
+  \label{eq_value}
+  \Delta S + \beta = e^{-rT} \left( C_u \frac{e^{(r - q) T} -d}{u - d} + C_d \frac{u - e^{(r - q) T}}{u - d} \right)
+\end{equation}
+
+\citep{CoxRossRubinstein1979} \citep[Kapitola~13]{McDonald2013}
+
+Očekáváme, že $u > e^{(r - q) T} > d$. %TODO: Rozvěď arbitráže. %TODO: Citace — arbitrážní podmínka
+
+\subsection{Risk-neutrální oceňování}
+
+Rovnici \ref{eq_value} můžeme upravit na následující tvar:
+
+\begin{align}
+  \Delta S + \beta &= e^{-rT} \left( C_u \frac{e^{(r - q) T} -d}{u - d} + C_d \frac{u - e^{(r - q) T}}{u - d} \right) \\
+                   &= e^{-rT} \left[ C_u \frac{e^{(r - q) T} -d}{u - d} + C_d \left( 1 - \frac{e^{(r - q) T} -d}{u - d} \right) \right].
+\end{align}
+
+Zlomek $\frac{e^{(r - q) T} - d}{u - d}$ vystupuje v roli váhy připadající $C_u$. Označíme-li
+
+\begin{equation}
+  \label{probability}
+  p = \frac{e^{(r - q) T} - d}{u - d},
+\end{equation}
+
+můžeme cenu opce zapsat jako
+
+\begin{equation}
+  \Delta S + \beta = e^{-rT}\bigl(p C_u + (1-p) C_d\bigr). \label{eq_riskneutral}
+\end{equation}
+
+Aby $p$ skutečně představovalo pravděpodobnost, musí platit $0 < p < 1$. To je zaručeno arbitrážní podmínkou $u > e^{(r - q)T} > d$ — pokud by nebyla splněna, existoval by bezrizikový zisk. Veličina $p$ se nazývá \textbf{rizikově neutrální pravděpodobnost} %TODO: Citace — risk-neutral probability (Harrison & Kreps 1979, nebo textbook)
+a odpovídá světu, v němž jsou všichni investoři lhostejní k riziku a očekávaný výnos všech aktiv je bezriziková sazba $r$. Nejedná se o skutečnou pravděpodobnost pohybu ceny akcie — tu neznáme a pro ocenění opce ji ani nepotřebujeme.
+
+Rovnice \eqref{eq_riskneutral} ukazuje, že cena opce je diskontovaná očekávaná výplata v rizikově neutrálním světě. Tento princip se nazývá \textbf{rizikově neutrální oceňování} (risk-neutral pricing) %TODO: Citace — risk-neutral pricing obecně
+a je základem všech binomických modelů. Lze ho aplikovat i na stromy s libovolným počtem kroků: v každém uzlu je cena opce dána vzorcem \eqref{eq_riskneutral}, kde $C_u$ a $C_d$ jsou ceny v navazujících uzlech, a postupujeme zpětnou indukcí od splatnosti k současnosti.
+
+\subsection{Binomické stromy na více period}
+
+Binomický strom na $T$ period můžeme zkonstruovat tím, že ke stávajícímu stromu opakovaně připojujeme další periodu. %TODO: Citace — konstrukce víceperiodového stromu
+Mějme $S_t$ jako cenu akcie ve vrcholu stromu s $t$ periodami. Z každého vrcholu povedeme dva nové vrcholy tak, že v jednom je cena akcie $uS_t$ a ve druhém $dS_t$. Tím získáme strom s $t+1$ periodami. Opakováním tohoto postupu od $t = 0$ do $t = T-1$ sestrojíme strom s počtem period $T$.
+
+\subsection{Zjištění ceny opce z binomického stromu}
+
+Tímto jsme si dokázali odvodit vývoj ceny akcie pomocí binomického stromu. Nicméně, jak z tohoto odvodit cenu opce na danou akcii?
+
+Hodnotu $p$ určíme z rovnice \ref{probability}. 
+
+Začneme tím, že určíme cenu opce v listech binomického stromu. %TODO: Citace — vnitřní hodnota opce při expiraci
+V listech opce vyprší — cena opce je tedy její vnitřní hodnota: $\max(S - K, 0)$ pro kupní opci a $\max(K - S, 0)$ pro prodejní opci. Následně ceny opcí v ostatních vrcholech určíme zpětnou indukcí: %TODO: Citace — zpětná indukce (backward induction)
+
+\begin{equation}
+  C = e^{-rT}\bigl(p C_u + (1-p) C_d\bigr).
+\end{equation}
+
+Takto postupujeme od listů až po kořen, čímž získáme současnou cenu opce.
+
+Tímto jsme obecně zavedli ohodnocení binomickými stromy. 
+
+\subsection{Dopočet hodnoty opce jako rovnice}
+
+%TODO: Rekombinační strom, počet zvednutí do konce, rovnice pro výpočet
+
+\subsection{Americké opce}
+
+Zatímco u metod, které budou následovat, je oceňování amerických opcí složité a většinou vyžaduje zavedení dalšího aparátu, pro binomické stromy je toto velmi snadné: Pro každý vrchol, který není listem, spočítáme jak pokračovací hodnotu opce z navazujících vrcholů, tak i vnitřní hodnotu při okamžitém uplatnění. Cenou opce je větší z těchto dvou hodnot.
+
+Pro kupní opci:
+
+\begin{equation}
+  C = \max\!\bigl(e^{-rT}(p C_u + (1-p) C_d),\, S - K\bigr),
+\end{equation}
+
+a pro prodejní opci:
+
+\begin{equation}
+  P = \max\!\bigl(e^{-rT}(p P_u + (1-p) P_d),\, K - S\bigr),
+\end{equation}
+
+kde $P_u$ je následující vrchol se zvýšenou cenou akcie a $P_d$ je následující vrchol se sníženou cenou akcie.
+
+\subsection{Coxovy-Rossovy-Rubinsteinovy binomické stromy}
+
+Binomické stromy se obecně liší ve třech způsobech: %TODO: Citace — varianty binomických stromů (CRR, Jarrow-Rudd, Tian, Leisen-Reimer apod.)
+
+\begin{itemize}
+  \item výše $u$ a $d$,
+  \item pravděpodobnost růstu ceny akcie $p$ a pravděpodobnost poklesu ceny akcie $1 - p$
+  \item centrování stromu.
+\end{itemize}
+
+Nejčastěji používaným modelem binomického stromu je Coxův-Rossův-Rubinsteinův binomický strom \citep[Kapitola~13]{McDonald2013} \citep[Kapitola~13]{Hull2021} a proto jej využijeme i v této práci.
+
+Pro tento specifický model nastavíme:
+
+\begin{gather}
+  u = e^{(r - q)T + \sigma \sqrt{T}}, \\
+  d = e^{(r - q)T - \sigma \sqrt{T}}.
+\end{gather}
+
+$e^{(r - q)T}$ je složka upravující cenu o vliv času skrze růst o bezrizikovou úrokovou míru a pokles o vyplácenou dividendu a $\sigma \sqrt{T}$ přidává nejistotu vývoje ceny. \citep[Kapitola~13]{McDonald2013}
+
+\end{document}

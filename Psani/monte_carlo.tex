@@ -1,0 +1,190 @@
+\documentclass{article}
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage[style=apa,natbib=true]{biblatex}
+\addbibresource{thesis.bib}
+
+\begin{document}
+
+\section{Metoda Monte Carlo}
+
+Metoda Monte Carlo je statistická metoda, užívaná pro velké množství aplikací, kupříkladu počítání vícerozměrných integrálů nebo simulace fyzikálních částic. Použití této metody spočívá ve vygenerování velkého množství pokusů, bodů či jiných relevantních veličin, a následného nalezení průměru, počtu aplikovatelných pokusů, či jiného. U varianty metody Monte Carlo použité na oceňování opcí princip spočívá v generování velkého množství potenciálních vývojů ceny akcie a následném zprůměrování výplat opce napříč těmito scénáři.
+
+\citep[Kapitola~1.1]{Glasserman2004}
+
+Jádro metody Monte Carlo spočívá v zákoně velkých čísel. Zákon velkých čísel říká, že máme-li posloupnost nezávislých stejně rozdělených náhodných veličin $X_1, X_2, \dots, X_n$ s konečnou střední hodnotou $\mu = \mathbb{E}[X_1]$, potom výběrový průměr konverguje k $\mu$ ve smyslu
+
+\begin{equation}
+  \frac{1}{n}\sum_{i=1}^n X_i \xrightarrow{P} \mu \qquad\text{(slabý zákon velkých čísel)},
+\end{equation}
+
+případně
+
+\begin{equation}
+  \frac{1}{n}\sum_{i=1}^n X_i \xrightarrow{a.s.} \mu \qquad\text{(silný zákon velkých čísel)}.
+\end{equation}
+
+S využitím tohoto zákona můžeme oceňovat opce simulováním velkého množství potenciálních scénářů vývoje ceny akcie a spočtením průměrné výplaty opce přes tyto scénáře.
+
+\citep[Kapitoly~8.2,8.4]{Ross2019}
+
+\subsection{Simulace vývoje ceny}
+
+Jak již bylo zmíněno, primárním principem Monte Carla je v tomto případě generování potenciálních vývojů ceny akcie. Tyto vývoje by měly sledovat potenciální vývoje reálné akcie, neměly by být čistě náhodné. Abychom omezili náhodnost tak, aby nám vyhovovala, musíme zavést pár konceptů:
+
+\subsubsection{Užití risk-neutrálního oceňování}
+
+K generování náhodných cen používáme geometrický Brownův pohyb (GBM). Stejný model stojí i za binomickými stromy z~kapitoly~\ref{sec:binom}: parametry $u = e^{(r - q)T + \sigma\sqrt{T}}$ a $d = e^{(r - q)T - \sigma\sqrt{T}}$ jsou jeho diskrétní analogií. Zatímco u binomických stromů aproximujeme GBM binomickým rozdělením, v Monte Carlu generujeme spojité trajektorie přímo.
+
+\citep[Kapitola~80.2]{Wilmott2006}
+
+Proměnnou $\sigma$ můžeme nastavit jako historickou volatilitu (či implikovanou volatilitu, je-li k dispozici). Jako $\mu$ bychom pro generování vývojů s reálnými pravděpodobnostmi museli znát předem očekávaný výnos, který lze jen obtížně odhadnout.
+
+Alternativně můžeme použít předpoklad risk-neutrálního oceňování.
+Pokud uvažujeme risk-neutralitu a pro jednoduchost nejprve předpokládáme nulovou nejistotu ($\sigma = 0$), cena akcie v čase $T$ je dána bezrizikovou úrokovou mírou:
+
+\begin{equation}
+  S_T = S_0 e^{rT}.
+\end{equation}
+
+V tomto zjednodušeném světě můžeme nahradit $\mu$ bezrizikovou úrokovou mírou. Tím se zavazujeme použít risk-neutrální pravděpodobnosti namísto reálných, stejně jako při použití binomických stromů.
+
+V realitě se akcie nevyvíjejí bez nejistoty, proto musíme nejistotu zavést zpět v podobě Brownova pohybu. Náš model pro generování náhodných cen akcií bude tedy:
+
+\begin{equation}
+  dS = r S \, dt + \sigma S \, dz,
+\end{equation}
+
+kde $dz$ je Brownův pohyb. Přesné řešení této stochastické diferenciální rovnice je
+
+\begin{equation}
+  S_{t + \Delta t} = S_t \exp\!\left( (r - \frac{\sigma^2}{2}) \Delta t + \sigma \sqrt{\Delta t} \, Z \right), \quad Z \sim \mathcal{N}(0,1), \label{eq:exact_gbm}
+\end{equation}
+
+které použijeme pro samotnou simulaci v následující sekci.
+
+\citep[Kapitola~1.1]{Glasserman2004}
+
+\subsubsection{Proč jsou ceny lognormální}
+
+V předchozí sekci jsme zavedli GBM pod risk-neutrální mírou: $dS = r S\,dt + \sigma S\,dz$. Pomocí Itôova lemmatu lze ukázat, že logaritmus ceny se řídí obyčejným Brownovým pohybem \citep{Wilmott2006}:
+
+\begin{equation}
+  d(\log S) = (r - \frac{\sigma^2}{2}) dt + \sigma \, dz.
+\end{equation}
+
+Integrací této rovnice získáme vzorec~\eqref{eq:exact_gbm}. Z něj je vidět, že $\log S_T$ má normální rozdělení, a tedy $S_T$ má rozdělení \textbf{lognormální}. To je důležité ze dvou důvodů:
+
+\begin{itemize}
+  \item Cena akcie je vždy kladná — na rozdíl od normálního rozdělení, které připouští i záporné hodnoty.
+  \item Rozdělení je zešikmené doprava (pravostranné), což odpovídá chování reálných cen.
+\end{itemize}
+
+Pro samotnou simulaci použijeme přímo vzorec~\eqref{eq:exact_gbm}, který generuje lognormální ceny bez nutnosti diskretizace SDE.
+
+\citep[Kapitola~24.3]{McDonald2013}, \citep[Kapitola~80.3]{Wilmott2006}
+
+\subsubsection{Generování cest}
+
+Pro některé opce, například evropské, nám stačí jen cena podkladové akcie při expiraci k výpočtu potenciální výplaty. Naopak pro jiné opce nám to nestačí, a musíme generovat celou cestu vývoje ceny akcie. Kupříkladu americké opce lze uplatnit před expirací, tudíž musíme projít celou cestu vývoje ceny akcie a v každém kroku zjistit, zda je předčasné uplatnění výhodné.
+
+Pokud chceme vygenerovat cestu akcie, rozdělíme čas do splatnosti na $M$ kroků délky $\Delta t = T/M$. Následně cestu vygenerujeme jako posloupnost $S_0, S_1, \dots, S_M$, kde pro $i = 0, 1, \dots, M-1$ platí:
+
+\begin{equation}
+  S_{i+1} = S_i \exp\!\left( (r - \frac{\sigma^2}{2}) \Delta t + \sigma \sqrt{\Delta t} \, Z_i \right), \quad Z_i \sim \mathcal{N}(0,1).
+\end{equation}
+
+Pro evropskou opci stačí $M = 1$, tedy jediný skok přímo do splatnosti. Pro opce vyžadující celou cestu je vhodný počet kroků otázkou kompromisu: málo kroků snižuje přesnost (zejména u rozhodování o předčasném uplatnění), mnoho kroků zpomaluje výpočet. Obecně se volí 50--252 kroků ročně (tj. týdenní až denní kroky).
+
+\citep[Kapitola~24.3]{McDonald2013}
+
+\subsection{Výpočet hodnoty opce}
+
+Mějme $N$ nezávislých odhadů ceny akcie při expiraci (případně celých cest) $S_1, S_2, \dots, S_N$ a funkci $V(S_i)$, která pro danou koncovou cenu (či cestu) vypočítá výplatu opce. Dle zákona velkých čísel se pro dostatečně velký počet nezávislých stejně rozdělených náhodných veličin s konečnou střední hodnotou jejich výběrový průměr blíží střední hodnotě. Odhad ceny opce je tedy diskontovaná průměrná výplata:
+
+\begin{equation}
+  V_0 = e^{-rT} \frac{1}{N} \sum_{i=1}^{N} V(S_i).
+\end{equation}
+
+\citep[Kapitola~1.1]{Glasserman2004}
+
+Diskontování bezrizikovou sazbou $r$ převádí výplatu v čase $T$ na její současnou hodnotu v čase $0$.
+
+\subsubsection{Evropské opce}
+
+Při počítání evropských opcí nám stačí pouze cena v datu expirace. Funkce, kterou budeme používat k vypočtení výplaty z opce se liší podle typu opce:
+
+\begin{itemize}
+  \item Pro kupní opce použijeme $V(S_i) = max(0, S_i - K)$,
+  \item Pro prodejní opce použijeme $V(S_i) = max(0, K - S_i)$.
+\end{itemize}
+
+Tudíž, pro kupní opce vypadá výsledný odhad ceny jako:
+
+\begin{equation}
+  C = e^{-rT} \frac{1}{N} \sum_{i=1}^N max(0, S_i - K),
+\end{equation}
+
+a pro prodejní opce:
+
+\begin{equation}
+  C = e^{-rT} \frac{1}{N} \sum_{i=1}^N max(0, K - S_i).
+\end{equation}
+
+\citep[Kapitola~24.4]{McDonald2013}
+
+\subsection{Zlepšení odhadu}
+
+Mějme $X_1, \dots, X_N$ nezávislé stejně rozdělené náhodné veličiny s konečným rozptylem $\sigma^2$. Potom
+
+\[
+\begin{aligned}
+\operatorname{Var}\!\left( \frac{1}{N}\sum_{i=1}^N X_i \right)
+&= \frac{1}{N^2} \operatorname{Var}\!\left( \sum_{i=1}^N X_i \right) \\
+&= \frac{1}{N^2} \sum_{i=1}^N \operatorname{Var}(X_i) \\
+&= \frac{1}{N^2} \cdot N \sigma^2 \\
+&= \frac{\sigma^2}{N},
+\end{aligned}
+\]
+
+je rozptyl Monte Carlo metody. Potom směrodatná odchylka je $\frac{\sigma}{\sqrt{N}}$. Tudíž, chyba odhadu klesá jako $\frac{1}{\sqrt{n}}$. Abychom chybu snížili na polovinu, musíme čtyřnásobit počet pozorování. Toto silně zvyšuje výpočetní náročnost, a pokud chceme efektivně zpřesnit náš odhad, musíme hledat alternativní metody.
+
+\citep{Boyle1986}
+
+\subsubsection{Kontrolní proměnné (control variates)}
+
+Metoda kontrolní proměnné využívá podobné opce, u které máme známou přesnou cenu opce (skrze Black-Scholes či jiné metody).
+Pro obě opce vytvoříme odhad na stejné sadě náhodně generovaných čísel. Odhad ceny opce, kterou chceme ocenit označíme $V_1^*$, odhad ceny opce, u které známe cenu označíme $V_2^*$ a cenu této opce označíme $V_2$. Potom můžeme vytvořit alternativní odhad ceny opce, označený $V_1$, jako:
+
+\begin{equation}
+  V_1 = V_1^* - V_2^* + V_2
+\end{equation}
+
+Kvůli stejné kvalitě/náhodnosti generovaných čísel u $V_1^*$ a $V_2^*$, můžeme očekávat, že chyba u odhadu opce s již známou cenou je stejný jako u odhadu opce bez známé ceny.
+
+\citep[Kapitola~80.13.2]{Wilmott2006}
+
+Podobná opce musí být na stejné akcii, a musí mít stejnou expiraci. Lišit se mohou ve strike ceně.
+
+Směrodatná odchylka odhadu ceny opcí vypočtených Monte Carlo metodou s kontrolní proměnnou je 10 \% směrodatné odchylky odhadu ceny opcí vypočtených naivním Monte Carlo \citep[Kapitola~24.5]{McDonald2013}.
+
+\subsubsection{Antitetické proměnné (antithetic variates)}
+
+Metoda antitetických proměnných nás nechává z jedné sady náhodných čísel vygenerovat dva odhady opčních cen.
+
+Mějme $z_1, z_2, \dots, z_N$ takové, že $z_i$ je náhodná veličina v odhadu $S_i$. První odhad opčních cen vypočteme normálně z generovaných náhodných čísel. Druhý odhad můžeme získat aditivní inverzí náhodné veličiny pro každý vygenerovaný odhad vývoje ceny, čili:
+
+\begin{equation}
+  z^*_i = -z_i,
+\end{equation}
+
+čímž efektivně získáme vývoj o stejné síle, s opačným směřováním (růst místo poklesu, a naopak). Následně můžeme vypočíst odhad ceny opce z potenciálních vývojů ceny $S^*_1, S^*_2, \dots, S^*_N$, a tyto odhady zprůměrovat. 
+
+\subsection{Americké opce}
+
+\subsubsection{Problém předčasného uplatnění}
+
+\subsubsection{Longstaff-Schwartz (LSM)}
+
+\end{document}
