@@ -189,8 +189,19 @@ Mějme $Z_1, Z_2, \dots, Z_N$ nezávislé $\mathcal{N}(0,1)$ použité pro gener
 
 \subsection{Americké opce}
 
+Poněvadž máme možnost opci využít předčasně, musíme po celé délce vývoje ceny akcie kontrolovat, zda není optimální opci využít před expirací. Tudíž, potřebujeme generovat celou cestu vývoje ceny akcie, ne jenom konečnou cenu.
+
 \subsubsection{Problém předčasného uplatnění}
 
+Předčasné uplatnění opce je problematické ze dvou důvodů. Prvním důvodem je, že každá cesta je jenom jedna z mnoha možností jak se cena akcie může vyvíjet. Z jedné cesty nedokážeme odhadnout očekávanou hodnotu pokračování v držění opce, tudíž musíme zjistit hodnotu pokračování v držení opce přes všechny realizace ve stejný moment.
+
+Druhým problém pro předčasné uplatnění je, že to jde proti směru generování cesty vývoje ceny akcie. Když generujeme cenu akcie, jdeme relativně jednoduchými operacemi z času 0 do času $T$. Když řešíme předčasné uplatnění, jdeme z času $T$ do času $0$, což dále zvětšuje výpočetní náročnost algoritmu.
+
 \subsubsection{Longstaff-Schwartz (LSM)}
+
+Asi nejčastěji použitou metodou řešení amerických opcí skrze Monte Carlo je metoda Longstaffa-Schwartze. Základem metody je odhadnutí pokračovací hodnoty pomocí bázických funkcí, a zpětná kontrola efektivity předčasného využití v každém kroce cesty vývoje ceny akcie.
+
+Po vygenerování cest vývoje ceny akcie vypočteme výplatu všech realizací v datu expirace. Tyto výplaty dáme do pole výplat, kde výplatu pro $i$-tou realizaci označíme jako $V_i$. Následně, přejdeme na krok před datem expirace. Všechny výplaty diskontujeme, čili vynásobíme $1/r$, čímž získáme současnou hodnotu v kroku před expirací. Po tomto kroku vyfiltrujeme cesty takové, že v tomto specifickém kroce jsou v penězích (ITM). Pro tyto opce musíme zjistit hodnotu uplatnění opce a hodnotu pokračování opce. Uplatnění opce je triviální, tudíž se budeme soustředit na pokračovací hodnotu opce. Jak již bylo řečeno, nelze zjistit pokračovací hodnotu z jedné realizace, a proto zjistíme pokračovací hodnotu jako regresi výplat v budoucnosti na bázickou funkci o proměnné $X$, kde $X$ je aktuální cena akcie. Nejčastější volba bázické funkce je $Y = aX^2 + bX + c$, kde $a, b, c$ jsou reálná čísla, vypočtená pomocí metody nejmenších čtverců (nebo jiné regresní metody). Z regrese zjistíme pokračovací hodnotu. Pokud je výplata po využití opce větší, než pokračovací hodnota, dává smysl využít opci v tomto kroce. V poli výplat nahradíme výplatu vhodné ($i$-té, kde $i$ je cesta s větší hodnotou využití než pokračování) cesty výplatou z tohoto kroku. Takto postupujeme zpět v čase, dokud se nedostaneme do současnosti. Následně můžeme zjistit hodnotu opce jako průměr všechn výplat.
+
 
 \end{document}
