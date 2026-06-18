@@ -31,7 +31,7 @@
 \LoadClass[12pt,english,czech]{scrbook}}{%
 \LoadClass[12pt,czech,english]{scrbook}}
 
-\geometry{margin=2cm,inner=2.5cm,headheight=1cm,footskip=1.25cm}
+\geometry{margin=2cm,inner=2.5cm,headheight=1cm,footskip=1.25cm,bottom=2.5cm}
 
 % nastavení stránky
 \fancyhf{}
@@ -48,8 +48,8 @@
 %\renewcommand{\chaptermark}[1]{\markboth{\arabic{chapter}. #1}{}}
 
 %nastavení hloubky číslování a hloubky obsahu (do sections)
-\setcounter{secnumdepth}{1} 
-\setcounter{tocdepth}{1}
+\setcounter{secnumdepth}{2} 
+\setcounter{tocdepth}{2}
 
 %nastavení odstavců
 \setlength{\parskip}{\medskipamount}  % malá mezera mezi odstavci

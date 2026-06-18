@@ -189,19 +189,62 @@ Mějme $Z_1, Z_2, \dots, Z_N$ nezávislé $\mathcal{N}(0,1)$ použité pro gener
 
 \subsection{Americké opce}
 
-Poněvadž máme možnost opci využít předčasně, musíme po celé délce vývoje ceny akcie kontrolovat, zda není optimální opci využít před expirací. Tudíž, potřebujeme generovat celou cestu vývoje ceny akcie, ne jenom konečnou cenu.
+Americká opce se od evropské liší tím, že ji lze uplatnit kdykoli během její životnosti, nejen při expiraci. Tato možnost předčasného uplatnění zvyšuje hodnotu opce oproti její evropské obdobě — a zároveň znemožňuje použití jednoduchých metod.
+
+Na rozdíl od evropských opcí neexistuje pro americké opce uzavřený vzorec typu Black-Scholes (s výjimkou speciálních případů, jako je americký call bez dividend, který je ekvivalentní evropskému). Jsme tedy odkázáni na numerické metody — binomické stromy, konečné diference nebo simulaci Monte Carlo. Zatímco binomické stromy zvládají americké opce přirozeně díky zpětné indukci, Monte Carlo čelí dvěma zásadním problémům, které řeší až metoda Longstaffa–Schwartze.
 
 \subsubsection{Problém předčasného uplatnění}
 
-Předčasné uplatnění opce je problematické ze dvou důvodů. Prvním důvodem je, že každá cesta je jenom jedna z mnoha možností jak se cena akcie může vyvíjet. Z jedné cesty nedokážeme odhadnout očekávanou hodnotu pokračování v držění opce, tudíž musíme zjistit hodnotu pokračování v držení opce přes všechny realizace ve stejný moment.
+\paragraph{První problém: odhad pokračovací hodnoty.}
+Rozhodnutí, zda opci uplatnit, vyžaduje porovnání okamžitého zisku při uplatnění a očekávané hodnoty při pokračování v držení opce. Tuto očekávanou hodnotu — pokračovací hodnotu — nelze spolehlivě určit z jedné simulované cesty. Každá cesta je jen jedna z mnoha možných realizací; potřebujeme odhadnout podmíněnou střední hodnotu \(\mathbb{E}[Y \mid S(t) = s]\) napříč všemi cestami ve stejném časovém okamžiku.
 
-Druhým problém pro předčasné uplatnění je, že to jde proti směru generování cesty vývoje ceny akcie. Když generujeme cenu akcie, jdeme relativně jednoduchými operacemi z času 0 do času $T$. Když řešíme předčasné uplatnění, jdeme z času $T$ do času $0$, což dále zvětšuje výpočetní náročnost algoritmu.
+\paragraph{Druhý problém: směr simulace.}
+Cenu akcie simulujeme od současnosti (\(t = 0\)) do expirace (\(t = T\)). Rozhodování o předčasném uplatnění naopak postupuje od \(T\) do \(0\) (dynamické programování odzadu). To znamená, že si musíme uchovávat celé cesty v paměti, abychom se k nim mohli vracet. To zvyšuje paměťovou i výpočetní náročnost oproti evropským opcím.
+
+\paragraph{Třetí problém: optimal stopping.}
+Rozhodnutí o předčasném uplatnění je příkladem problému zastavení (optimal stopping problem). V každém kroku volíme mezi dvěma možnostmi — uplatnit nyní, nebo pokračovat dál — přičemž hodnota pokračování závisí na všech budoucích rozhodnutích. Tento problém se standardně řeší Bellmanovou rovnicí dynamického programování:
+
+\[
+V_t(S_t) = \max\!\bigl(h_t(S_t),\; e^{-r\Delta t}\,\mathbb{E}[V_{t+\Delta t}(S_{t+\Delta t}) \mid S_t]\bigr),
+\]
+
+kde \(h_t(S_t)\) je okamžitý zisk při uplatnění. Řešení spočívá v postupu od \(T\) do \(0\), což je v přímém rozporu s dopřednou simulací Monte Carla.
 
 \subsubsection{Longstaff-Schwartz (LSM)}
 
-Asi nejčastěji použitou metodou řešení amerických opcí skrze Monte Carlo je metoda Longstaffa-Schwartze. Základem metody je odhadnutí pokračovací hodnoty pomocí bázických funkcí, a zpětná kontrola efektivity předčasného využití v každém kroce cesty vývoje ceny akcie.
+Nejčastěji používanou metodou pro oceňování amerických opcí Monte Carlem je metoda Longstaffa–Schwartze \citep{LongstaffSchwartz2001}. Jejím základem je odhad pokračovací hodnoty pomocí regrese na bázických funkcích a zpětná kontrola předčasného uplatnění v každém kroku.
 
-Po vygenerování cest vývoje ceny akcie vypočteme výplatu všech realizací v datu expirace. Tyto výplaty dáme do pole výplat, kde výplatu pro $i$-tou realizaci označíme jako $V_i$. Následně, přejdeme na krok před datem expirace. Všechny výplaty diskontujeme, čili vynásobíme $1/r$, čímž získáme současnou hodnotu v kroku před expirací. Po tomto kroku vyfiltrujeme cesty takové, že v tomto specifickém kroce jsou v penězích (ITM). Pro tyto opce musíme zjistit hodnotu uplatnění opce a hodnotu pokračování opce. Uplatnění opce je triviální, tudíž se budeme soustředit na pokračovací hodnotu opce. Jak již bylo řečeno, nelze zjistit pokračovací hodnotu z jedné realizace, a proto zjistíme pokračovací hodnotu jako regresi výplat v budoucnosti na bázickou funkci o proměnné $X$, kde $X$ je aktuální cena akcie. Nejčastější volba bázické funkce je $Y = aX^2 + bX + c$, kde $a, b, c$ jsou reálná čísla, vypočtená pomocí metody nejmenších čtverců (nebo jiné regresní metody). Z regrese zjistíme pokračovací hodnotu. Pokud je výplata po využití opce větší, než pokračovací hodnota, dává smysl využít opci v tomto kroce. V poli výplat nahradíme výplatu vhodné ($i$-té, kde $i$ je cesta s větší hodnotou využití než pokračování) cesty výplatou z tohoto kroku. Takto postupujeme zpět v čase, dokud se nedostaneme do současnosti. Následně můžeme zjistit hodnotu opce jako průměr všechn výplat.
+Algoritmus:
 
+\begin{enumerate}
+  \item Vygenerujeme $M$ cest vývoje ceny akcie po $N$ krocích.
+  \item V čase $T$ (expirace) spočteme výplatu $V_i = \max(K - S_i(T), 0)$ pro každou cestu $i$.
+  \item Postupujeme zpět v čase: pro $k = N-1, N-2, \dots, 1$:
+    \begin{enumerate}
+      \item Diskontujeme všechny výplaty o $e^{-r\Delta t}$ (převod z kroku $k+1$ do $k$).
+      \item Vybereme cesty, kde je opce v daném kroku v penězích (ITM).
+      \item Na těchto cestách provedeme regresi diskontovaných budoucích výplat na bázické funkce aktuální ceny akcie $S_i(t_k)$. Bázické funkce jsou obvykle $\{1,\ X,\ X^2\}$.
+      \item Z regrese získáme pokračovací hodnotu $P(S_i(t_k))$.
+      \item Pokud $K - S_i(t_k) > P(S_i(t_k))$, nahradíme výplatu na $i$-té cestě hodnotou $K - S_i(t_k)$ (uplatnění v tomto kroku).
+    \end{enumerate}
+  \item V čase $0$ je cena opce průměr všech diskontovaných výplat napříč cestami:
+    \[
+    V_0 = \frac{1}{M} \sum_{i=1}^M \text{CF}_i(0),
+    \]
+    kde $\text{CF}_i(0)$ je celková diskontovaná výplata z $i$-té cesty.
+\end{enumerate}
 
+\citep{LongstaffSchwartz2001}, \citep[Kapitola~80.16]{Wilmott2006}
+
+\subsubsection{Výběr bázické funkce}
+
+Bázické funkce \(\psi_j(X)\) slouží k aproximaci pokračovací hodnoty \(\mathbb{E}[Y \mid X]\) jakožto lineární kombinace
+
+\[
+P(X) \approx \sum_{j=0}^m \beta_j \psi_j(X).
+\]
+
+Longstaff a Schwartz (2001) původně použili Laguerrovy polynomy, v praxi se však osvědčily jednoduché polynomické funkce \(\{1, X, X^2\}\). Jejich výhodou je, že \(\mathbb{E}[Y \mid X]\) lze dobře aproximovat i malým počtem členů. Více členů zlepšuje přesnost, ale hrozí přeučení (overfitting) — pro naše účely je kvadratická regrese dostačující. Koeficienty \(\beta_j\) se získají metodou nejmenších čtverců na ITM cestách.
+
+\citep{LongstaffSchwartz2001}, \citep[Kapitola~8.4]{Glasserman2004}
 \end{document}
