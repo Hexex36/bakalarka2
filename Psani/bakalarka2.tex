@@ -1303,8 +1303,8 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
   Akcie následně ještě kategorizujeme dle vyplácené dividendy (ano/ne) a míry volatility akcie, kde:
   \begin{description}
     \item[Nízká volatilita]: $\sigma \le 0.35$
-    \item[Střední volatilita]: $0.35 < \sigma < 0.60$
-    \item[Vysoká volatilita]: $\sigma \ge 0.60$
+    \item[Střední volatilita]: $0.35 < \sigma < 0.50$
+    \item[Vysoká volatilita]: $\sigma \ge 0.50$
   \end{description}
 
   Pro práci byly vybrány následující akcie: %TODO: Doplnit akcie níže
@@ -1323,25 +1323,22 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
       \bottomrule
     \end{tabular}
   \end{table}
+
+  Indexy byly podobně vybrány z S\&P500 indexů. Zde byly možnosti velmi limitované, jelikož většina indexů neměla obchodované opce. Mimo to, poněvadž index nevlastníme, nemůže vyplácet dividendy, takže všechny evropské opce jsou výhradně bezdividendové.
+  
+  Vybrané index jsou: %TODO: Seznam indexů
+
   \subsection{Postup sběru}
 
-  V rámci práce byly sbírány opční řetezce a historické hodnoty akcií pro specificky vybrané tituly.
-  Vybrané tituly se liší dle typu opce, pro jejiž účely byly sbírany, poněvadž pro většinu titulů byl dostupný pouze jeden typ opce: buď americký nebo evropský.
+  Sběr dat byl uskutečněn pomocí pythonovské knihovny yfinance. Yfinance je knihovna, která umožňuje queryování a následně stáhnutí dat z API endpointů serverů Yahoo Finance. Tyto endpointy nejsou veřejně popsané, ale jsou veřejně dostupné, a používá je stránka Yahoo Finance na získávání jejich dat pro opce.
 
-  Pro akcie spojené s firmami jsou typické americké opce, které dávají větší flexibilitu. Data byla sbírana na tituly patřící do S\&P 500, předně pro akcie tzv. "Maginificent Seven", sedm velkých, výdělečných akcií tohoto fondu. Sbírané tituly byly klasifikovány podle volatility a dávané dividendy. Seznam sbíraných titulů pro americké opce: 
-  \begin{itemize}
-    \item{Akcie s vysokou volatilitou ($ > 50\% $): TSLA, AMD}
-    \item{Akcie s nízkou volatilitou ($~35\%$): NFLX, META, AMZN}
-    \item{Akcie vyplácející dividendy: AAPL, GOOGL, JNJ, KO, MSFT, NVDA, PG}
-  \end{itemize}
+  V rámci vývoje skriptu jsme ověřili, že všechny vybrané tituly jsou dostupné na Yahoo Finance.
+  
+  Pro stažení dat jsem napsal skript, který stáhne pro každý titul detaily vývoje akcie za poslední pracovní rok a všechny opční řetězce nabízené v den sběru dat.
 
-  Nízká volatilita je zde použita jako termín relativní v rámci použitých akcií. Racionální člověk by neřekl, že volatilita 30\% je malá.
+  Pro získání dat o vývoji akcie
 
-  Za účelem získání opcí evropských byla sbírána data indexů. U opcí akcií indexů je běžná metoda využití kontraktu přímé splacení rozdílu hodnot penězy, k čemuž se právě využívají akcie evropského typu. Vybrané indexy:
-  \begin{itemize}
-    \item{Monetární fondy: XDB, XDA, XDE, XDN}
-    \item{Akcie: RUT, VIX}
-  \end{itemize}
+  % Old stuff
 
   Data byla sbírána pomocí pythonovské knihovny "yfinance". Tato knihovna umožňuje bezbolestný přístup k API serveru Yahoo Finance, který sbírá finanční informace k rozmanitému množství akcií a indexů.
   Informace k opčním řetezcům takto získané zahrnují identifikátor titulu, minimum, maximum a průměr poptávané ceny, strike cenu, a informace o objemu obchodu.
