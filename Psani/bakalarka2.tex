@@ -484,7 +484,23 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
 
   \subsection{Práce s dividendy}
 
+  Vyplácené dividendy jsou konstantní, jednorázové sumy vyplácené za specifickované časové období, kupříkladu čtyřikrát ročně. Abychom zjistili, kolik dividenda vynáší, řekněme, že máme posloupnost $d_1, d_2, ..., d_n$, kde $d_i; \, i \in \mathbb{N}$ je hodnota vyplácené dividendy před $i$ dny. Jestliže akcie vyplácí dividendu $x$ Kč každých 90 dní, můžeme posloupnost určit jako:
+  \begin{equation}
+    (\forall i \in \mathbb{N}) d_i = 
+    \begin{cases}
+      x ... 90 \mid i \\
+      0 ... 90 \nmid i
+    \end{cases}.
+  \end{equation}
 
+  Potom můžeme výnos z dividendy vypočítat jako:
+  \begin{equation}
+    D = \frac{\sum_{i = 1}^n d_i}{S},
+  \end{equation}
+
+  kde $S$ je aktuální cena akcie, v den kdy se přestala sbírat data.
+
+  Tímto jsme vypočítali dividendnový výnos akcie s výplatním obdobím $x$. 
 
   \subsection{Geometrický Brownův pohyb}
 
