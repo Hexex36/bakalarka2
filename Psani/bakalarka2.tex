@@ -315,6 +315,7 @@ The goal of this bachelor's thesis is to systematize and compare stock option pr
 
   Oba tyto vztahy platí jak pro call opce, tak pro put opce, narozdíl od ostatních faktorů. \citep[Kapitola~11.1]{Hull2021}
 
+  \label{sec:cost_of_carry}
   U opce má smysl ještě uvést tzv. náklady na držení (cost of carry). Náklady na držení rozumíme náklady na držení opce místo držení aktiva. Pokud bychom měli opci na akcie, byly by náklady na držení $r - q$. Poněvadž akcii kupujeme v době expirace, můžeme peníze, které chceme použít na koupi aktiva uložit a nechat je získávat bezrizikovou úrokou míru. Nicméně, jelikož akcii kupujeme až v době expirace, nezískáváme vyplácenou dividendu z akcie, což bereme jako promrhaný výdělek. 
 
   Uveďme příklad použití call opce pro správné pochopení.
@@ -363,7 +364,8 @@ The goal of this bachelor's thesis is to systematize and compare stock option pr
   \label{sec:option_types}
 
   Zatím jsme uvažovali pouze o kontraktech, které můžeme uplatnit pouze v den expirace. Tomuto stylu uplatnění opce se říká \textbf{evropský} styl. 
-  Je to jeden ze dvou běžných stylů uplatnění opce. Používá se nejčastěji na akciové indexy, neboť indexy jsou takzvaně \UV{cash-settled} - vyrovnány měnou. % TODO: Zdroj
+  Je to jeden ze dvou běžných stylů uplatnění opce. Používá se nejčastěji na akciové indexy, neboť indexy jsou takzvaně \UV{cash-settled} - vyrovnány měnou.
+  \citep[s.~185]{McDonald2013} \citep{Crawley2023} \citep{Webull}
   Akciové indexy pouze sledují cenu a nedávají žádné podkladové aktivum, jde čistě jen o zisk ze spekulace, či k zajištění se proti negativnímu vývoji cen.
 
   Pokud opce umožňuje ji uplatnit před datem expirace, říkáme, že tato opce má \textbf{americký} styl uplatnění. Předčasné uplatnění je opět pouze právo, tudíž můžeme nechat opci neuplatněnou až do data expirace. Tímto způsobem můžeme napodobit chování opce evropské. Důsledkem můžeme v zásadě na jakoukoliv obchodní strategii použít opce americké namísto evropských, je-li to výhodné. Jelikož držitel získává výhodu navíc, která mu dává lepší možnost vydělat na úkor vypisovatele, platíme větší nebo stejnou prémii než za opci evropskou \footnote{Stejné prémie mají např. opce, které jsou silně ITM, tudíž bezcenné.}.
@@ -484,23 +486,25 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
 
   \subsection{Práce s dividendy}
 
-  Vyplácené dividendy jsou konstantní, jednorázové sumy vyplácené za specifickované časové období, kupříkladu čtyřikrát ročně. Abychom zjistili, kolik dividenda vynáší, řekněme, že máme posloupnost $d_1, d_2, ..., d_n$, kde $d_i; \, i \in \mathbb{N}$ je hodnota vyplácené dividendy před $i$ dny. Jestliže akcie vyplácí dividendu $x$ Kč každých 90 dní, můžeme posloupnost určit jako:
+  Základní verze metod ohodnocování opcí vyžadují použití spojitého divididendového výnosu, značího kolik procent dané akcie činí vyplácené dividendy.
+
+  Mějme $d_1, d_2, ..., d_n$, kde $d_i; \, i \in \mathbb{N}$ je vyplácená dividenda v den $i/T$, pokud $T$ značí jedno periodické období do výplaty (tradičně rok). Spojitou dividendovou míru $q$ počítáme jako:
+
   \begin{equation}
-    (\forall i \in \mathbb{N}) d_i = 
-    \begin{cases}
-      x ... 90 \mid i \\
-      0 ... 90 \nmid i
-    \end{cases}.
+    q = ln\bigl(\left(1 + \frac{\sum_{i = 1}^n di}{S * T}\right)^T\bigr)
   \end{equation}
 
-  Potom můžeme výnos z dividendy vypočítat jako:
-  \begin{equation}
-    D = \frac{\sum_{i = 1}^n d_i}{S},
-  \end{equation}
+  Toto pro ohodnocování přináší velké problémy, jmenovitě nemožnost znát $S$ v čase $T$. Spojitý dividendový výnos můžeme zjistit až retroaktivně. Co s tím?
 
-  kde $S$ je aktuální cena akcie, v den kdy se přestala sbírat data.
+  Máme několik možností jak se s tím vypořádat. První, a pro evropské opce asi nejlepší, je odečíst dividendy z dané akcie.
 
-  Tímto jsme vypočítali dividendnový výnos akcie s výplatním obdobím $x$. 
+  Cena akcie vždy klesne o hodnotu vyplácené dividendy. Uvažujme, že se momentálně nacházíme v časovém momentu $t = 0$, jdeme až do $t = T$, a chceme vypočítat hodnotu akcie, kdyby nevyplácela dividendy. Potom musíme k ceně akcie v čase $T$ přičíst hodnotu dividendy, vyplácené v čase $t$, v čase $T$, čili $PV(D) = D * e^{r(T - t)}$, je-li $D$ výše vyplácené dividendy. Takto musíme k hodnotě akcie v čase $T$ přičíst všechny vyplácené dividendy.
+  
+  Tímto převádíme akcii vyplácející dividendy na akcie nevyplácející dividendy, čímž můžeme mnohem jednodušeji řešit ohodnocení opcí. Nicméně, tento přístup funguje pouze na opce bez předčasného využití. U opcí s předčasným využitím je důvod k využití opce případný zisk dividendy, což nemůžeme refletkovat v tomto modelu.
+
+  Pro modely, využívající simulace vývojů cen akcií můžeme tuto diskrétní dividendu modelovat napřímo. Generování cest pro binomické stromy a Monte Carlo probereme v jejich vlastních sekcích, nicméně máme-li opci, která vyplácí dividendu, můžeme pro generované cesty pouze v daný den snížit promítanou hodnotu opce o hodnodtu vyplácené dividendy. Tímto mírně zpomalíme algoritmus řešící ohodnocení opcí, nicméně zpomalení by nemělo být zásadní. Opět, toto není vhodné pro opce s předčasným využitím, nicméně zde existuje potenciální možnost v den vyplácení dividendy přičíst vyplácenou dividendu k celkové výplatě, čímž ji promítneme do hodnoty opce. Tímto přístupem zpomalíme výpočet hodnoty značněji než u pouhého odečítání od hodnoty akcie.
+
+  V rámci jednotnosti a limitací (předchozí metody jsou nevyužitelné pro Black-Scholes a metodu z knihovny fOptions pro binomické stromy), využijeme jako odhad spojité dividendové míry pro ohodnocovací metody odhad, získaný analýzou předchozího období (viz \ref{sec:hist_vol})
 
   \subsection{Geometrický Brownův pohyb}
 
@@ -749,7 +753,8 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
 
   \section{Ohodnocování opcí pomocí Blackova-Scholesova modelu}
 
-  U binomických stromů musíme jako parametr stanovit počet kroků od začátku až po expiraci opce, čímž diskretizujeme vývoj ceny podkladového aktiva, což nereflektuje realitu, kde se cena aktiva vyvíjí spojitě vlivem okolních podmínek. Abychom dosáhli spojitosti vývoje ceny podkladového aktiva, museli bychom mít nekonečné množství kroků, což by trochu prodloužilo čekání na ukončení algoritmu. Na tomto principu funguje Blackův-Scholesův model, který funguje jako zobecnění binomických stromů v nekonečnu. \citep{McDonald2013}
+  \label{sec:black-scholes_theory}
+  U binomických stromů musíme jako parametr stanovit počet kroků od začátku až po expiraci opce, čímž diskretizujeme vývoj ceny podkladového aktiva, což nereflektuje realitu, kde se cena aktiva vyvíjí spojitě vlivem okolních podmínek. Abychom dosáhli spojitosti vývoje ceny podkladového aktiva, museli bychom mít nekonečné množství kroků, což by trochu prodloužilo čekání na ukončení algoritmu. Na tomto principu funguje Blackův-Scholesův model, který funguje jako zobecnění binomických stromů v nekonečnu. \citep[Kapitola~15, úvod]{McDonald2013}
 
   \subsubsection{Podmínky modelu}
 
@@ -831,6 +836,8 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
 
   \subsection{Americké opce}
 
+
+  \label{sec:bs_american}
   Blackův-Scholesův model nelze aplikovat na (všechny) americké opce, poněvadž nebere v potaz předčasné uplatnění opce. Pro americké call opce bez dividend toto není problém, poněvadž u těch se předčasné uplatnění nevyplatí, nicméně u všech ostatních toto představuje problém. % TODO: Ozdrojovat tvrzení o předčasném uplatnění
 
   Pro tento problém existuje několik způsobů, jak aproximovat hodnotu americké opce pomocí Blackova-Scholesova-Mertonova modelu. Mnou vybraný je \textbf{Baroneova-Adesiho a Whaleyho metoda}. Tato metoda zavádí bonus pro hodnotu opce za možnost předčasného uplatnění, který se přičítá k základní hodnotě Blackova-Scholesova-Mertonova modelu. Obecná definice pro call opce vypadá takto:
@@ -902,6 +909,7 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
 
   \subsubsection{Newtonova-Raphsonova metoda}
 
+  \label{sec:bs_nr}
   Newtonova-Raphsonova metoda je numerická metoda využívající derivaci funkce k přiblížení se k hledané hodnotě. Metoda se používá pro nalezení kořenu dané funkce.
   Mějme funkci $f(x)$ a počáteční odhad $x_0$. Chceme najít $x$ takové, že $f(x) = 0$. Principem algoritmu je prodloužení směrnice funkce v bodě počátečního odhadu až do nulové funkční hodnoty. Pro $x_0$ nastavíme jako zlepšení odhadu bod $x$ takový, že $x$ leží na průniku směrnice $f(x_0)$ a osy $x$. Takto můžeme postupně zlepšovat $x$, dokud $f(x) = 0$. \citep[Kapitola~9.4]{Press2007}
 
@@ -1311,61 +1319,191 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
 
   \subsection{Sbíraná data}
 
-  Plánem práce je vyzkoušet metody zmíněné v teoretické části na evropských a amerických opcích. Tudíž, je potřeba získat data pro americké a evropské opce.
+  Plánem práce je vyzkoušet metody zmíněné v teoretické části na evropských a amerických opcích. Můžeme předpokládat, že opce na normálně obchodovaných akciích společností jsou americké a že opce na indexy jsou evropské. 
+  \citep[s.~185]{McDonald2013} \citep{Crawley2023} \citep{Webull}
+  Z důvodu neschopnosti nalezí evropských opcí na akcie budou tyto opce nahrazeny evropskými opcemi na akciové indexy, které jsou svými vlastnostmi velmi podobné.
 
-  Můžeme předpokládat, že opce na normálně obchodovaných akciích společností jsou americké a že opce na indexy jsou evropské. % TODO: Zdroj
+  Pro praktickou část byly vybrány akcie z indexu S\&P500. Tento výběr byl zvolen z důvodu likvidity opčních kontraktů, stability společností a dostupnosti dat z veřejných zdrojů. Cílem bylo získat tituly pokrývající různé úrovně volatility a dividendové politiky.
+ Historická volatilita byla spočtena z denních uzavíracích cen za poslední obchodní rok (252 pracovních dní) jako standardní odchylka logaritmických výnosů přepočtená na roční bázi. Akcie byly rozděleny do tří kategorií: nízká (\(\sigma \le 0{,}35\)), střední (\(0{,}35 < \sigma < 0{,}50\)) a vysoká (\(\sigma \ge 0{,}50\)) volatilita. Dividendový status byl určen podle aktuálního dividendového výnosu \(q\); pokud \(q > 0\), je akcie považována za dividendovou.
 
-  Je nutno vybrat akcie, od kterých můžeme čekat relativní spolehlivost, že jsou neměnné a nejsou součástí nějakých podvodných schémat. Pro naše účely stačí akcie indexu S\&P500. S\&P500 zahrnuje 500 největších společností na burze S\&P, což je stabilní, spolehlivá burza. %TODO: ...zdroj?
-  Akcie následně ještě kategorizujeme dle vyplácené dividendy (ano/ne) a míry volatility akcie, kde:
-  \begin{description}
-    \item[Nízká volatilita]: $\sigma \le 0.35$
-    \item[Střední volatilita]: $0.35 < \sigma < 0.50$
-    \item[Vysoká volatilita]: $\sigma \ge 0.50$
-  \end{description}
+ \begin{table}[h]
+   \centering
+   \caption{Vybrané akcie pro americké opce}
+   \label{tab:selected_stocks}
+   \begin{tabular}{lcccc}
+     \toprule
+     \textbf{Ticker} & \textbf{Společnost} & \(\sigma\) & \(q\) (\%) & \textbf{Počet opcí} \\
+     \midrule
+     \multicolumn{5}{l}{\textbf{Nízká volatilita (\(\sigma \le 0{,}35\))}} \\
+     JNJ  & Johnson \& Johnson & 0{,}185 & 2{,}16 & 3\,428 \\
+     KO   & Coca-Cola          & 0{,}167 & 2{,}71 & 2\,738 \\
+     PG   & Procter \& Gamble  & 0{,}186 & 2{,}95 & 2\,870 \\
+     MSFT & Microsoft          & 0{,}253 & 0{,}85 & 12\,453 \\
+     AAPL & Apple              & 0{,}291 & 0{,}39 & 10\,020 \\
+     GOOGL & Alphabet          & 0{,}304 & 0{,}27 & 13\,970 \\
+     AMZN & Amazon             & 0{,}335 & 0{,}00 & 8\,321 \\
+     NFLX & Netflix            & 0{,}335 & 0{,}00 & 25\,755 \\
+     \midrule
+     \multicolumn{5}{l}{\textbf{Střední volatilita (\(0{,}35 < \sigma < 0{,}50\))}} \\
+     META & Meta Platforms     & 0{,}377 & 0{,}34 & 20\,250 \\
+     NVDA & NVIDIA             & 0{,}412 & 0{,}02 & 15\,611 \\
+     \midrule
+     \multicolumn{5}{l}{\textbf{Vysoká volatilita (\(\sigma \ge 0{,}50\))}} \\
+     TSLA & Tesla              & 0{,}562 & 0{,}00 & 20\,143 \\
+     AMD  & AMD                & 0{,}624 & 0{,}00 & 11\,841 \\
+     \bottomrule
+   \end{tabular}
+ \end{table}
 
-  Pro práci byly vybrány následující akcie: %TODO: Doplnit akcie níže
+Z tabulky \ref{tab:selected_stocks} je patrné, že akcie s nízkou volatilitou mají zpravidla vyšší dividendový výnos (JNJ, KO, PG), zatímco akcie s vysokou volatilitou dividendy nevyplácejí (TSLA, AMD). Hranice mezi nízkou a střední volatilitou je u AMZN a NFLX velmi těsná (\(\sigma \approx 0{,}335\)), což je nutné zohlednit při interpretaci výsledků.
 
-  \begin{table}[h]
-    \centering
-    \label{tab:picked_stocks}
-    \caption{Vybrané akcie pro analýzu}
-    \begin{tabular}{lcc}
-      \toprule
-      & Vyplácející dividendu & Nevyplácející dividendu \\
-      \midrule
-      Nízká volatilita & ... & ... \\
-      Střední volatilita & ... & ... \\
-      Vysoká volatilita & ... & ... \\
-      \bottomrule
-    \end{tabular}
-  \end{table}
+Evropské opce jsou zastoupeny opcemi na akciové indexy vybranými z těch, které Yahoo Finance nabízí. Indexy nevyplácejí dividendy, tedy \(q = 0\).
 
-  Indexy byly podobně vybrány z S\&P500 indexů. Zde byly možnosti velmi limitované, jelikož většina indexů neměla obchodované opce. Mimo to, poněvadž index nevlastníme, nemůže vyplácet dividendy, takže všechny evropské opce jsou výhradně bezdividendové.
-  
-  Vybrané index jsou: %TODO: Seznam indexů
+\begin{table}[h]
+\centering
+\caption{Vybrané indexy pro evropské opce}
+\label{tab:selected_indices}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Ticker} & \textbf{Index} & \(\sigma\) & \textbf{Počet opcí} \\
+\midrule
+\^{}RUT & Russell 2000              & 0{,}220 & 17\,060 \\
+\^{}VIX & CBOE Volatility Index     & 1{,}313 & 4\,296 \\
+\^{}XDA & DAX                       & 0{,}093 & 35 \\
+\^{}XDB & DAX                       & 0{,}069 & 47 \\
+\^{}XDE & DAX                       & 0{,}074 & 92 \\
+\^{}XDN & DAX                       & 0{,}096 & 66 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Index \^{}VIX představuje speciální případ – jeho podkladovým aktivem je volatilita, nikoli cena. Tomu odpovídá i jeho historická volatilita \(\sigma \approx 1{,}3\), která je řádově vyšší než u ostatních indexů. Výsledky pro \^{}VIX je třeba interpretovat s ohledem na tuto skutečnost, neboť standardní oceňovací předpoklady (lognormalita, konstantní volatilita) zde nemusí být splněny.
+
+Německé indexové opce (\^{}XDA{}--\^{}XDN) mají v datasetu velmi omezený počet záznamů (35–92 opcí), což odráží nízkou likviditu těchto kontraktů na Yahoo Finance.
 
   \subsection{Postup sběru}
 
-  Sběr dat byl uskutečněn pomocí pythonovské knihovny yfinance. Yfinance je knihovna, která umožňuje queryování a následně stáhnutí dat z API endpointů serverů Yahoo Finance. Tyto endpointy nejsou veřejně popsané, ale jsou veřejně dostupné, a používá je stránka Yahoo Finance na získávání jejich dat pro opce.
+  Sběr dat byl uskutečněn pomocí pythonovské knihovny \texttt{yfinance}. Yfinance je knihovna, která umožňuje queryování a následně stáhnutí dat z API endpointů serverů Yahoo Finance. Tyto endpointy nejsou veřejně popsané, ale jsou veřejně dostupné, a používá je stránka Yahoo Finance na získávání jejich dat pro opce.
 
   V rámci vývoje skriptu jsme ověřili, že všechny vybrané tituly jsou dostupné na Yahoo Finance.
   
   Pro stažení dat jsem napsal skript, který stáhne pro každý titul detaily vývoje akcie za poslední pracovní rok a všechny opční řetězce nabízené v den sběru dat.
 
-  Pro získání dat o vývoji akcie
+  Pro každý ticker byly staženy následující údaje:
+  \begin{itemize}
+    \item aktuální cena akcie \(S\) v den sběru,
+    \item kompletní opční řetězec -- všechna dostupná expirační data, strike ceny, typ (call/put), ceny (bid, ask, last), objem a open interest,
+    \item historické denní uzavírací ceny za poslední rok (252 obchodních dní) pro výpočet historické volatility,
+    \item dividendová data pro určení spojitého dividendového výnosu \(q\).
+  \end{itemize}
 
-  % Old stuff
+  Sběr proběhl ve čtyřech termínech: 26.~ledna, 27.~února, 27.~března a 26.~května 2026. Tato data nenesou žádný speciální význam; účelem bylo získat data s přibližným odstupem jednoho měsíce. Data z dubna se nepodařilo získat kvůli technickému výpadku.
 
-  Data byla sbírána pomocí pythonovské knihovny "yfinance". Tato knihovna umožňuje bezbolestný přístup k API serveru Yahoo Finance, který sbírá finanční informace k rozmanitému množství akcií a indexů.
-  Informace k opčním řetezcům takto získané zahrnují identifikátor titulu, minimum, maximum a průměr poptávané ceny, strike cenu, a informace o objemu obchodu.
-  K těmto informacím bylo nutno doplnit některé další informace, specificky cena akcie v čase získání dat, délka časového úseku v poměru k roku, implikovaná (historická) volatilita a bezriziková úroková míra.
-  Momentální cena akcie byla získána pomocí knihovny yfinance.
-  Délka periody byla spočtena v R souboru analyzujícím metody ohodnocení opcí.
-  Implikovaná volatilita byla spočtena z dat vývoje ceny akcií získaných z yfinance. Hodnota byla spočetena jako standardní odchylka poměrů dvou po sobě jdoucích cen, vynásobená odmocninou z počtu pracovních dní v roce (252).
-  Bezriziková úroková míra pro americký dolar byla získána z oficiální webové stránky Ministerstva financí USA [link který přidám někdy v budoucnosti]. Pro data, která nespadala přesně na dané časové periody, byla tato úrovková míra spočtena interpolací lineární regrese. 
+  Opakovaná měření umožňují zachytit vývoj tržních podmínek a otestovat citlivost modelů na změnu ceny podkladového aktiva a bezrizikové úrokové míry. Při dotazování na API byl dodržován odstup nejméně 0,5~s mezi požadavky na různé tickery a 1~s mezi jednotlivými expiracemi, aby nedošlo k zablokování ze strany serveru.
 
-  Skripty použité k získání těchto informací jsou dostupné na mém githubu [odkaz na můj github někdy v budoucnosti]. Tyto skripty byly primárně vytvořeny umělou inteligencí.
-  Data byla získána pro den 26.1.2026. Toto datum nenese žádnou specifickou důležitost.
+  \subsubsection{Zpracování dat}
+
+  Ze stažených dat chybí následující parametry: Volatilita, dividednový výnos a bezriziková úroková míra.
+
+  Historická volatilita \(\sigma\) byla pro každou akcii spočtena z denních logaritmických výnosů
+  \[
+    r_i = \ln\frac{S_i}{S_{i-1}},
+  \]
+  kde \(S_i\) je uzavírací cena v den \(i\). Směrodatná odchylka těchto výnosů byla přepočtena na roční bázi:
+  \[
+    \sigma = \text{std}(r_1,\dots,r_n) \cdot \sqrt{252}.
+  \]
+
+  \label{sec:hist_vol}
+  Pro spojitou dividendovou míru byl použit historický odhad z posledního roku. Pro každou dividendu \(d_i\) vyplacenou v čase \(t_i\) byl vypočten okamžitý výnos \(d_i / S\) a tyto výnosy byly zprůměrovány a přepočteny na spojitou roční míru.
+
+  Bezriziková úroková míra \(r\) byla získána z výnosů amerických státních dluhopisů (U.S. Treasury), konkrétně z Daily Treasury Par Yield Curve.\footnote{Dostupné z \url{https://home.treasury.gov/resource-center/data-chart-center/interest-rates}} Pro splatnosti odpovídající jednotlivým expiracím opcí byla úroková míra dopočtena lineární interpolací mezi dvěma nejbližšími publikovanými výnosy.
+
+  \subsubsection{Sestavení datasetu}
+
+  %TODO: Jít víc do detailu. Popsat celý pipeline.
+
+  Data prošla několika fázemi zpracování:
+  \begin{enumerate}
+    \item \textbf{Python skripty:} stažení opčních řetězců a historických cen, výpočet volatility a dividendového výnosu, přiřazení bezrizikových úrokových měr k jednotlivým opcím a výpočet Greeks (delta, gamma, theta, vega, rho).
+    \item \textbf{R skripty:} sestavení kompletního datasetu ze všech měření, dopočet chybějících veličin (čas do expirace \(T\), poměr \(K/S\)), filtrování a sumarizace.
+  \end{enumerate}
+
+  Výsledný dataset obsahuje 168~996 opčních kontraktů na 12 amerických akcií a 6 evropských indexů. Čas do expirace \(T\) se pohybuje od 0 do 2{,}8~let a strike ceny \(K\) v rozmezí 0{,}50 až 5~000 jednotek.
+
+  Python skripty pro stažení a předzpracování dat byly vytvořeny za pomoci generativní umělé inteligence a následně ručně zkontrolovány a upraveny. Veškeré navazující výpočty a analýzy jsou napsány v jazyce R. Všechny skripty jsou přiloženy k práci.
+
+  \section{Implementace oceňovacích metod}
+
+  \subsection{Binomické stromy}
+
+  Zatímco implementace pro evropské opce se dá vyřešit pomocí jedné rovnice, implementovatelné v několika řádcích R, americké opce vyžaduje plné sestavení stromu, zpětný průchod a pořešení okrajových případů (nulový/velmi krátký čas do expirace, extrémní strike cena, etc.). Z tohoto důvodu místo ruční implementace byla v práci použita implentace Coxovo-Rossovo-Rubinsteinových stromů z knihovny \texttt{fOptions}. Tato knihovna je dostupná ke stažení na GitHubu \footnote{Odkaz: \url{https://github.com/cran/fOptions}}.
+
+  Pro zhotovení modelu voláme funkci \texttt{CRRBinomialTreeOption}. Parametry opce následují pro $S$, $K$, $r$, $\sigma$ a $T$ standardní značení, nicméně mimo to máme parametry:
+  \begin{itemize}
+    \item \textbf{n}: Počet binomických kroků, %TODO: Period?
+      pro naše použití je 100 adekvátní počet. % TODO: Vysvětlení?
+    \item \textbf{b}: Náklady na držení. Dle sekce \ref{sec:cost_of_carry} nastaveno na $r - q$.
+    \item \textbf{TypeFlag}: Typ opce, psaný jako dvoupísmenná kombinace.
+      \begin{itemize}
+        \item \texttt{"ce"} -- evropská call opce,
+        \item \texttt{"pe"} -- evropská put opce,
+        \item \texttt{"ca"} -- americká call opce,
+        \item \texttt{"pa"} -- americká put opce.
+      \end{itemize}
+  \end{itemize}
+
+  Výsledná cena opce je vrácena jako S4 objekt; extrahována je pomocí slotu \texttt{@price}.
+
+  \subsection{Blackův-Scholesův model}
+
+  Vzhledem k jednoduchosti implementace pro evropské opce, a zdánlivé zvládnutelnosti implementace pro opce americké, byl Blackův-Scholesův model v této práci implementován ručně. K implementaci byly použity formulace zmíněny v sekci \ref{sec:black-scholes_theory}, tudíž formulace Blackova-Scholesova modelu s Mertonovo rozšířením dle \citep[Kapitola~15.1]{McDonald2013} a stejný model s Baroneho-Adesiho a Whaleyho aproximací dle \citep[Kapitola~3.1]{Haug2007} pro americké opce.
+
+  Implementace pro evropské opce je v podstatě přesný přespis znění Blackova-Scholesova modelu s Mertonovo rozšířením, s pořešením okrajového případu, kde $T = 0$, pro který místo výpočtu vrátíme okamžitou výplatu z využití opce.
+
+  \subsubsection{Americké opce}
+
+  Pro kupní i prodejní opce je implementace rozdělena na primární funkci, která při zavolání vrátí vypočtenou hodnotu opce, a pomocnou funkci, použitou k nalezení kritické ceny aktiva pomocí Newtonova-Raphsonova algoritmu.
+
+  V primární funkci je pár větví, které zjednodušují výpočet:
+  \begin{itemize}
+    \item Je-li $T = 0$, je den expirace, a hodnotu opce získáme jako výplatu z využití.
+    \item Pro call opce, je-li $q = 0$, nemá smysl předčasně využívat opci, a chová se jako opce evropská. Můžeme vrátit hodnotu opce evropské. 
+    \item Je-li $S$ větší než kritická hodnota aktiva, je výhodné opci využít předčasně. Opět hodnotu opce získáme jako výplatu z využití.
+  \end{itemize}
+
+  Pokud volání nespadá pod ani jednu z těchto větví, výpočet probíhá dle specifikace v sekci \ref{sec:bs_american}.
+
+  Pomocná funkce je použitá pro nalezení kritické ceny aktiva pro danou opci a používá specifickaci Newtonova-Raphsonova v sekci \ref{sec:bs_nr} s maximálním tolerovaným rozdílem $10^{-9}$. Vyšší tolerance zanedbatelně zvyšují přesnost na silný úkor přesnosti.
+  Pomocná funkce pro prodejní opce volá ještě jednu pomocnou funkci na určení počátečního odhadu pro Newtonův-Raphsonův algoritmus. Toto bylo učiněno v rámci hledání chyby v implementaci pomocné funkce.
+
+  \begin{table}[h]
+    \centering
+    \label{tab:bs_function_names}
+    \caption{Názvy funkcí pro BS ohodnocení amerických opcí}
+    \begin{tabular}{lcc}
+      \toprule
+       & Kupní opce & Prodejní opce \\
+      \midrule
+      Ohodnocovací funkce & bs\_american\_call & bs\_american\_put \\
+      Pomocná funkce & s\_star\_finder & s\_star\_star\_finder \\
+      \bottomrule
+    \end{tabular}
+  \end{table}
+
+  \subsection{Monte Carlo}
+
+  Stejně jako Blackův-Scholesův model, na ohodnocení pomocí metody Monte Carlo nebyla použita externí knihovna. Při implementaci byla využita asistence generativní umělé inteligence, podpořená rigorózní kontrolou a testováním vytvořeného kódu.
+
+  Implementace pro daný typ opce (kupní a prodejní) je rozdělena na funkce: Pomocnou funkci, generující možné vývoje ceny akcie a primární funkci, vypočítávající hodnotu samotné funkce.
+
+  Pomocná funkce pro evropské opce generuje pouze výsledné hodnoty, pro evropské opce není třeba znát cestu vývoje. Oproti tomu pro americké opce generujeme celé cesty, kvůli příležitosti předčasného ohodnocení.
+  Pro všechny opce je použit jednotný počet simulací: 25 000. Tento počet simuací balancuje přesnost a čas na výpočet, který i při tomto počtu simulací je proti ostatním metodám znatelně delší.
+  Pro zvýšení přesnosti používáme metodu antitetických proměnných.
+
+  Implementace pro evropské opce je opět prostá: Pokud se nacházíme v dnu expirace, hodnota se rovná výplatě z využití. V opačném případě vygenerujeme potenciální vývoje cen, vypočteme výplaty a zprůměrujeme.
+
+
 
   \chapter{Závěr}
 
