@@ -1266,6 +1266,7 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
 
   \subsubsection{Longstaff-Schwartz (LSM)}
 
+  \label{sec:mc_ls}
   Nejčastěji používanou metodou pro oceňování amerických opcí Monte Carlem je metoda Longstaffa–Schwartze \citep{LongstaffSchwartz2001}. Jejím základem je odhad pokračovací hodnoty pomocí regrese na bázických funkcích a zpětná kontrola předčasného uplatnění v každém kroku.
 
   Algoritmus:
@@ -1498,12 +1499,15 @@ Německé indexové opce (\^{}XDA{}--\^{}XDN) mají v datasetu velmi omezený po
   Implementace pro daný typ opce (kupní a prodejní) je rozdělena na funkce: Pomocnou funkci, generující možné vývoje ceny akcie a primární funkci, vypočítávající hodnotu samotné funkce.
 
   Pomocná funkce pro evropské opce generuje pouze výsledné hodnoty, pro evropské opce není třeba znát cestu vývoje. Oproti tomu pro americké opce generujeme celé cesty, kvůli příležitosti předčasného ohodnocení.
+  K generování náhodných čisel pro vytvoření odhadu cen akcie používáme funkci R \texttt{rnorm}, která generuje normálně rozdělená náhodná čísla.
   Pro všechny opce je použit jednotný počet simulací: 25 000. Tento počet simuací balancuje přesnost a čas na výpočet, který i při tomto počtu simulací je proti ostatním metodám znatelně delší.
   Pro zvýšení přesnosti používáme metodu antitetických proměnných.
 
   Implementace pro evropské opce je opět prostá: Pokud se nacházíme v dnu expirace, hodnota se rovná výplatě z využití. V opačném případě vygenerujeme potenciální vývoje cen, vypočteme výplaty a zprůměrujeme.
 
+  Implementace pro americké opce postupuje dle Longstaffova-Schwartzova postupu v sekci \ref{sec:mc_ls}, s jedním implementačním detailem: Abychom se vyvarovali nestabilní regresi, přeskakujeme výpočet pokračovací hodnoty v případech, kde je méně než 100 ITM cest. V opačném případě hrozí že regresovaný polynom bude mít extrémní tvar, a silně zkreslí výsledky.
 
+  Celkový výpočet probíhá paralelně na všech jádrech CPU, skrze knihovny \textt{future} a \textt{furrr}. Pro reprodukovatelnost seed pro danou počítanou opci na daném jádře je vždy 42.
 
   \chapter{Závěr}
 

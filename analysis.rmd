@@ -368,7 +368,10 @@ mc_american_call <- function(S, K, T, sigma, r, q = 0) {
 
       itm_mask <- x_raw > K
 
-      if (sum(itm_mask) < 100) next
+      if (sum(itm_mask) < 100) {
+        CF <- CF * exp(-r * dt)
+        next
+      }
 
       y <- exp(-r * dt) * CF[itm_mask]
 
@@ -413,7 +416,10 @@ mc_american_put <- function(S, K, T, sigma, r, q = 0) {
 
       itm_mask <- x_raw < K
 
-      if (sum(itm_mask) < 100) next
+      if (sum(itm_mask) < 100) {
+        CF <- CF * exp(-r * dt)
+        next
+      }
 
       y <- exp(-r * dt) * CF[itm_mask]
 
@@ -466,13 +472,13 @@ t_crr <- system.time({
   usa_call_chains <- usa_call_chains %>%
     mutate(user_crr = future_map_dbl(
       row_number(),
-      ~ CRRBinomialTreeOption(TypeFlag = "ca", S = S[.x], X = K[.x], Time = T[.x], r = r[.x], b = r[.x], sigma = sigma[.x], n = 100)@price
+      ~ CRRBinomialTreeOption(TypeFlag = "ca", S = S[.x], X = K[.x], Time = T[.x], r = r[.x], b = r[.x] - q[.x], sigma = sigma[.x], n = 100)@price
     ))
   
   usa_put_chains <- usa_put_chains %>%
     mutate(user_crr = future_map_dbl(
       row_number(),
-      ~ CRRBinomialTreeOption(TypeFlag = "pa", S = S[.x], X = K[.x], Time = T[.x], r = r[.x], b = r[.x], sigma = sigma[.x], n = 100)@price
+      ~ CRRBinomialTreeOption(TypeFlag = "pa", S = S[.x], X = K[.x], Time = T[.x], r = r[.x], b = r[.x] - q[.x], sigma = sigma[.x], n = 100)@price
     ))
   
   euro_call_chains <- euro_call_chains %>%
