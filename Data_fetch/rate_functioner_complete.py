@@ -5,6 +5,22 @@ import numpy as np
 from datetime import datetime
 from typing import Dict, Optional
 
+COLUMN_MAPPING = {
+    "historical_volatility": "sigma",
+    "treasury_rate": "r",
+    "current_stock_price": "S",
+    "strike": "K",
+    "dividend_yield": "q",
+    "lastPrice": "option_price",
+    "bid": "bid_price",
+    "ask": "ask_price",
+    "volume": "volume",
+    "openInterest": "open_interest",
+    "Ticker": "ticker",
+    "Expiration": "expiration",
+    "Type": "option_type",
+}
+
 
 class RateFuncer:
     def __init__(self, rates_file: str = "rates.txt"):
@@ -457,6 +473,9 @@ class EnhancedOptionsProcessor:
         # Add stock data
         df = self.rate_funcer.add_stock_data_to_options(df, self.stock_calculator, self.target_date)
 
+        # Rename columns to Greek notation
+        df = df.rename(columns=COLUMN_MAPPING)
+
         return df
 
 
@@ -503,7 +522,7 @@ if __name__ == "__main__":
 
         for option_type in ["european", "american"]:
             input_file = f"./{option_type}_options_{month['date_suffix']}.csv"
-            output_file = f"./{option_type}_options_{month['date_suffix']}_enhanced.csv"
+            output_file = f"./{option_type}_options_{month['date_suffix']}_greeks.csv"
 
             if not os.path.exists(input_file):
                 print(f"  Warning: {input_file} not found, skipping...")
@@ -514,8 +533,8 @@ if __name__ == "__main__":
             print(f"  Processed {len(options_df)} {option_type} options -> {output_file}")
 
             sample_cols = [
-                "Ticker", "Expiration", "strike", "treasury_rate",
-                "current_stock_price", "historical_volatility", "dividend_yield",
+                "ticker", "expiration", "K", "r",
+                "S", "sigma", "q",
             ]
             print(f"  Sample:")
             print(options_df[sample_cols].head(3).to_string(index=False))

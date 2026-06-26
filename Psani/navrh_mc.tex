@@ -1,0 +1,40 @@
+% Návrh sekce "Monte Carlo" – implementační detaily
+% Předpokládá, že teorie MC a LSM je již vysvětlena dříve
+
+\subsection{Monte Carlo}
+
+\subsubsection{Nastavení simulace}
+
+Počet simulací byl zvolen \(N = 25\,000\) jako kompromis mezi přesností odhadu (směrodatná odchylka klesá s \(1/\sqrt{N}\)) a výpočetní náročností. Pro snížení rozptylu byla použita metoda antitetických proměnných – z každé sady \(N/2\) nezávislých \(\mathcal{N}(0,1)\) je vytvořena druhá sada aditivní inverzí, čímž vzniká \(N\) vzájemně záporně korelovaných realizací \citep[Kapitola~4.2]{Glasserman2004}.
+
+\subsubsection{Evropské opce}
+
+Pro evropské opce postačuje simulovat pouze cenu v čase expirace (funkce \texttt{mc\_sim\_pathless}). Ta je generována geometrickým Brownovým pohybem:
+
+\[
+S_T = S \exp\!\left((r - q - \tfrac{1}{2}\sigma^2)T + \sigma\sqrt{T}\,Z\right), \quad Z \sim \mathcal{N}(0,1).
+\]
+
+Odhad ceny je diskontovaný průměr výplat napříč všemi realizacemi:
+
+\[
+C \approx e^{-rT} \frac{1}{N} \sum_{i=1}^{N} \max(S_T^{(i)} - K, 0), \qquad
+P \approx e^{-rT} \frac{1}{N} \sum_{i=1}^{N} \max(K - S_T^{(i)}, 0).
+\]
+
+\subsubsection{Americké opce – Longstaff-Schwartz}
+
+Pro americké opce je nutné simulovat celou trajektorii ceny (funkce \texttt{mc\_sim\_pathed}). Čas do expirace je rozdělen na týdenní kroky \(\Delta t = 1/52\); počet kroků je \(M = \max(1, \text{round}(T \cdot 52))\).
+
+Metoda Longstaff-Schwartz odhaduje v každém kroku pokračovací hodnotu regresí diskontovaných budoucích výplat na bázických funkcích aktuální ceny \citep{LongstaffSchwartz2001}. Jako bázické funkce byl zvolen kubický polynom \(\{1, X, X^2, X^3\}\) se standardizovanou cenou \(X = S/K\). Regrese je provedena pouze na cestách, kde je opce v penězích (ITM: \(S_k > K\) pro call, \(S_k < K\) pro put). Pokud je ITM cest méně než 100, regrese je přeskočena (kubická regrese na velmi malém vzorku by byla numericky nestabilní) a všechny výplaty jsou pouze diskontovány o \(e^{-r\Delta t}\).
+
+Algoritmus postupuje od data expirace k současnosti (zpětná indukce). V každém kroku je porovnána okamžitá výplata \(h_k(S_k)\) s pokračovací hodnotou \(\hat{C}(S_k)\) z regrese:
+\begin{itemize}
+  \item Pokud \(h_k(S_k) > \hat{C}(S_k)\), opce je uplatněna a CF je nahrazeno \(h_k(S_k)\).
+  \item V opačném případě je CF diskontováno a přeneseno do předchozího kroku.
+\end{itemize}
+Cena opce je průměr všech diskontovaných CF napříč cestami po dokončení zpětné indukce.
+
+\subsubsection{Výpočetní prostředí}
+
+Výpočet probíhal paralelizovaně přes všechna dostupná jádra CPU pomocí balíčků \texttt{future} a \texttt{furrr}. Každá opce byla zpracována samostatně na jednom jádře. Pro reprodukovatelnost byl nastaven seed \texttt{set.seed(42)}.

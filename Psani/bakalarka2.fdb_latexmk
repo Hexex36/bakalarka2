@@ -1,12 +1,12 @@
 # Fdb version 4
-["biber bakalarka2"] 1782394662.87055 "bakalarka2.bcf" "bakalarka2.bbl" "bakalarka2" 1782402895.45743 0
-  "bakalarka2.bcf" 1782402894.42405 139786 c0b11ae834b8301e4981aa03b80d7e40 "lualatex"
+["biber bakalarka2"] 1782394662.87055 "bakalarka2.bcf" "bakalarka2.bbl" "bakalarka2" 1782418226.31312 0
+  "bakalarka2.bcf" 1782418225.32008 139786 c0b11ae834b8301e4981aa03b80d7e40 "lualatex"
   "thesis.bib" 1782339464.91503 3993 50202d5c127497b0e098b2af921c2464 ""
   (generated)
   "bakalarka2.bbl"
   "bakalarka2.blg"
   (rewritten before read)
-["lualatex"] 1782402883.89852 "bakalarka2.tex" "bakalarka2.pdf" "bakalarka2" 1782402895.45798 2
+["lualatex"] 1782418214.74253 "bakalarka2.tex" "bakalarka2.pdf" "bakalarka2" 1782418226.31367 0
   "/etc/texmf/tex/generic/config/language.dat" 1775415801 2774 23432d78ba890d76256b3f33c553a888 ""
   "/etc/texmf/tex/generic/config/language.dat.lua" 1775415801 1493 0cf75b944ee4f3579780f7adace81c20 ""
   "/home/matej/.texlive/texmf-var/luatex-cache/generic/fonts/hb/062c5352532e8e3f15b9c33cbb9c6500a94e4eeeddd357d6bbe30511b9050754.luc" 1776984476.74431 90645 b1917e77675a1cc34a4de609a9e251a7 ""
@@ -240,11 +240,11 @@
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1780226728 5385779 47c0c393a77fd4a098bacfd57d66b88a ""
   "/var/lib/texmf/web2c/luahbtex/lualatex.fmt" 1780226639 5659738 57ea8c91456e716429b235e8061dabe1 ""
   "LOGO_PRF_CZ_RGB_standard.jpg" 1779085239.53794 68207 42e9215e5a3b51f4a5d7e51b7c017441 ""
-  "bakalarka2.aux" 1782402894.38505 41347 dc0007dc83f12baf6fc5b96a70a2a2ba "lualatex"
+  "bakalarka2.aux" 1782418225.28708 41639 1cda251e85fdcd68049b0c0b3549a768 "lualatex"
   "bakalarka2.bbl" 1782394664.37204 42054 4400f02c04fb6ce5532dc10126654f8d "biber bakalarka2"
-  "bakalarka2.run.xml" 1782402894.42697 2596 746b3b729dc0ef0d9075046bbe1d0f8b "lualatex"
-  "bakalarka2.tex" 1782402881.88805 102104 af2de5b5584bf09ea4f4f9813fea0310 ""
-  "bakalarka2.toc" 1782402894.42705 5469 4532d166c81e81b0e082e593b4006453 "lualatex"
+  "bakalarka2.run.xml" 1782418225.32278 2596 746b3b729dc0ef0d9075046bbe1d0f8b "lualatex"
+  "bakalarka2.tex" 1782418214.65508 104428 84952cfbdef1d91e59778e14ebac1120 ""
+  "bakalarka2.toc" 1782418225.32278 5470 b578570b611cdb0cfddeaac2c0eaa636 "lualatex"
   "kitheses.cls" 1781721616.00964 2600 f1349da43554586dcacdd1794eac1ada ""
   (generated)
   "bakalarka2.aux"

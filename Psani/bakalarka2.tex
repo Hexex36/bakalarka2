@@ -504,7 +504,7 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
 
   Pro modely, využívající simulace vývojů cen akcií můžeme tuto diskrétní dividendu modelovat napřímo. Generování cest pro binomické stromy a Monte Carlo probereme v jejich vlastních sekcích, nicméně máme-li opci, která vyplácí dividendu, můžeme pro generované cesty pouze v daný den snížit promítanou hodnotu opce o hodnodtu vyplácené dividendy. Tímto mírně zpomalíme algoritmus řešící ohodnocení opcí, nicméně zpomalení by nemělo být zásadní. Opět, toto není vhodné pro opce s předčasným využitím, nicméně zde existuje potenciální možnost v den vyplácení dividendy přičíst vyplácenou dividendu k celkové výplatě, čímž ji promítneme do hodnoty opce. Tímto přístupem zpomalíme výpočet hodnoty značněji než u pouhého odečítání od hodnoty akcie.
 
-  V rámci jednotnosti a limitací (předchozí metody jsou nevyužitelné pro Black-Scholes a metodu z knihovny fOptions pro binomické stromy), využijeme jako odhad spojité dividendové míry pro ohodnocovací metody odhad, získaný analýzou předchozího období (viz \ref{sec:hist_vol})
+  V rámci jednotnosti a limitací (předchozí metody jsou nevyužitelné pro Black-Scholes a metodu z knihovny fOptions pro binomické stromy), využijeme jako odhad spojité dividendové míry pro ohodnocovací metody odhad získaný analýzou předchozího období (viz \ref{sec:hist_vol}). Pro potřeby této práce je toto dostačující.
 
   \subsection{Geometrický Brownův pohyb}
 
@@ -1402,7 +1402,7 @@ Německé indexové opce (\^{}XDA{}--\^{}XDN) mají v datasetu velmi omezený po
 
   Opakovaná měření umožňují zachytit vývoj tržních podmínek a otestovat citlivost modelů na změnu ceny podkladového aktiva a bezrizikové úrokové míry. Při dotazování na API byl dodržován odstup nejméně 0,5~s mezi požadavky na různé tickery a 1~s mezi jednotlivými expiracemi, aby nedošlo k zablokování ze strany serveru.
 
-  \subsubsection{Zpracování dat}
+  \subsection{Zpracování dat}
 
   Ze stažených dat chybí následující parametry: Volatilita, dividednový výnos a bezriziková úroková míra.
 
@@ -1420,19 +1420,51 @@ Německé indexové opce (\^{}XDA{}--\^{}XDN) mají v datasetu velmi omezený po
 
   Bezriziková úroková míra \(r\) byla získána z výnosů amerických státních dluhopisů (U.S. Treasury), konkrétně z Daily Treasury Par Yield Curve.\footnote{Dostupné z \url{https://home.treasury.gov/resource-center/data-chart-center/interest-rates}} Pro splatnosti odpovídající jednotlivým expiracím opcí byla úroková míra dopočtena lineární interpolací mezi dvěma nejbližšími publikovanými výnosy.
 
-  \subsubsection{Sestavení datasetu}
+\subsubsection{Sestavení datasetu}
 
-  %TODO: Jít víc do detailu. Popsat celý pipeline.
+Data prošla dvěma fázemi zpracování – nejprve v jazyce Python, poté v jazyce R.
 
-  Data prošla několika fázemi zpracování:
-  \begin{enumerate}
-    \item \textbf{Python skripty:} stažení opčních řetězců a historických cen, výpočet volatility a dividendového výnosu, přiřazení bezrizikových úrokových měr k jednotlivým opcím a výpočet Greeks (delta, gamma, theta, vega, rho).
-    \item \textbf{R skripty:} sestavení kompletního datasetu ze všech měření, dopočet chybějících veličin (čas do expirace \(T\), poměr \(K/S\)), filtrování a sumarizace.
-  \end{enumerate}
+\bigskip
+\noindent\textbf{Fáze 1: Python (stažení a předzpracování)}
 
-  Výsledný dataset obsahuje 168~996 opčních kontraktů na 12 amerických akcií a 6 evropských indexů. Čas do expirace \(T\) se pohybuje od 0 do 2{,}8~let a strike ceny \(K\) v rozmezí 0{,}50 až 5~000 jednotek.
+Python skripty obstarávají komunikaci s API serveru Yahoo Finance a základní předzpracování dat. Všechny skripty jsou na sobě nezávislé a spouštějí se samostatně:
 
-  Python skripty pro stažení a předzpracování dat byly vytvořeny za pomoci generativní umělé inteligence a následně ručně zkontrolovány a upraveny. Veškeré navazující výpočty a analýzy jsou napsány v jazyce R. Všechny skripty jsou přiloženy k práci.
+\begin{enumerate}
+  \item \texttt{price\_fetcher.py} stáhne pro všechny tickery historické denní uzavírací ceny a dividendy za poslední rok. Výstupem je soubor \texttt{stock\_prices\_YYYY-MM-DD.csv}.
+  \item \texttt{options\_fetcher\_final.py} stáhne kompletní opční řetězce pro všechny tickery. Ke každé opci ukládá strike cenu, typ (call/put), ceny (bid, ask, lastPrice), objem a open interest. Výstupem jsou soubory \texttt{american\_options\_YYYY-MM-DD.csv} a \texttt{european\_options\_YYYY-MM-DD.csv}.
+  \item \texttt{rate\_functioner\_complete.py} provádí kompletní předzpracování – načte raw opční data a ke každé opci dopočítá a přiřadí:
+    \begin{itemize}
+      \item bezrizikovou úrokovou míru \(r\) z výnosů U.S. Treasury (lineární interpolace podle splatnosti),
+      \item aktuální cenu akcie \(S\) z historických cen,
+      \item historickou volatilitu \(\sigma\) z denních logaritmických výnosů,
+      \item spojitý dividendový výnos \(q\) z historických dividend.
+    \end{itemize}
+    Zároveň přejmenuje sloupce do konzistentní notace (např. \texttt{historical\_volatility} $\to$ \texttt{sigma}, \texttt{current\_stock\_price} $\to$ \texttt{S}). Výstupem jsou soubory \texttt{american\_options\_YYYY-MM-DD\_greeks.csv} a \texttt{european\_options\_YYYY-MM-DD\_greeks.csv}.
+\end{enumerate}
+
+Tato fáze se opakuje pro každý termín sběru dat (leden, únor, březen, květen). Výstupem je sada CSV souborů pro každé měření.
+
+\bigskip
+\noindent\textbf{Fáze 2: R (sestavení a enrichování datasetu)}
+
+R skripty načtou výstupy z Python fáze a sestaví z nich jednotný dataset:
+
+\begin{enumerate}
+  \item \texttt{data\_processing.rmd} načte pro každý termín sběru:
+    \begin{itemize}
+      \item stock prices (pro výpočet \(S_{\text{no dividend}}\)),
+      \item greeks data (obsahuje všechny potřebné parametry i tržní ceny).
+    \end{itemize}
+  \item Spočte čas do expirace \(T\) jako \(\text{dny mezi datem sběru a expirací} / 365\).
+  \item Vytvoří sloupec \texttt{S\_no\_dividend} (cena akcie navýšená o vyplacené dividendy za poslední rok) pro použití v modelech, které dividendy nezohledňují.
+  \item Vypočte poměr \(K/S\) (moneyness) pro snazší kategorizaci opcí.
+  \item Sjednotí data ze všech čtyř měření do jednoho datasetu a uloží jej jako \texttt{complete\_dataset.csv}.
+\end{enumerate}
+
+Výsledný dataset obsahuje 168~996 opčních kontraktů na 12 amerických akcií a 6 evropských indexů. Čas do expirace \(T\) se pohybuje od 0 do 2{,}8~let a strike ceny \(K\) v rozmezí 0{,}50 až 5~000 jednotek.
+
+\bigskip
+\noindent\textbf{Poznámka k tvorbě skriptů:} Python skripty pro stažení a předzpracování dat byly vytvořeny za pomoci generativní umělé inteligence a následně ručně zkontrolovány a upraveny. Veškeré navazující výpočty a analýzy v jazyce R jsou napsány výhradně autorem práce. Všechny skripty jsou přiloženy k práci.
 
   \section{Implementace oceňovacích metod}
 
@@ -1507,7 +1539,7 @@ Německé indexové opce (\^{}XDA{}--\^{}XDN) mají v datasetu velmi omezený po
 
   Implementace pro americké opce postupuje dle Longstaffova-Schwartzova postupu v sekci \ref{sec:mc_ls}, s jedním implementačním detailem: Abychom se vyvarovali nestabilní regresi, přeskakujeme výpočet pokračovací hodnoty v případech, kde je méně než 100 ITM cest. V opačném případě hrozí že regresovaný polynom bude mít extrémní tvar, a silně zkreslí výsledky.
 
-  Celkový výpočet probíhá paralelně na všech jádrech CPU, skrze knihovny \textt{future} a \textt{furrr}. Pro reprodukovatelnost seed pro danou počítanou opci na daném jádře je vždy 42.
+  Celkový výpočet probíhá paralelně na všech jádrech CPU, skrze knihovny \texttt{future} a \texttt{furrr}. Pro reprodukovatelnost seed pro danou počítanou opci na daném jádře je vždy 42.
 
   \chapter{Závěr}
 

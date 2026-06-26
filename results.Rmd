@@ -1,0 +1,336 @@
+# Setup
+
+```{r setup}
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+```
+
+# Loading Pre-computed Prices
+
+```{r load-data}
+am_calls <- read_csv("calculated_prices/american_calls.csv") %>% mutate(category = "American Call")
+am_puts  <- read_csv("calculated_prices/american_puts.csv")  %>% mutate(category = "American Put")
+eu_calls <- read_csv("calculated_prices/european_calls.csv") %>% mutate(category = "European Call")
+eu_puts  <- read_csv("calculated_prices/european_puts.csv")  %>% mutate(category = "European Put")
+all_options <- bind_rows(am_calls, am_puts, eu_calls, eu_puts)
+```
+
+# Data Verification
+
+```{r verification}
+cat("=== Row counts per category ===\n")
+print(all_options %>% count(category))
+
+cat("\n=== NA counts per method ===\n")
+na_counts <- all_options %>%
+  group_by(category) %>%
+  summarise(
+    n = n(),
+    bs_na = sum(is.na(user_bs)),
+    crr_na = sum(is.na(user_crr)),
+    mc_na = sum(is.na(user_mc)),
+    .groups = "drop"
+  )
+print(na_counts)
+
+cat("\n=== Price summary (mean +/- sd) ===\n")
+summary_stats <- all_options %>%
+  group_by(category) %>%
+  summarise(
+    market = sprintf("%.2f +/- %.2f", mean(option_price, na.rm = TRUE), sd(option_price, na.rm = TRUE)),
+    bs     = sprintf("%.2f +/- %.2f", mean(user_bs, na.rm = TRUE), sd(user_bs, na.rm = TRUE)),
+    crr    = sprintf("%.2f +/- %.2f", mean(user_crr, na.rm = TRUE), sd(user_crr, na.rm = TRUE)),
+    mc     = sprintf("%.2f +/- %.2f", mean(user_mc, na.rm = TRUE), sd(user_mc, na.rm = TRUE)),
+    .groups = "drop"
+  )
+print(summary_stats)
+```
+
+# Validation Plots
+
+```{r validation-scatter}
+plot_data <- all_options %>%
+  select(category, option_price, user_bs, user_crr, user_mc) %>%
+  pivot_longer(
+    cols = c(user_bs, user_crr, user_mc),
+    names_to = "method",
+    values_to = "model_price"
+  ) %>%
+  mutate(method = recode(method,
+    user_bs  = "Black-Scholes",
+    user_crr = "CRR Binomial (n=100)",
+    user_mc  = "Monte Carlo (25k)"
+  ))
+
+ggplot(plot_data, aes(x = option_price, y = model_price)) +
+  geom_point(alpha = 0.05, size = 0.2) +
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray50") +
+  facet_grid(category ~ method, scales = "free") +
+  labs(
+    x = "Market Price",
+    y = "Model Price",
+    title = "Model Prices vs Market Prices"
+  ) +
+  theme_minimal()
+```
+
+```{r contour-plot}
+contour_data <- all_options %>%
+  mutate(moneyness = S / K) %>%
+  select(category, moneyness, T, option_price, user_bs, user_crr, user_mc) %>%
+  pivot_longer(
+    cols = c(user_bs, user_crr, user_mc),
+    names_to = "method",
+    values_to = "model_price"
+  ) %>%
+  mutate(
+    pricing_error = option_price - model_price,
+    method = recode(method,
+      user_bs  = "Black-Scholes",
+      user_crr = "CRR Binomial (n=100)",
+      user_mc  = "Monte Carlo (25k)"
+    )
+  )
+
+ggplot(contour_data, aes(x = moneyness, y = T, z = pricing_error)) +
+  geom_contour_filled(aes(fill = after_stat(level)), bins = 20) +
+  facet_grid(category ~ method, scales = "free") +
+  scale_fill_viridis_d(name = "Pricing Error\n(Market - Model)") +
+  labs(
+    x = "Moneyness (S/K)",
+    y = "Time to Expiration (T)",
+    title = "Pricing Error by Moneyness and Time to Expiration"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "right")
+```
+
+# Analysis of mistakes
+
+Validační mřížka poukazuje na velké chyby v... něčem.
+
+- Americké call: Tlusté, chlupaté kolem přímky ideální trefy (silná nepřesnost modelů). Spoustu hodnotných opcí ohodnocených jako bezcenné.
+- American put: Opět chlupaté kolem přímky ideální trefy. Křivka se dělí na dvě části, kde opce se (skoro) nulovou hodnotou silně přehodnocují. Další opce se také přehodnocují, ale o konstantně vypadající množství.
+- Evropské call: Silně nepřesné. U nízkých hodnot nepřesnosti v obou směrech, ve velmi hodnotných opcích přehodnocujeme.
+- Evropské put: Silně nepřesné. U nízkých hodnot nepřesnosti v obou směrech, ve velmi hodnotných opcích podhodnocujeme.
+
+Nicméně, výsledky pro všechny modely vypadají přinejmenším srovnatelně, tudíž by chyba neměla být v jednotlivých implementacích. Kde se nejvíc lišíme? Bezriziková úroková míra? Dividenda? Čas do expirace?
+
+Dle evropských opcí to vypadá, že naše očekávání o růstu akcie je přehnané. Chyba bude v čase expirace nebo bezrizikové úrokové míře?
+
+```{r mistake-summary}
+library(knitr)
+
+errors_data <- all_options %>%
+  mutate(
+    bs_bias      = option_price - user_bs,
+    bs_abs_error = abs(bs_bias),
+    bs_rel_error = bs_abs_error / option_price,
+    crr_bias      = option_price - user_crr,
+    crr_abs_error = abs(crr_bias),
+    crr_rel_error = crr_abs_error / option_price,
+    mc_bias      = option_price - user_mc,
+    mc_abs_error = abs(mc_bias),
+    mc_rel_error = mc_abs_error / option_price
+  )
+
+# Summary per category
+errors_summary <- errors_data %>%
+  group_by(category) %>%
+  summarise(
+    n = n(),
+    bs_mae   = mean(bs_abs_error, na.rm = TRUE),
+    bs_rmse  = sqrt(mean(bs_bias^2, na.rm = TRUE)),
+    bs_bias  = mean(bs_bias, na.rm = TRUE),
+    bs_mre   = median(bs_rel_error, na.rm = TRUE),
+    crr_mae  = mean(crr_abs_error, na.rm = TRUE),
+    crr_rmse = sqrt(mean(crr_bias^2, na.rm = TRUE)),
+    crr_bias = mean(crr_bias, na.rm = TRUE),
+    crr_mre  = median(crr_rel_error, na.rm = TRUE),
+    mc_mae   = mean(mc_abs_error, na.rm = TRUE),
+    mc_rmse  = sqrt(mean(mc_bias^2, na.rm = TRUE)),
+    mc_bias  = mean(mc_bias, na.rm = TRUE),
+    mc_mre   = median(mc_rel_error, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+knitr::kable(errors_summary, digits = 4, caption = "Souhrn chyb odhadů")
+
+# Top 5 nejhorších absolutních chyb na kategorii
+top_errors <- errors_data %>%
+  group_by(category) %>%
+  slice_max(bs_abs_error, n = 5) %>%
+  select(category, ticker, option_price, K, S, T, user_bs, user_crr, user_mc, bs_abs_error, crr_abs_error, mc_abs_error)
+
+knitr::kable(top_errors, digits = 2, caption = "Top 5 nejhorších absolutních chyb (BS) na kategorii")
+```
+
+
+# Analysis of Calculated Prices
+
+## Method Comparison by Regime
+
+```{r method-comparison-regime}
+library(knitr)
+
+all_options <- all_options %>%
+  mutate(
+    moneyness_regime = case_when(
+      S / K < 0.95 ~ "OTM",
+      S / K <= 1.05 ~ "ATM",
+      TRUE ~ "ITM"
+    ),
+    time_regime = case_when(
+      T <= 0.1 ~ "Short (T <= 0.1)",
+      T <= 0.5 ~ "Medium (0.1 < T <= 0.5)",
+      TRUE ~ "Long (T > 0.5)"
+    )
+  )
+
+regime_errors <- all_options %>%
+  pivot_longer(
+    cols = c(user_bs, user_crr, user_mc),
+    names_to = "method",
+    values_to = "model_price"
+  ) %>%
+  mutate(
+    error = option_price - model_price,
+    abs_error = abs(error),
+    squared_error = error^2,
+    method = recode(method,
+      user_bs = "Black-Scholes",
+      user_crr = "CRR Binomial (n=100)",
+      user_mc = "Monte Carlo (25k)")
+  ) %>%
+  group_by(category, method, moneyness_regime, time_regime) %>%
+  summarise(
+    MAE  = mean(abs_error, na.rm = TRUE),
+    RMSE = sqrt(mean(squared_error, na.rm = TRUE)),
+    Bias = mean(error, na.rm = TRUE),
+    n    = n(),
+    .groups = "drop"
+  )
+
+knitr::kable(regime_errors, digits = 4, caption = "Pricing Errors by Moneyness and Time Regime")
+
+# Heatmap of MAE
+regime_errors %>%
+  mutate(moneyness_regime = factor(moneyness_regime, c("OTM", "ATM", "ITM"))) %>%
+  ggplot(aes(x = moneyness_regime, y = time_regime, fill = MAE)) +
+  geom_tile() +
+  geom_text(aes(label = sprintf("%.2f", MAE)), size = 2.5) +
+  facet_grid(category ~ method) +
+  scale_fill_viridis_c() +
+  labs(
+    x = "Moneyness",
+    y = "Time to Expiration",
+    title = "Mean Absolute Error by Regime",
+    fill = "MAE"
+  ) +
+  theme_minimal()
+```
+
+## Volatility Sensitivity Curves
+
+```{r volatility-sensitivity}
+vol_sens_data <- all_options %>%
+  pivot_longer(
+    cols = c(user_bs, user_crr, user_mc),
+    names_to = "method",
+    values_to = "model_price"
+  ) %>%
+  mutate(
+    pricing_error = option_price - model_price,
+    method = recode(method,
+      user_bs = "Black-Scholes",
+      user_crr = "CRR Binomial (n=100)",
+      user_mc = "Monte Carlo (25k)")
+  )
+
+ggplot(vol_sens_data, aes(x = sigma, y = pricing_error, color = method)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray50", linewidth = 0.5) +
+  geom_smooth(se = FALSE, linewidth = 1) +
+  facet_wrap(~category, scales = "free_y") +
+  labs(
+    x = "Volatility (sigma)",
+    y = "Pricing Error (Market - Model)",
+    title = "Pricing Error vs Volatility",
+    color = "Method"
+  ) +
+  theme_minimal()
+
+ggplot(vol_sens_data, aes(x = T, y = pricing_error, color = method)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray50", linewidth = 0.5) +
+  geom_smooth(se = FALSE, linewidth = 1) +
+  facet_wrap(~category, scales = "free_y") +
+  labs(
+    x = "Time to Expiration (T)",
+    y = "Pricing Error (Market - Model)",
+    title = "Pricing Error vs Time to Expiration",
+    color = "Method"
+  ) +
+  theme_minimal()
+```
+
+## Time Decay Analysis
+
+```{r time-decay-analysis}
+time_decay_data <- all_options %>%
+  select(category, T, moneyness_regime, option_price, user_bs, user_crr, user_mc) %>%
+  pivot_longer(
+    cols = c(option_price, user_bs, user_crr, user_mc),
+    names_to = "source",
+    values_to = "price"
+  ) %>%
+  mutate(
+    source = recode(source,
+      option_price = "Market",
+      user_bs = "Black-Scholes",
+      user_crr = "CRR Binomial (n=100)",
+      user_mc = "Monte Carlo (25k)")
+  )
+
+ggplot(time_decay_data, aes(x = T, y = price, color = source)) +
+  geom_smooth(se = FALSE, linewidth = 1) +
+  facet_grid(category ~ moneyness_regime, scales = "free_y") +
+  labs(
+    x = "Time to Expiration (T)",
+    y = "Option Price",
+    title = "Time Decay: Price vs Time to Expiration by Moneyness",
+    color = "Source"
+  ) +
+  theme_minimal()
+```
+
+## Method Agreement Scatter
+
+```{r method-agreement-scatter}
+pairs_data <- all_options %>%
+  select(category, moneyness_regime, user_bs, user_crr, user_mc)
+
+bind_rows(
+  pairs_data %>%
+    select(category, moneyness_regime, x = user_bs, y = user_crr) %>%
+    mutate(pair = "BS vs CRR"),
+  pairs_data %>%
+    select(category, moneyness_regime, x = user_bs, y = user_mc) %>%
+    mutate(pair = "BS vs MC"),
+  pairs_data %>%
+    select(category, moneyness_regime, x = user_crr, y = user_mc) %>%
+    mutate(pair = "CRR vs MC")
+) %>%
+  ggplot(aes(x = x, y = y, color = moneyness_regime)) +
+  geom_point(alpha = 0.05, size = 0.2) +
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray50", linewidth = 0.5) +
+  facet_grid(category ~ pair, scales = "free") +
+  scale_color_manual(values = c("OTM" = "#E41A1C", "ATM" = "#4DAF4A", "ITM" = "#377EB8")) +
+  labs(
+    x = "Model 1",
+    y = "Model 2",
+    title = "Method Agreement",
+    color = "Moneyness"
+  ) +
+  theme_minimal()
+```
