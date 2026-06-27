@@ -1541,6 +1541,66 @@ Výsledný dataset obsahuje 168~996 opčních kontraktů na 12 amerických akci�
 
   Celkový výpočet probíhá paralelně na všech jádrech CPU, skrze knihovny \texttt{future} a \texttt{furrr}. Pro reprodukovatelnost seed pro danou počítanou opci na daném jádře je vždy 42.
 
+  \section{Ověření správnosti}
+
+  Pro ověření správnosti modelu je nutno analyzovat rozdíly mezi vypočtenými odhady cen a reálnými cenami na trzích. 
+
+  Graf \ref{img:god_help_me} ukazuje odchylky odhadů z použitých metod od reálných cen opcí. Již na první pohled jde poznat, že něco je špatně.
+  Body ve všech podgrafech tvoří tlusté křivky, což značí nepřesnosti. % TODO: Lépe formulovat
+  Mimo to, všechny grafy mají velmi atypické křivky:
+
+  \begin{itemize}
+    \item Americká call: Dvě "větve", jedna skupina opcí následuje přímku ideální shody, jedna větev přiděluje opcím nulovou cenu, byť cena opce na trhu je nenulová.
+    \item Americká put: Dvě větve, jedna skupina opcí následuje přímu ideální shody, jedna větev dává opcím, které trh považuje za bezecenné vyšší cenu, a následně přibližně napodobuje směřování přímky ideální shody (tyto opce jsou přeceněny).
+    \item Evropská call: Opce jsou většinově přehodnocovány.
+    \item Evropská put: Opce jsou většinově podhodnocovány.
+  \end{itemize}
+
+  \begin{figure}[h]
+    \centering
+    \scalebox{0.5}{\includegraphics{./figures/validation-scatter_all.pdf}}
+    \label{img:god_help_me}
+    \caption{Rozdíl mezi vypočtenými a reálnými hodnotami opcí}
+  \end{figure}
+
+  Poněvadž se všechny křivky pro stejné typy opcí shodují přes ohodnocovací metody, dá se teoretizovat, že chyby spočívají v datech. Pro potvrzení vykreslíme rozdíly mezi jednotlivými metodami. 
+
+  \begin{figure}[h]
+    \centering
+    \scalebox{0.5}{\includegraphics{./figures/method-agreement.pdf}}
+    \label{img:i_cannot_be_helped}
+    \caption{Odchylky odhadů pro jednotlivé metody}
+  \end{figure}
+
+  Graf \ref{img:i_cannot_be_helped} ukazuje, že odchylky všech metod od sebe jsou miniskulní. V rámci tohoto můžeme s relativní jistotou říci, že chyba je v připravených datech. Kvůli přehodnocení evropských call opcí a podhodnocení evropských put opcí můžeme spekulovat, že problém je mezi proměnnými $r$, $q$ ,$\sigma$ a $T$. 
+
+  V rámci následné analýzy byl vykreslen graf \ref{img:title_errors} vypisující velikost chyby pro daný titul.
+
+  \begin{figure}[h]
+    \centering
+    \scalebox{0.5}{\includegraphics{./figures/error-by-ticker_all.pdf}}
+    \label{img:title_errors}
+    \caption{Průměrná chyba v rámci titulů}
+  \end{figure}
+
+  Zde můžeme vidět, že pro americké opce, tituly NVDA a NFLX mají znatelně větší chybu, než ostatní tituly, a podobně odhlehlá je míra chyb pro titul \^RUT. Toto naznačuje, že ohodnocení pro tyto opce je z nějakého důvodu chybové. Pro dosavadní účely práce tyto tituly vynecháme.
+
+  Vykreslíme-li
+
+  \begin{figure}[h]
+    \centering
+    \scalebox{0.5}{\includegraphics{./figures/validation-scatter.pdf}}
+    \label{img:god_help_me_2}
+    \caption{Rozdíl mezi vypočtenými a reálnými hodnotami opcí bez problematických titulů}
+  \end{figure}
+
+  % TODO: Další diagnostika
+
+  \section{Senzitivita opcí vůči volatilitě}
+
+
+
+
   \chapter{Závěr}
 
   \printbibliography

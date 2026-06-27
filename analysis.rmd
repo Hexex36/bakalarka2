@@ -459,10 +459,10 @@ t_bs <- system.time({
     mutate(user_bs = v_bs_american_put(S, K, r, sigma, T, q))
   
   euro_call_chains <- euro_call_chains %>%
-    mutate(user_bs = bs_european_call(S, K, r, sigma, T))
+    mutate(user_bs = bs_european_call(S, K, r, sigma, T, q))
   
   euro_put_chains <- euro_put_chains %>%
-    mutate(user_bs = bs_european_put(S, K, r, sigma, T))
+    mutate(user_bs = bs_european_put(S, K, r, sigma, T, q))
 })
 
 cat("Black-Scholes completed in:", round(t_bs["elapsed"], 2), "seconds\n")
@@ -472,25 +472,25 @@ t_crr <- system.time({
   usa_call_chains <- usa_call_chains %>%
     mutate(user_crr = future_map_dbl(
       row_number(),
-      ~ CRRBinomialTreeOption(TypeFlag = "ca", S = S[.x], X = K[.x], Time = T[.x], r = r[.x], b = r[.x] - q[.x], sigma = sigma[.x], n = 100)@price
+      ~ if (T[.x] <= 0) max(S[.x] - K[.x], 0) else CRRBinomialTreeOption(TypeFlag = "ca", S = S[.x], X = K[.x], Time = T[.x], r = r[.x], b = r[.x] - q[.x], sigma = sigma[.x], n = 100)@price
     ))
   
   usa_put_chains <- usa_put_chains %>%
     mutate(user_crr = future_map_dbl(
       row_number(),
-      ~ CRRBinomialTreeOption(TypeFlag = "pa", S = S[.x], X = K[.x], Time = T[.x], r = r[.x], b = r[.x] - q[.x], sigma = sigma[.x], n = 100)@price
+      ~ if (T[.x] <= 0) max(K[.x] - S[.x], 0) else CRRBinomialTreeOption(TypeFlag = "pa", S = S[.x], X = K[.x], Time = T[.x], r = r[.x], b = r[.x] - q[.x], sigma = sigma[.x], n = 100)@price
     ))
   
   euro_call_chains <- euro_call_chains %>%
     mutate(user_crr = future_map_dbl(
       row_number(),
-      ~ CRRBinomialTreeOption(TypeFlag = "ce", S = S[.x], X = K[.x], Time = T[.x], r = r[.x], b = r[.x], sigma = sigma[.x], n = 100)@price
+      ~ if (T[.x] <= 0) max(S[.x] - K[.x], 0) else CRRBinomialTreeOption(TypeFlag = "ce", S = S[.x], X = K[.x], Time = T[.x], r = r[.x], b = r[.x] - q[.x], sigma = sigma[.x], n = 100)@price
     ))
   
   euro_put_chains <- euro_put_chains %>%
     mutate(user_crr = future_map_dbl(
       row_number(),
-      ~ CRRBinomialTreeOption(TypeFlag = "pe", S = S[.x], X = K[.x], Time = T[.x], r = r[.x], b = r[.x], sigma = sigma[.x], n = 100)@price
+      ~ if (T[.x] <= 0) max(K[.x] - S[.x], 0) else CRRBinomialTreeOption(TypeFlag = "pe", S = S[.x], X = K[.x], Time = T[.x], r = r[.x], b = r[.x] - q[.x], sigma = sigma[.x], n = 100)@price
     ))
 })
 

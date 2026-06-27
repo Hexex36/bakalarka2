@@ -270,6 +270,14 @@ INPUT /usr/share/texmf-dist/fonts/tfm/public/amsfonts/symbols/msam5.tfm
 INPUT /usr/share/texmf-dist/fonts/tfm/public/amsfonts/symbols/msam5.tfm
 INPUT /usr/share/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm5.tfm
 INPUT /usr/share/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm5.tfm
+INPUT ./figures/validation-scatter_all.pdf
+INPUT ./figures/validation-scatter_all.pdf
+INPUT ./figures/method-agreement.pdf
+INPUT ./figures/method-agreement.pdf
+INPUT ./figures/error-by-ticker_all.pdf
+INPUT ./figures/error-by-ticker_all.pdf
+INPUT ./figures/validation-scatter.pdf
+INPUT ./figures/validation-scatter.pdf
 INPUT ./bakalarka2.aux
 INPUT ./bakalarka2.run.xml
 OUTPUT bakalarka2.run.xml
