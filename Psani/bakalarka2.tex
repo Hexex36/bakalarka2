@@ -11,6 +11,7 @@
 \documentclass[male,czech,api_bc]{kitheses}
 \usepackage{ifthen}
 \usepackage{booktabs}
+\usepackage{float}
 \usepackage{tablefootnote}
 
 \usepackage{amsmath,amssymb}
@@ -1585,25 +1586,39 @@ Výsledný dataset obsahuje 168~996 opčních kontraktů na 12 amerických akci�
 
   Zde můžeme vidět, že pro americké opce, tituly NVDA a NFLX mají znatelně větší chybu, než ostatní tituly, a podobně odhlehlá je míra chyb pro titul \^RUT. Toto naznačuje, že ohodnocení pro tyto opce je z nějakého důvodu chybové. Pro dosavadní účely práce tyto tituly vynecháme.
 
-  Vykreslíme-li
+  Vykreslíme-li graf \ref{img:god_help_me_2}, vidíme, že nyní shluky bodů vypadaj přirozeněji a napodobují mnohem víc přímku ideální shody. U amerických opcí nyní pozorujeme pouze jednu větev, a u evropských pozorujeme drastické snížení špatně hodnocených opcí. Nicméně, tímto jsme eliminovali podstatné množství zkoumaných opcí z opcí evropských. 
 
   \begin{figure}[h]
     \centering
-    \scalebox{0.5}{\includegraphics{./figures/validation-scatter.pdf}}
+    \scalebox{0.6}{\includegraphics{./figures/validation-scatter.pdf}}
     \label{img:god_help_me_2}
     \caption{Rozdíl mezi vypočtenými a reálnými hodnotami opcí bez problematických titulů}
   \end{figure}
 
-  % TODO: Další diagnostika
+  Komentář k grafu \ref{img:god_help_me_2}:
+
+  \begin{itemize}
+    \item Americká call: Dobrá silueta, mírně podhodnocují.
+    \item Americká put: Dobrá silueta, přehodnocují
+    \item Evropská call: Hodnoty se silně rozchází, většinově přehodnocujeme.
+    \item Evropská put: Dobře napodobuje přímku ideální shody. Naznačuje nedostatek dat.
+  \end{itemize}
+
+  Použití všech titulů nám dává zkreslená data, použití stabilních nám dává nedostatek. Proto v následujících sekcích práce budeme pozorovat primárně stabilní data, a kde to je odpovídající, doplníme daty kompletními.
 
   \section{Senzitivita opcí vůči volatilitě}
 
+  \section{Senzitivita opcí vůči času}
 
-
+  \section{Časová komplexita výpočtu opcí}
 
   \chapter{Závěr}
 
   \printbibliography
+  
+\appendix
+\chapter{Sumarizace titulů použitých při případových analýzách}
+\input{appendix_a.tex}
   
 \end{document}
 

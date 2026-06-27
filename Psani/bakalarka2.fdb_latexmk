@@ -1,12 +1,12 @@
 # Fdb version 4
-["biber bakalarka2"] 1782571775.92324 "bakalarka2.bcf" "bakalarka2.bbl" "bakalarka2" 1782571785.64735 0
-  "bakalarka2.bcf" 1782571784.75011 139786 c0b11ae834b8301e4981aa03b80d7e40 "lualatex"
+["biber bakalarka2"] 1782576460.60767 "bakalarka2.bcf" "bakalarka2.bbl" "bakalarka2" 1782583740.75382 0
+  "bakalarka2.bcf" 1782583739.12638 139786 c0b11ae834b8301e4981aa03b80d7e40 "lualatex"
   "thesis.bib" 1782339464.91503 3993 50202d5c127497b0e098b2af921c2464 ""
   (generated)
   "bakalarka2.bbl"
   "bakalarka2.blg"
   (rewritten before read)
-["lualatex"] 1782571777.44829 "bakalarka2.tex" "bakalarka2.pdf" "bakalarka2" 1782571785.64772 0
+["lualatex"] 1782583722.75637 "bakalarka2.tex" "bakalarka2.pdf" "bakalarka2" 1782583740.75466 0
   "/etc/texmf/tex/generic/config/language.dat" 1775415801 2774 23432d78ba890d76256b3f33c553a888 ""
   "/etc/texmf/tex/generic/config/language.dat.lua" 1775415801 1493 0cf75b944ee4f3579780f7adace81c20 ""
   "/home/matej/.texlive/texmf-var/luatex-cache/generic/fonts/hb/062c5352532e8e3f15b9c33cbb9c6500a94e4eeeddd357d6bbe30511b9050754.luc" 1776984476.74431 90645 b1917e77675a1cc34a4de609a9e251a7 ""
@@ -108,6 +108,7 @@
   "/usr/share/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty" 1775415801 13886 d1306dcf79a944f6988e688c1785f9ce ""
   "/usr/share/texmf-dist/tex/latex/etoolbox/etoolbox.sty" 1775415801 46885 8953c67ffba03252c6090aa19568b8ba ""
   "/usr/share/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty" 1775415801 31715 19e60610b63819fe670dfa1cd84a4e94 ""
+  "/usr/share/texmf-dist/tex/latex/float/float.sty" 1775415801 6749 16d2656a1984957e674b149555f1ea1d ""
   "/usr/share/texmf-dist/tex/latex/fontspec/fontspec-luatex.sty" 1775415801 153606 8c5fb6ea1ec6ccd2c7362602c0d29f5b ""
   "/usr/share/texmf-dist/tex/latex/fontspec/fontspec.cfg" 1775415801 549 c4adac819276241fea8eb79c5ab7b99e ""
   "/usr/share/texmf-dist/tex/latex/fontspec/fontspec.lua" 1775415801 3093 45d92459336621d00a54275cf3b7e6c6 ""
@@ -240,15 +241,16 @@
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1780226728 5385779 47c0c393a77fd4a098bacfd57d66b88a ""
   "/var/lib/texmf/web2c/luahbtex/lualatex.fmt" 1780226639 5659738 57ea8c91456e716429b235e8061dabe1 ""
   "LOGO_PRF_CZ_RGB_standard.jpg" 1779085239.53794 68207 42e9215e5a3b51f4a5d7e51b7c017441 ""
-  "bakalarka2.aux" 1782571784.72011 43840 de29cd90545d00eb306be03a53285427 "lualatex"
-  "bakalarka2.bbl" 1782571777.38511 42054 4400f02c04fb6ce5532dc10126654f8d "biber bakalarka2"
-  "bakalarka2.run.xml" 1782571784.7523 2596 1db3b65fcee7d4f32c7b496db04f652e "lualatex"
-  "bakalarka2.tex" 1782571742.73111 107522 1ae6df70bbe542aa0c2d43914dd85553 ""
-  "bakalarka2.toc" 1782571784.7523 5650 2dbb2e8a17788d18a108b125a4c06493 "lualatex"
-  "figures/error-by-ticker_all.pdf" 1782571244.79009 8357 1016372a6cf8d4634602a9e64c2de8ef ""
-  "figures/method-agreement.pdf" 1782569931.97707 13734931 28a3db7649d11bdbd502a6d968b32ffc ""
-  "figures/validation-scatter.pdf" 1782571773.16811 11022979 b50caddd3359c3f07a5a6832d4ebf6e5 ""
-  "figures/validation-scatter_all.pdf" 1782571687.5231 16236461 0cd9452a83e4d3d73ccac4a8fecb041b ""
+  "appendix_a.tex" 1782583704.89638 2789 07fdde66d02d1a63654cef3e11cd9dcd ""
+  "bakalarka2.aux" 1782583739.07238 48604 b755202c7247dc4c48125b412ad03e8d "lualatex"
+  "bakalarka2.bbl" 1782576461.46121 42054 4400f02c04fb6ce5532dc10126654f8d "biber bakalarka2"
+  "bakalarka2.run.xml" 1782583739.12838 2596 746b3b729dc0ef0d9075046bbe1d0f8b "lualatex"
+  "bakalarka2.tex" 1782583695.93738 108708 76e82172d9dc0193995c1240f204c439 ""
+  "bakalarka2.toc" 1782583739.12838 6314 f37e5e65b6d4a03b0375438973b64973 "lualatex"
+  "figures/error-by-ticker_all.pdf" 1782576104.06839 8357 027b5ff0ef6688f7cc01e2894d42e5dc ""
+  "figures/method-agreement.pdf" 1782582411.79035 10038347 8740b105a376757462876a85049807dd ""
+  "figures/validation-scatter.pdf" 1782576450.26021 11014801 63be05216f7a02622b9dbbf79c760619 ""
+  "figures/validation-scatter_all.pdf" 1782576081.1142 16242803 957b686e9977e704b7b0ae4f7cd72420 ""
   "kitheses.cls" 1781721616.00964 2600 f1349da43554586dcacdd1794eac1ada ""
   (generated)
   "bakalarka2.aux"

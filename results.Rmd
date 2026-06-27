@@ -274,14 +274,14 @@ plot_data <- all_options %>%
 ggplot(plot_data, aes(x = option_price, y = model_price)) +
   geom_point(alpha = 0.05, size = 0.2) +
   geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray50") +
-  facet_grid(category ~ method, scales = "free") +
+  facet_wrap(~ category + method, scales = "free", ncol = 3) +
   labs(
     x = "Market Price",
     y = "Model Price",
     title = "Model Prices vs Market Prices"
   ) +
   theme_minimal()
-ggsave("figures/validation-scatter.pdf", width = 12, height = 10)
+ggsave("figures/validation-scatter_all.pdf", width = 12, height = 10)
 ```
 
 ```{r mistake-summary}
@@ -358,7 +358,7 @@ ggplot(error_density_data, aes(x = error, fill = method)) +
     fill = "Method"
   ) +
   theme_minimal()
-ggsave("figures/error-distribution.pdf", width = 12, height = 8)
+ggsave("figures/error-distribution_all.pdf", width = 12, height = 8)
 ```
 
 Validační mřížka (1.2) poukazuje na velké chyby v... něčem.
@@ -435,7 +435,7 @@ regime_errors %>%
     fill = "MAE"
   ) +
   theme_minimal()
-ggsave("figures/mae-heatmap.pdf", width = 10, height = 8)
+ggsave("figures/mae-heatmap_all.pdf", width = 10, height = 8)
 ```
 
 ATM je stabilní pro všechny metody pro oba typy amerických opcí.
@@ -495,7 +495,7 @@ ggplot(vol_errors, aes(x = sigma_bucket, y = MAE, color = method, group = method
   ) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
-ggsave("figures/error-by-volatility.pdf", width = 12, height = 8)
+ggsave("figures/error-by-volatility_all.pdf", width = 12, height = 8)
 ```
 
 Pozoruhodně, grafy pro americké put a call opce mají stejné tendence, byť nejsou kompletně shodné. Lokální maxima a silný růst a pokles v Q5 a Q8, mimo to relativně ploché.
@@ -554,7 +554,7 @@ ggplot(time_errors, aes(x = T_bucket, y = MAE, color = method, group = method)) 
   ) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
-ggsave("figures/error-by-time.pdf", width = 12, height = 8)
+ggsave("figures/error-by-time_all.pdf", width = 12, height = 8)
 ```
 
 Všechny grafy jsou obecně nestabilní, klesající a stoupající skoro náhodně a velmi volatilně. Obecná stoupavá tendence, řekl bych.
@@ -599,7 +599,7 @@ ggplot(top_tickers, aes(x = reorder(ticker, avg_mae), y = avg_mae, fill = catego
   ) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
-ggsave("figures/error-by-ticker.pdf", width = 12, height = 8)
+ggsave("figures/error-by-ticker_all.pdf", width = 12, height = 8)
 ```
 
 NVDA, NFLX a RUT jsou celkově nejproblematičtější.
@@ -666,7 +666,7 @@ ggplot(sens_long, aes(x = sigma, y = price, color = method)) +
     color = "Method"
   ) +
   theme_minimal()
-ggsave("figures/volatility-sensitivity.pdf", width = 12, height = 8)
+ggsave("figures/volatility-sensitivity_all.pdf", width = 12, height = 8)
 ```
 
 Překvapivě, křivky volatility jsou rovné, jako by to byly lineární funkce.
@@ -731,7 +731,7 @@ ggplot(sens_time_long, aes(x = T, y = price, color = method)) +
     color = "Method"
   ) +
   theme_minimal()
-ggsave("figures/time-sensitivity.pdf", width = 12, height = 8)
+ggsave("figures/time-sensitivity_all.pdf", width = 12, height = 8)
 ```
 
 Opět překvapvivě, čas má tvar logaritmického růstu.
@@ -767,31 +767,8 @@ bind_rows(
     color = "Moneyness"
   ) +
   theme_minimal()
-ggsave("figures/method-agreement.pdf", width = 12, height = 10)
+ggsave("figures/method-agreement_all.pdf", width = 12, height = 10)
 ```
 
 Nic co bychom už nevědli. Perfektně (nebo aspoň skoro perfektně) se se překrývají. Wow.
 
-## Test: Bez problémových tickerů {.test}
-
-```{r test-clean}
-all_options <- all_options %>%
-  dplyr::filter(!ticker %in% c("NFLX", "NVDA", "^RUT"))
-
-cat(sprintf("Počet opcí po filtraci: %d\n", nrow(all_options)))
-
-all_options %>%
-  mutate(
-    bs_err = abs(option_price - user_bs),
-    crr_err = abs(option_price - user_crr),
-    mc_err = abs(option_price - user_mc)
-  ) %>%
-  group_by(category) %>%
-  summarise(
-    n = n(),
-    BS_MAE = mean(bs_err, na.rm = TRUE),
-    CRR_MAE = mean(crr_err, na.rm = TRUE),
-    MC_MAE = mean(mc_err, na.rm = TRUE)
-  ) %>%
-  knitr::kable(digits = 2, caption = "MAE bez NFLX, NVDA, ^RUT (test)")
-```

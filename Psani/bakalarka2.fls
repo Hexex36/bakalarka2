@@ -111,6 +111,7 @@ INPUT /etc/texmf/tex/generic/config/language.dat
 INPUT /usr/share/texmf-dist/tex/latex/polyglossia/babelsh.def
 INPUT /usr/share/texmf-dist/tex/latex/polyglossia/gloss-english.ldf
 INPUT /usr/share/texmf-dist/tex/latex/booktabs/booktabs.sty
+INPUT /usr/share/texmf-dist/tex/latex/float/float.sty
 INPUT /usr/share/texmf-dist/tex/latex/tablefootnote/tablefootnote.sty
 INPUT /usr/share/texmf-dist/tex/latex/letltxmacro/letltxmacro.sty
 INPUT /usr/share/texmf-dist/tex/latex/xifthen/xifthen.sty
@@ -278,6 +279,7 @@ INPUT ./figures/error-by-ticker_all.pdf
 INPUT ./figures/error-by-ticker_all.pdf
 INPUT ./figures/validation-scatter.pdf
 INPUT ./figures/validation-scatter.pdf
+INPUT ./appendix_a.tex
 INPUT ./bakalarka2.aux
 INPUT ./bakalarka2.run.xml
 OUTPUT bakalarka2.run.xml

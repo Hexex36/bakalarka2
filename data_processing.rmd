@@ -41,7 +41,7 @@ calc_T <- function(origin_date, expirations, stock_df) {
   data.frame(expiration = expirations) %>%
     rowwise() %>%
     mutate(
-      trading_days = as.numeric(as.Date(expiration) - origin_date) / 365 * 252,
+      trading_days = (as.numeric(as.Date(expiration) - origin_date) + 1) / 365 * 252,
       whole_weeks = trading_days %/% 5,
       remaining = trading_days %% 5,
       T = (whole_weeks + remaining / 5) / 52

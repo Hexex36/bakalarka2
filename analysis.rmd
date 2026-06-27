@@ -15,9 +15,9 @@ usa_chains_jan <- read_csv("././Data_fetch/american_options_2026-01-26_greeks.cs
 origin_date <- as.Date("2026-01-26")
 
 # Calculate T for euro_chains (assuming there's an expiration column)
-euro_chains_jan$T <- as.numeric(as.Date(euro_chains_jan$expiration) - origin_date) / 365
+euro_chains_jan$T <- (as.numeric(as.Date(euro_chains_jan$expiration) - origin_date) + 1) / 365
 # Calculate T for usa_chains
-usa_chains_jan$T <- as.numeric(as.Date(usa_chains_jan$expiration) - origin_date) / 365
+usa_chains_jan$T <- (as.numeric(as.Date(usa_chains_jan$expiration) - origin_date) + 1) / 365
 
 head(euro_chains_jan)
 head(usa_chains_jan)
@@ -30,9 +30,9 @@ usa_chains_feb <- read_csv("././Data_fetch/american_options_2026-02-27_greeks.cs
 origin_date <- as.Date("2026-02-27")
 
 # Calculate T for euro_chains (assuming there's an expiration column)
-euro_chains_feb$T <- as.numeric(as.Date(euro_chains_feb$expiration) - origin_date) / 365
+euro_chains_feb$T <- (as.numeric(as.Date(euro_chains_feb$expiration) - origin_date) + 1) / 365
 # Calculate T for usa_chains
-usa_chains_feb$T <- as.numeric(as.Date(usa_chains_feb$expiration) - origin_date) / 365
+usa_chains_feb$T <- (as.numeric(as.Date(usa_chains_feb$expiration) - origin_date) + 1) / 365
 
 head(euro_chains_feb)
 head(usa_chains_feb)
@@ -45,9 +45,9 @@ usa_chains_mar <- read_csv("././Data_fetch/american_options_2026-03-27_greeks.cs
 origin_date <- as.Date("2026-03-27")
 
 # Calculate T for euro_chains (assuming there's an expiration column)
-euro_chains_mar$T <- as.numeric(as.Date(euro_chains_mar$expiration) - origin_date) / 365
+euro_chains_mar$T <- (as.numeric(as.Date(euro_chains_mar$expiration) - origin_date) + 1) / 365
 # Calculate T for usa_chains
-usa_chains_mar$T <- as.numeric(as.Date(usa_chains_mar$expiration) - origin_date) / 365
+usa_chains_mar$T <- (as.numeric(as.Date(usa_chains_mar$expiration) - origin_date) + 1) / 365
 
 head(euro_chains_mar)
 head(usa_chains_mar)
