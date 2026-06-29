@@ -84,13 +84,13 @@
 
 % TOTO JE POTŘEBA ZMĚNIT !!!!!!
 \newcommand{\nazevcz}{Oceňování opcí na akcie za pomocí různých oceňovacích přístupů}        % zde VYPLŇTE český název práce (přesně podle zadání!)
-\newcommand{\nazeven}{\ZT{Valuation of stock options by using various valuation approaches}}     % zde VYPLŇTE anglický název práce (přesně podle zadání!)
-\newcommand{\autor}{\ZT{Matěj Sloup}}           % zde VYPLŇTE své jméno a příjmení
+\newcommand{\nazeven}{Valuation of stock options by using various valuation approaches}     % zde VYPLŇTE anglický název práce (přesně podle zadání!)
+\newcommand{\autor}{Matěj Sloup}           % zde VYPLŇTE své jméno a příjmení
 \newcommand{\rok}{\the\year}                
-\newcommand{\vedouci}{\ZT{doc. PhDr. Ing. Martin Boďa, DrSc.}}         
+\newcommand{\vedouci}{doc. Ph.D. Ing. Martin Boďa, DrSc.}         
 \newcommand{\programreal}{Matematika ve firmách a veřejné správě}
 % zde VYPLŇTE jméno a příjmení vedoucího práce, včetně titulů
-\newcommand{\vedouciDAT}{\ZT{doc. PhDr. Ing. Martinu Boďovi, DrSc.}}   
+\newcommand{\vedouciDAT}{doc. Ph.D. Ing. Martinu Boďovi, DrSc.}   
 % zde VYPLŇTE jméno a příjmení vedoucího práce, včetně titulů ve třetím pádě
                                                            
 
@@ -210,8 +210,8 @@ V Ústí nad Labem dne \today   \hfill Podpis: \makebox[4cm][s]{\dotfill}
 \vfill
 
 \begin{flushright}
-    Děkuji vedoucímu práce \ZT{\vedouciDAT}\\ a Ing. Romanovi Vaibarovi, Ph.D., MBA.
-    za neocenitelné rady a pomoc při tvorbě bakalářské práce.
+    Děkuji vedoucímu práce \vedouciDAT za pomoc při získávání literárních zdrojů, korekturu práce a objasnění mnoha nových termínů v oblasti opcí. \\
+    Děkuji Ing. Romanovi Vaibarovi, Ph.D., MBA. za pomoc při výběru dat a propujčení výpočetní síly pro zpracování dat.
 \end{flushright}
 
 \cleardoublepage
@@ -583,7 +583,7 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
   Binomický strom je strom, jehož každý vrchol má nejvíce právě jednoho rodiče a maximálně dva potomky. %TODO: Zdroj
   Tento strom využijeme k zjednodušení vývoje ceny akcie v čase: Místo toho, aby akcie mohla nabýt libovolné hodnoty z reálných čísel, řekneme, že cena akcie se multiplikativně zvedne o specifickou hodnotu, pokud její cena roste, a cena akcie se mulitplikativně sníží o specifickou hodnotu, pokud cena klesne. Je-li počáteční cena akcie $S$, můžeme tyto násobující konstanty označit jako $u$ pro pohyb nahoru, a $d$ pro pohyb dolů, a cenu po růstu $uS$ a cenu po snížení $dS$. Všechny tyto zmíněné ceny akcií jsou popsány v binomickém stromu, kde $S$ je rodič a $uS, dS$ jsou potomci. Obvykle volíme $u > 1$ a $d < 1$, aby $u$ reprezentovalo růst a $d$ pokles ceny; přesné hodnoty závisí na zvoleném modelu. %TODO: Zdroj
 
-  \subsection{Předpoklady použití modelu}
+  \subsection{Teorie použití modelu}
 
   Pro odvození modelu budeme předpokládat:
   
@@ -598,11 +598,7 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
 
   Předpoklad evropských opcí není nutný, ale pro jednodušší vysvětlování americkým opcím budeme věnovat vlastní sekci.
 
-  %TODO: Obrázek stromu
-
-  \subsection{Důkaz správnosti přístupu}
-
-  Rádi bychom dokázali, že ceny opcí na akciích jsou jednoznačně určitelné. K tomuto účelu, v rámci tohoto zjednodušeného modelu vývoje ceny akcie, můžeme vytvořit dvě portfolia: 
+  Před použitím modelu bychom rádi dokázali, že ceny opcí na akciích jsou jednoznačně určitelné. K tomuto účelu, v rámci tohoto zjednodušeného modelu vývoje ceny akcie, můžeme vytvořit dvě portfolia: 
 
   \begin{description}
     \item[Opční portfolio] skládající se z jedné call opce o ceně $C$.
@@ -669,7 +665,7 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
 
   Rovnice \eqref{eq_riskneutral} ukazuje, že cena opce je diskontovaná očekávaná výplata v rizikově neutrálním světě. Tudíž, binomické stromy spoléhají na rizikově-neutrální ohodnocení.
 
-  \subsection{Binomické stromy s více kroky}
+  \subsection{Získání hodnoty opce z binomického stromu}
 
   Zatím jsme počítali jen se stromy s pouze jedním krokem, čili stromy, kde množina vrcholů je $\{S, uS, dS\}$. Tento model bývá poněkud nepřesný, a abychom odvodili model vhodný pro americké opce, zavedeme model s více binomickými periodami.
 
@@ -678,8 +674,6 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
   Pokud chceme vytvořit binomický strom o $n$ binomických periodách, začneme vytvořím stromu začínajícím v počáteční ceně akcie $S$. Následně vytvoříme a s jejich rodičem, cenou akcie $S$ spojíme vrcholy $uS$ a $dS$. Z nově vzniklých vrcholů můžeme opět modelovat vzrůst či pád ceny. Jsme-li v libovolném listu $S_i$, můžeme z tohoto vrcholu pokračovat do vrcholů $u S_i$ a $d S_i$. Takto pokračujeme, dokud pro každý list ve stromě neplatí, že jeho vzdálenost od kořene (ceny akcie $S$) je $n$.
 
   Nutno poukázat na následující fakt: Mějme binomický strom o vrcholech $\{S, uS, dS\}$. Ceny akcie vedoucí z listu $uS$ jsou ceny $u^2S$, $udS$ a z listu $dS$ vedou ceny $duS$ a $d^2S$. Jak vidíme, cena akci je stejná, pokud se propadne níž z vrcholu $uS$ a pokud stoupne z vrcholu $dS$. Tudíž, každé dva vrcholy, které mají stejného rodiče, mají jednoho společného potomka. Strom, pro který platí tento fakt, můžeme nazvat rekombinační.
-
-  \subsection{Zjištění ceny opce z binomického stromu}
 
   Tímto jsme si dokázali odvodit vývoj ceny akcie pomocí binomického stromu. Nicméně, jak z tohoto odvodit cenu opce na danou akcii?
 
@@ -694,9 +688,7 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
 
   Takto postupujeme od listů až po kořen, čímž získáme současnou cenu opce.
 
-  Tímto jsme obecně zavedli ohodnocení binomickými stromy. 
-
-  \subsection{Dopočet hodnoty evropské opce jako rovnice}
+  Tímto jsme obecně zavedli ohodnocení binomickými stromy. Nicméně, pro evropské opce můžeme jejich hodnotu vypočítat jako jednu rovnici.
 
   Mějme list $S_i$, pro který platí, že se cena akcie zvýšila právě $j$-krát. Potom každá cesta z kořene stromu do listu $S_i$ vzniká jako libovolná kombinace $j$ zvýšení cen a $n-j$ snížení cen, z čehož můžeme ukázat, že existuje právě $\binom{n}{j}$ cest vedoucích do vrcholu $S_i$.
 
@@ -1070,6 +1062,12 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
 
   \textit{Poznámka: Vega není písmeno alfabety. Zavádíme jako náhradní zkrácené značení písmeno nu.}
 
+  \subsection{Výhody a nevýhody}
+
+  Blackův-Scholesův model je velmi rychlý, nemusíme vytvářet žádné stromy, cesty či jinak komplexní modely. Stačí jen výpočítat několik složitých rovnic, což za předpokladu použití počítače dává lepší rychlost oproti ostatním modelům.
+
+  Záporem Blackova-Scholesova modelu je neflexibilita. Zatímco binomické stromy a Monte Carlo lze přiměřeně intuitivně manipulovat k odvození formulace pro americké opce, či exotické opce, u Blackova-Scholesova modelu musíme upravovat proměnné a odvozovat, či použít složité aproxmiační modely typo Barone-Adesi a Whaley.
+
   \section{Ohodnocování opcí pomocí přístupu Monte Carlo}
 
   Metoda Monte Carlo je statistická metoda, užívaná pro velké množství aplikací, kupříkladu počítání vícerozměrných integrálů nebo simulace fyzikálních částic. Použití této metody spočívá ve vygenerování velkého množství pokusů, bodů či jiných relevantních veličin, a následného nalezení průměru, počtu aplikovatelných pokusů, apod. U varianty metody Monte Carlo použité na oceňování opcí princip spočívá v generování velkého množství potenciálních vývojů ceny akcie a následném zprůměrování výplat opce napříč těmito realizacemi \citep[Kapitola~1.1]{Glasserman2004}.
@@ -1304,18 +1302,13 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
 
   \citep{LongstaffSchwartz2001}, \citep[Kapitola~8.4]{Glasserman2004}
 
+  \subsection{Výhody a nevýhody}
+
+  Monte Carlo je výpočetně náročné. Oproti ostatním modelům musíme vytvořit velké množství cest, které pokud bychom ohodonocovali americké opce, musíme ještě k tomu projít zpětně a vytvářet na nich regrese. Mimo to, Monte Carlo má určité nepřesnosti. Při použití vysokého počtu cest a technik pro zvýšení přesnosti typu antitetické proměnné je tato nepřenost mizivá, ale oproti předchozím modelům je tato nepřesnost znát více.
+
+  Nicméně, Monte Carlo je ze všech rozebíraných modelů nejjednodušší na implementaci \footnote{Za předpokladu, že nemáme jazyk vybavený pokročilými matematickými prostředky, typu distribuční funkce normálového rozdělení.}, a nejjednodušší na přizpůsobení na daný typ opce. Technicky vzato, stačí jen modifikovat funkci generující cesty a následně funkci vracející výplatu v daný čas.
+
   \chapter{Praktická část}
-
-  \section{Plán práce}
-
-  \begin{enumerate}
-    \item Vymezit sbíraná data
-    \item Sběr dat
-    \item Zpracování dat
-    \item Příprava ohodonocovacích metod
-    \item Test ohodnocení
-    \item Porovnání přístupů
-  \end{enumerate}
 
   \section{Sběr dat}
 
@@ -1606,9 +1599,108 @@ Výsledný dataset obsahuje 168~996 opčních kontraktů na 12 amerických akci�
 
   Použití všech titulů nám dává zkreslená data, použití stabilních nám dává nedostatek. Proto v následujících sekcích práce budeme pozorovat primárně stabilní data, a kde to je odpovídající, doplníme daty kompletními.
 
+  Tabulka~\ref{tab:error_summary} shrnuje základní metriky přesnosti jednotlivých modelů oproti tržním cenám. Jako metriky byly zvoleny střední absolutní chyba (MAE), odmocnina ze střední kvadratické chyby (RMSE), systematická odchylka (Bias) a medián relativní chyby (MRE).
+
+  \begin{table}[h]
+    \centering
+    \caption{Souhrn chyb odhadů}
+    \label{tab:error_summary}
+    \begin{tabular}{lccccc}
+      \toprule
+      Kategorie & Metoda & MAE & RMSE & Bias & MRE \\
+      \midrule
+      American Call & BS  & 7,25 & 16,38 &  1,42 & 0,16 \\
+      American Call & CRR & 7,47 & 16,65 &  1,45 & 0,15 \\
+      American Call & MC  & 7,30 & 16,41 &  1,43 & 0,16 \\
+      \addlinespace
+      American Put  & BS  & 9,00 & 22,81 & $-$5,34 & 0,24 \\
+      American Put  & CRR & 9,17 & 23,06 & $-$5,44 & 0,23 \\
+      American Put  & MC  & 9,01 & 22,75 & $-$5,39 & 0,24 \\
+      \addlinespace
+      European Call & BS  & 1,36 & 2,32  & $-$0,85 & 0,61 \\
+      European Call & CRR & 1,36 & 2,32  & $-$0,85 & 0,61 \\
+      European Call & MC  & 1,36 & 2,32  & $-$0,86 & 0,60 \\
+      \addlinespace
+      European Put  & BS  & 2,47 & 3,05  & $-$1,78 & 0,42 \\
+      European Put  & CRR & 2,47 & 3,05  & $-$1,78 & 0,42 \\
+      European Put  & MC  & 2,47 & 3,05  & $-$1,78 & 0,42 \\
+      \bottomrule
+    \end{tabular}
+  \end{table}
+
+  Z tabulky~\ref{tab:error_summary} vyplývá několik závěrů. Především, rozdíly mezi jednotlivými metodami (BS, CRR, MC) jsou v rámci každé kategorie zanedbatelné -- MAE se liší maximálně o desetiny dolaru. Toto potvrzuje vzájemnou konzistenci implementací -- pozorované odchylky od trhu nelze přičítat numerické chybě konkrétní metody. Dále se přesnost modelů výrazně liší mezi kategoriemi: zatímco u evropských opcí se MAE pohybuje okolo 1,4--2,5~USD, u amerických opcí přesahuje 7~USD. Tento rozdíl je očekávatelný -- tituly, na které sbíráme data mají jiné ceny podkladových aktiv. Konečně, směr systematické odchylky není jednotný: u amerických call opcí model v průměru podhodnocuje (Bias~1,42), zatímco u amerických put opcí naopak výrazně nadhodnocuje (Bias~$-$5,34). Obdobně jsou mírně nadhodnoceny i obě kategorie evropských opcí. Tato nesouměrnost napříč kategoriemi opět naznačuje, že zdroj chyb může souviset s odhadem vstupních parametrů, zejména volatility a dividendového výnosu.
+
+  Pro detailnější analýzu struktury odchylek byla vykreslena distribuce chyb (tržní cena minus modelová cena). Graf~\ref{img:error_distribution} zobrazuje histogramy pro jednotlivé kategorie a metody.
+
+  \begin{figure}[h]
+    \centering
+    \scalebox{0.5}{\includegraphics{./figures/error-distribution.pdf}}
+    \label{img:error_distribution}
+    \caption{Distribuce chyb (tržní cena -- modelová cena)}
+  \end{figure}
+
+  Z grafu~\ref{img:error_distribution} je patrné, že distribuce chyb se liší napříč kategoriemi. U amerických call opcí jsou chyby rozloženy přibližně symetricky kolem nuly s mírným podhodnocením (kladná odchylka). U amerických put opcí je distribuce posunuta do záporných hodnot, což odpovídá nadhodnocení modelem zjištěnému v tabulce~\ref{tab:error_summary}. U evropských opcí převažuje nadhodnocení u obou typů, výraznější u put opcí. Tloušťka ocasů distribuce je u všech kategorií srovnatelná; extrémní chyby jsou vzácné, což svědčí o tom, že model není systematicky selhávající, ale odchylky jsou způsobeny spíše individuálními odlehlými pozorováními.
+
+  Grafické znázornění průměrné absolutní chyby (MAE) v závislosti na moneyness a čase do expirace ukazuje graf~\ref{img:mae_heatmap}. Data byla rozdělena do tří režimů moneyness (OTM, ATM, ITM) a tří časových režimů (Short, Medium, Long).
+
+  \begin{figure}[h]
+    \centering
+    \scalebox{0.5}{\includegraphics{./figures/mae-heatmap.pdf}}
+    \label{img:mae_heatmap}
+    \caption{Průměrná absolutní chyba (MAE) dle moneyness a času do expirace}
+  \end{figure}
+
+  Heatmapa ukazuje, že nejvyšší chyby se koncentrují u amerických put opcí v režimu OTM, kde MAE přesahuje 13~USD napříč všemi časovými horizonty. U amerických call opcí je chyba nejvyšší u ATM opcí se střední a dlouhou dobou do expirace. U evropských opcí se MAE pohybuje pod 5~USD ve všech režimech, přičemž nejvyšší je u call opcí v ITM režimu.
+
+  I po odstranění problematických titulů zůstávají rozdíly v přesnosti napříč jednotlivými tituly. Nejvyšší průměrnou chybu (napříč metodami) vykazují u amerických call opcí tituly META (MAE~11,4) a TSLA (MAE~10,0), u amerických put opcí META (MAE~17,0) a MSFT (MAE~16,1). U evropských opcí jsou chyby podstatně nižší -- nejvyšší MAE má \^{}VIX (1,4 pro call, 2,5 pro put). Koncentrace chyb v několika málo titulech naznačuje, že přesnost modelu je ovlivněna specifickými charakteristikami podkladového aktiva, jako je likvidita nebo struktura volatility, které nejsou vstupními parametry modelu zachyceny.
+
   \section{Senzitivita opcí vůči volatilitě}
 
+  Pro posouzení vlivu volatility na cenu opce byl proveden syntetický test při fixních parametrech (\(S = 100\), \(T = 0{,}5\), \(r = 0{,}05\), \(q = 0{,}02\)) pro tři úrovně moneyness (OTM, ATM, ITM). Graf~\ref{img:volatility_sensitivity} zobrazuje závislost ceny opce na \(\sigma\) v rozsahu 0,1--0,8.
+
+  \begin{figure}[h]
+    \centering
+    \scalebox{0.5}{\includegraphics{./figures/volatility-sensitivity.pdf}}
+    \label{img:volatility_sensitivity}
+    \caption{Závislost ceny opce na volatilitě}
+  \end{figure}
+
+  Křivky všech tří metod (BS, CRR, MC) se ve všech případech překrývají, což potvrzuje konzistenci implementací. S rostoucí volatilitou cena opce roste, přičemž nejstrmější nárůst je pozorován u ATM opcí.
+
+  Pro empirické ověření byla data rozdělena do deseti decilů podle hodnoty \(\sigma\) a pro každý decil vypočtena průměrná absolutní chyba (MAE). Graf~\ref{img:error_by_volatility} ukazuje vývoj MAE napříč decily volatility.
+
+  \begin{figure}[h]
+    \centering
+    \scalebox{0.5}{\includegraphics{./figures/error-by-volatility.pdf}}
+    \label{img:error_by_volatility}
+    \caption{MAE dle decilu volatility}
+  \end{figure}
+
+  U evropských opcí MAE s rostoucí volatilitou přibližně lineárně roste, což odpovídá očekávání -- s vyšší volatilitou roste i cena opce, a tudíž i absolutní chyba. U amerických opcí je průběh méně pravidelný; výrazný nárůst je patrný kolem šestého decilu, což může souviset s koncentrací specifických typů opcí v této oblasti.
+
   \section{Senzitivita opcí vůči času}
+
+  Pro posouzení vlivu času do expirace na cenu opce byl proveden syntetický test při fixních parametrech (\(S = 100\), \(\sigma = 0{,}3\), \(r = 0{,}05\), \(q = 0{,}02\)) pro tři úrovně moneyness (OTM, ATM, ITM). Graf~\ref{img:time_sensitivity} zobrazuje závislost ceny opce na \(T\) v rozsahu 0,01--3,0.
+
+  \begin{figure}[h]
+    \centering
+    \scalebox{0.5}{\includegraphics{./figures/time-sensitivity.pdf}}
+    \label{img:time_sensitivity}
+    \caption{Závislost ceny opce na čase do expirace}
+  \end{figure}
+
+  Všechny tři metody poskytují prakticky totožné výsledky. Cena opce s rostoucím časem do expirace roste, přičemž tvar křivky připomíná logaritmický růst -- nejprudší nárůst nastává v krátkých časech a s rostoucím \(T\) se tempo zpomaluje.
+
+  Pro empirické ověření byla data rozdělena do deseti decilů podle hodnoty \(T\) a pro každý decil vypočtena průměrná absolutní chyba. Graf~\ref{img:error_by_time} zobrazuje vývoj MAE napříč decily času do expirace.
+
+  \begin{figure}[h]
+    \centering
+    \scalebox{0.5}{\includegraphics{./figures/error-by-time.pdf}}
+    \label{img:error_by_time}
+    \caption{MAE dle decilu času do expirace}
+  \end{figure}
+
+  U amerických call opcí MAE s rostoucím časem převážně roste, u amerických put opcí je patrný nárůst do středních hodnot a následný pokles u dlouhých časů. U evropských opcí MAE roste do šestého decilu a poté klesá, což může být ovlivněno malým počtem pozorování v oblasti dlouhých expirací.
 
   \section{Časová komplexita výpočtu opcí}
 
