@@ -87,10 +87,10 @@
 \newcommand{\nazeven}{Valuation of stock options by using various valuation approaches}     % zde VYPLŇTE anglický název práce (přesně podle zadání!)
 \newcommand{\autor}{Matěj Sloup}           % zde VYPLŇTE své jméno a příjmení
 \newcommand{\rok}{\the\year}                
-\newcommand{\vedouci}{doc. Ph.D. Ing. Martin Boďa, DrSc.}         
+\newcommand{\vedouci}{doc. PhDr. Ing. Martin Boďa, PhD.}         
 \newcommand{\programreal}{Matematika ve firmách a veřejné správě}
 % zde VYPLŇTE jméno a příjmení vedoucího práce, včetně titulů
-\newcommand{\vedouciDAT}{doc. Ph.D. Ing. Martinu Boďovi, DrSc.}   
+\newcommand{\vedouciDAT}{doc. PhDr. Ing. Martinu Boďovi, PhD.}   
 % zde VYPLŇTE jméno a příjmení vedoucího práce, včetně titulů ve třetím pádě
                                                            
 
@@ -211,7 +211,7 @@ V Ústí nad Labem dne \today   \hfill Podpis: \makebox[4cm][s]{\dotfill}
 
 \begin{flushright}
     Děkuji vedoucímu práce \vedouciDAT za pomoc při získávání literárních zdrojů, korekturu práce a objasnění mnoha nových termínů v oblasti opcí. \\
-    Děkuji Ing. Romanovi Vaibarovi, Ph.D., MBA. za pomoc při výběru dat a propujčení výpočetní síly pro zpracování dat.
+    Děkuji Ing. Romanovi Vaibarovi, Ph.D., MBA., za pomoc při výběru dat \\ a propujčení výpočetní síly pro zpracování dat.
 \end{flushright}
 
 \cleardoublepage
@@ -231,39 +231,42 @@ Cílem bakalářské práce je systemizovat a porovnat modely oceňování opcí
 
 \textbf{Abstract:}
 
-The goal of this bachelor's thesis is to systematize and compare stock option pricing models. Both continuous-time and discrete-time models will be used, specifically the Black-Scholes model, numerical pricing approaches and Monte Carlo simulations. The thesis evaluates the suitability and accuracy of the considered approaches in the context of case studies, considers various option types, and assesses the sensitivity of the models to time and the volatility of the underlying financial asset. The output of the thesis is a comparison of models for practical pricing in corporate settings, and a determination of the suitability of each model for options with specific characteristics.
+The goal of this bachelor's thesis is to systematize and compare stock option pricing models. Both continuous-time and discrete-time models are used, specifically the Black-Scholes model, numerical pricing approaches and Monte Carlo simulations. The thesis evaluates the suitability and accuracy of the considered approaches in the context of case studies, considers various option types, and assesses the sensitivity of the models to time and the volatility of the underlying financial asset. The output of the thesis is a comparison of models for practical pricing in corporate settings, and a determination of the suitability of each model for options with specific characteristics.
 
 \textbf{Keywords:} Stock options, binomial trees, Black-Scholes model, Monte Carlo, comparative study
 
 \tableofcontents
 
-\chapter{Úvod}
+\newpage
 
-\section{Použitá notace}
+% TODO: Počítá se pod sekci obsah. Spravit.
+
+\chapter*{Použitá notace}
 
 \begin{table}[h]
   \centering
-  \caption{Použitá notace}
   \label{tab:notace}
   \begin{tabular}{lc}
     \toprule
     Značení & Termín \\
     \midrule
-    . & . \\
-    $S$ & Cena podkladového aktiva při koupení opce \\
+    $S$ & Cena podkladového aktiva \\
     $K$ & Realizační cena \\
     $T$ & Čas do expirace opce (jako poměrná část roku) \\
     $\sigma$ & Volatilita ceny podkladového aktiva per annum \\
-    $r$ & Bezriziková úroková míra \\
-    $q$ & Velikost dividendy vyplácené akcií \\
-    %$b$ & Náklady na držení \\
-    $C(S, K, T, \sigma, r, q)$ \tablefootnote{Z důvodu nepotřebnosti/neměnnosti parametrů, kde je možné vynecháváme některé parametry, nebo celou závorku. Např.: $C(K, T)$ pro call opce nebo $P$ pro put opce.\label{foot:argument_ommiting}} & Cena call opce \\
-    $P(S, K, T, \sigma, r, q)$ \footref{foot:argument_ommiting} & Cena put opce \\
-    $F_{t_1, t_2}$ & Forwardová cena při koupi kontraktu v čase $t_1$ a koupi aktiva v čase $t_2$ \\
-    $PV(\_)$ & Současná hodnota finačního nástroje \\
+    $r$ & Bezriziková úroková míra per annum \\
+    $q$ & Spojitá dividendová míra vyplácená akcií per annum \\
+    $C$ \tablefootnote{Někdy bude nutné vyznačit závislost ceny opce na některých parametrech. Příklady značení: $C(S, K, T, \sigma, r, q)$, $P(K, T)$\label{foot:argument_ommiting}} & Cena kupní opce, která se realizuje jako opční prémie \\
+    $P$ \footref{foot:argument_ommiting} & Cena prodejní opce, která se realizuje jako opční prémie \\
+    $F_{t_1, t_2}$ & Forwardová cena při uzavření kontraktu v čase $t_1$ a jeho realizaci v čase $t_2$ \\
+    $PV$ & Současná hodnota finačního nástroje \\
     \bottomrule
   \end{tabular}
 \end{table}
+
+\chapter{Úvod}
+
+  Bakalářská práce se věnuje modelům ohodnocení opcí, specificky opcí na obchodní podíly. Cílem této práce je poskytnout čtenáři základní porozumění těchto modelů (včetně potřebných informací o opcích), a porovnat tyto modely z hlediska přesnosti oproti skutečným dat z burz, komplexity a času výpočtu a citlivosti na parametry opcí (volatilita, čas do expirace) pro evropské a americké kupní a prodejní opce. Práce se týká ohodnocení skrze Blackův-Scholesův model, vytvoření binomického stromu a simulace Monte Carlo. Výstupem práce je srovnání doporučených užití modelů pro použití ve firmní sféře a pro specficiké vlastnosti opce a akcie.
 
 \chapter{Teoretická část}
 
@@ -273,9 +276,9 @@ The goal of this bachelor's thesis is to systematize and compare stock option pr
 
   Opce jsou druh finančního kontraktu, který držiteli dává právo, nikoliv povinnost, uskutečnit prodej/koupi předem daného podkladového aktiva za předem stanovenou cenu. 
 
-  Držitel opce má možnost se k datu expirace nebo do data expirace \footnote{Tato formulace ve vztahuje k typům opcím a předčasnému využití opce, což jsou témata probírána v sekci \ref{sec:option_types} } opce rozhodnout, zda chce opci uplatnit, čímž by získal/prodal předem dohodnuté podkladové aktivum za předem stanovenou cenu, nebo jestli ji chce nechat vypršet bez uplatnění. Cenu, za kterou má držitel nakoupit/prodat dané aktivum, nazýváme \textbf{realizační cena}, čili také strike cena. Datum, kdy má vypršet opce, označujeme jako \textbf{datum expirace}. Podkladové aktivum může být cokoliv, co lze smysluplně prodávat; suroviny, akcie, měny, finanční kontrakty, a jiné.
+  Držitel opce má možnost se k datu expirace nebo do data expirace \footnote{Tato formulace ve vztahuje k typům opcím a předčasnému využití opce, což jsou témata probírána v sekci \ref{sec:option_types}. } opce rozhodnout, zda chce opci uplatnit, čímž by získal/prodal předem dohodnuté podkladové aktivum za předem stanovenou cenu, nebo jestli ji chce nechat vypršet bez uplatnění. Cenu, za kterou má držitel nakoupit/prodat dané aktivum, nazýváme \textbf{realizační cena}, čili také strike cena. Datum, kdy má vypršet opce, označujeme jako \textbf{datum expirace}. Podkladové aktivum může být cokoliv, co lze smysluplně prodávat; suroviny, akcie, měny, finanční kontrakty, a jiné.
 
-  V opcích figurují dvě strany, držitel opce a vypisovatel opce. Vypsáním opce se vypisovatel váže, že držiteli poskytne možnost koupit/prodat dané aktivum. Držitel se může změnit (např. držitel opce ji může prodat jinému), kdežto vypisovatel opce může být pouze jedna specifická fyzická nebo právnická osoba, napsaná v kontraktu, nebo clearingové centrum. Říkáme, že držitel opce je v dlouhé (longové) pozici, zatímco vypisovatel je v krátké (shortové) pozici. V obecných termínech dlouhá pozice vyjadřuje koupi finančního nástroje a krátká pozice prodej finančního nástroje. U opcí se tyto termíny používají z hlediska koupě a prodeje samotné opce.
+  V opcích figurují dvě strany, držitel opce a vypisovatel opce. Vypsáním opce se vypisovatel váže, že držiteli poskytne možnost koupit/prodat dané aktivum. Držitel se může změnit (např. držitel opce ji může prodat jinému), kdežto vypisovatel opce může být pouze jedna specifická fyzická nebo právnická osoba, napsaná v kontraktu, nebo clearingové centrum. Říkáme, že držitel opce je v dlouhé (longové) pozici, zatímco vypisovatel je v krátké (shortové) pozici. V obecných termínech dlouhá pozice vyjadřuje koupi finančního nástroje a krátká pozice závazek prodeje finančního nástroje. U opcí se tyto termíny používají z hlediska koupě a prodeje samotné opce. % TODO: "zbrázok predaja"?
 
   Zatímco držitel opce má právo si zvolit, zda nechá opci vypršet či ji využije, vypisovatel je vždy povinen naplnit svoji část kontraktu. Pokud držitel uplatní své právo a prodá specifické aktivum za strike cenu, vypisovatel musí toto aktivum koupit, i kdyby mu to způsobilo finanční ztrátu.
 
@@ -285,7 +288,7 @@ The goal of this bachelor's thesis is to systematize and compare stock option pr
     \item Pokud držitel má právo prodat aktivum, jedná se o \textbf{prodejní} neboli \textbf{put} opci.
   \end{itemize}
 
-  Cena opce není ovlivněna pouze cenou podkladového aktiva a strike cenou, ale také dobou do expirace, volatilitou, bezrizikovou úrokovou mírou $r$ a případnými dividendami (jejichž spojitou míru označujeme $q$). Následující tabulka shrnuje, jak změna každého faktoru (při zachování ostatních) ovlivňuje cenu call a put opce:
+  Cena opce není ovlivněna pouze cenou podkladového aktiva a strike cenou, ale také dobou do expirace $T$, volatilitou $\sigma$, bezrizikovou úrokovou mírou $r$ a případnými dividendami (jejichž spojitou míru označujeme $q$). Tabulka \ref{tab:price_modifiers} ukazuje, jestli má při zvýšení hodnoty daného faktoru, za předpokladu zachování hodnoty ostatních faktorů) cena opce tendenci klesat, či stoupat. 
 
   \begin{table}[h]
     \caption{Faktory ovlivňující cenu opce}
@@ -293,7 +296,7 @@ The goal of this bachelor's thesis is to systematize and compare stock option pr
     \centering
     \begin{tabular}{lcc}
       \toprule
-      \textbf{Faktor} & \textbf{Call opce} & \textbf{Put opce} \\
+      \textbf{Faktor} & \textbf{Kupní opce} & \textbf{Prodejní opce} \\
       \midrule
       Cena podkladového aktiva $S$ $\uparrow$ & $\uparrow$ & $\downarrow$ \\
       Strike cena $K$ $\uparrow$ & $\downarrow$ & $\uparrow$ \\
@@ -302,24 +305,20 @@ The goal of this bachelor's thesis is to systematize and compare stock option pr
       Bezriziková míra $r$ $\uparrow$ & $\uparrow$ & $\downarrow$ \\
       Dividenda $q$ $\uparrow$ & $\downarrow$ & $\uparrow$ \\
       \bottomrule
-      \multicolumn{3}{c}{Zdroj: \citep[Kapitola~11.1]{Hull2021}}
+      \multicolumn{3}{c}{Zdroj: \citep[kapitola~11.1]{Hull2021}}
     \end{tabular}
   \end{table}
 
-  Tabulka \ref{tab:price_modifiers} ukazuje, jestli má při zvýšení hodnoty daného faktoru cena tendenci klesat, či stoupat \citep[Kapitola~11.1]{Hull2021}. 
+  Čím vyšší je volatilita ceny podkladového aktiva, tím výš může cena opce stoupnout. Pro držitele opce propad hodnoty opce (způsobený snížením ceny aktiva pro call opce a zvýšením ceny aktiva pro put opce) má limitovanou ztrátu (v nejhorším případě nechá opci expirovat), zatímco při zvýšení hodnoty má držitel s větší volatilitou typicky větší výplatu, tudíž je pro držitele opce s vyšší volatilitou výhodnější \footnote{Pro vypisovatele působí inverzní vztah: Při zvýšení hodnoty má vypisovatel neomezené potenciální ztráty, zatímco jeho výdělek je limitovaný při snížení hodnoty opce.}.
 
-  % TODO: Uvést, proč cena stoupá/klesá u Bezrizikové míry a dividendy
+  S delším časem do expirace se může více projevit volatilita podkladového aktiva. Tudíž, čím delší je čas do expirace, tím dražší je opce \footnote{Typicky. Existují hraniční situace, kde můžeme delší dobou do expirace ztratit peníze, například pro call opce na akcii, která vyplácí velmi velkou dividendu.}.
 
-  Čím vyšší je volatilita ceny podkladového aktiva, tím výš může tato cena stoupnout. Pro držitele opce propad hodnoty opce (způsobený snížením ceny aktiva pro call opce a zvýšením ceny aktiva pro put opce) má limitovanou ztrátu (v nejhorším případě necháme opci expirovat), zatímco při zvýšení hodnoty má držitel s větší volatilitou typicky větší výplatu, tudíž je pro držitele opce s vyšší volatilitou výhodnější \footnote{Pro vypisovatele působí inverzní vztah: Při zvýšení hodnoty má vypisovatel neomezené potenciální ztráty, zatímco jeho výdělek je limitovaný při snížení hodnoty opce.}.
-
-  S delším časem do expirace se může více projevit volatilita podkladového aktiva. Tudíž, čím delší je čas do expirace, tím dražší je opce \footnote{Typicky. Existují hraniční situace, kde můžeme delší dobou do expirace ztratit peníze, například pro call opce na akcii, která vyplácí velmi velkou dividendu. Při expiraci před vyplacením dividendy bychom získali výhodně akcii, vyplácenou dividendu, a mohli bychom akcii prodat, kdežto při expiraci po vyplacení dividendy bychom získali pouze levnou akcii.}.
-
-  Oba tyto vztahy platí jak pro call opce, tak pro put opce, narozdíl od ostatních faktorů. \citep[Kapitola~11.1]{Hull2021}
+  Oba tyto vztahy platí jak pro call opce, tak pro put opce, na rozdíl od ostatních faktorů. \citep[kapitola~11.1]{Hull2021}
 
   \label{sec:cost_of_carry}
-  U opce má smysl ještě uvést tzv. náklady na držení (cost of carry). Náklady na držení rozumíme náklady na držení opce místo držení aktiva. Pokud bychom měli opci na akcie, byly by náklady na držení $r - q$. Poněvadž akcii kupujeme v době expirace, můžeme peníze, které chceme použít na koupi aktiva uložit a nechat je získávat bezrizikovou úrokou míru. Nicméně, jelikož akcii kupujeme až v době expirace, nezískáváme vyplácenou dividendu z akcie, což bereme jako promrhaný výdělek. 
+  Další důležitý koncept pro opce jsou tzv. náklady na držení (cost of carry). Náklady na držení rozumíme náklady na držení opce místo držení aktiva. Pokud bychom měli opci na akcie, byly by náklady na držení $r - q$. Poněvadž akcii kupujeme v době expirace, můžeme peníze, které chceme použít na koupi aktiva, uložit a nechat je získávat bezrizikovou úrokou míru. Nicméně, jelikož akcii kupujeme až v době expirace, nezískáváme vyplácenou dividendu z akcie, což bereme jako promrhaný výdělek. 
 
-  Uveďme příklad použití call opce pro správné pochopení.
+  Uveďme příklad použití call opce pro správné pochopení práce s opcemi.
   Předpokládejme, že účastník trhu A koupí call opci, vypsanou účastníkem trhu B, opravňující účastníka A koupit aktivum za strike cenu 110 Kč, přičemž momentální cena aktiva je 90 Kč. V tomto případě, v době expirace pro účastníka A nastávají tři potenciální situace:
   \begin{enumerate}
     \item Cena aktiva je při expiraci stejná jako strike cena ($S = 110 \, \text{Kč}, K = 110 \, \text{Kč}$). Uplatnění opce je ekvivalentní koupi daného aktiva na trhu, nikdo nevydělává ani neprodělává.
@@ -334,9 +333,9 @@ The goal of this bachelor's thesis is to systematize and compare stock option pr
     \item Cena aktiva je při expiraci vyšší než strike cena ($S = 120 \, \text{Kč}, K = 110 \, \text{Kč}$). Uplatněním opce by účastník A prodal aktivum levněji než na trhu, a ztratil by $110 - 120 = -10$ Kč. Účastník A se rozhodne opci neuplatnit, čímž ani jedna strana nevydělá.
   \end{enumerate}
 
-  Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývají \UV{in-the-money}, nebo zkráceně ITM, zatímco opce, které by při okamžitém uplatnění měly zápornou výplatu, se nazývají \UV{out-of-the-money}, čili OTM. O těchto opcích říkáme, že mají nulovou vnitřní hodnotu. Pokud by opce měla nulovou výplatu, říkáme že je \UV{at-the-money}, čili ATM. \citep[s.~58-59]{McDonald2013} \citep[Kapitola~2.3]{Wilmott2006}
+  Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývají \UV{in-the-money}, nebo zkráceně ITM, zatímco opce, které by při okamžitém uplatnění měly zápornou výplatu, se nazývají \UV{out-of-the-money}, čili OTM. O těchto opcích říkáme, že mají nulovou vnitřní hodnotu. Pokud by opce měla nulovou výplatu, říkáme že je \UV{at-the-money}, čili ATM. \citep[kapitola~2.3][s.~58-59]{Wilmott2006, McDonald2013}
 
-  Cenu opce lze rozdělit na dvě složky: vnitřní hodnotu a časovou hodnotu. Vnitřní hodnota je výplata, kterou by opce přinesla při okamžitém uplatnění -- pro call opci $\max(0, S-K)$, pro put opci $\max(0, K-S)$. Opce ITM mají kladnou vnitřní hodnotu, zatímco opce OTM a ATM mají vnitřní hodnotu nulovou. Časová hodnota se zavádí jako rozdíl mezi tržní cenou opce a její vnitřní hodnotou; představuje prémii za možnost, že se cena podkladového aktiva do expirace změní ve prospěch držitele. Časová hodnota s blížící se expirací klesá (time decay) a v den expirace je nulová. \citep[s.~234]{Hull2021}. Tato skutečnost jde vidět i v tabulce \ref{tab:price_modifiers}, kde říkáme, že se delší dobou do expirace cena opce stoupá. \citep[Kapitola~2.3]{Wilmott2006}
+  Cenu opce lze rozdělit na dvě složky: vnitřní hodnotu a časovou hodnotu. Vnitřní hodnota je výplata, kterou by opce přinesla při okamžitém uplatnění -- pro call opci $\max(0, S-K)$, pro put opci $\max(0, K-S)$. Opce ITM mají kladnou vnitřní hodnotu, zatímco opce OTM a ATM mají vnitřní hodnotu nulovou. Časová hodnota se zavádí jako rozdíl mezi tržní cenou opce a její vnitřní hodnotou; představuje prémii za možnost, že se cena podkladového aktiva do expirace změní ve prospěch držitele. Časová hodnota s blížící se expirací klesá (time decay) a v den expirace je nulová. \citep[s.~234]{Hull2021}. Tato skutečnost jde vidět i v tabulce \ref{tab:price_modifiers}, kde říkáme, že se delší dobou do expirace cena opce stoupá. \citep[kapitola~2.3]{Wilmott2006}
 
   Z předchozího příkladu lze vidět, že z dosavadní definice opcí vypisovatel nemůže profitovat, což znamená, že žádný racionální účastník trhu by nikdy nechtěl vypisovat opce. Pro přidání možnosti vypisovatele mít zisk se používájí tzv. opční prémie.
   Opční prémie je částka, kterou zaplatíme vypisovateli, abychom vyrovnali potenciální riziko finanční ztráty. Pokud by se držitel rozhodl nechat opci vypršet, vypisovatel si nechá opční prémii, čímž vydělá. \citep[s.~9]{McDonald2013} % TODO: Strana 9? To nezní správně...
@@ -408,7 +407,7 @@ The goal of this bachelor's thesis is to systematize and compare stock option pr
 
   Můžeme vytvořit syntetický fixní terminovaný kontrakt forwardového typu pro konkrétní aktivum pomocí koupě call opce a vypsání put opce (se stejnou strike cenou a dobou expirace). Pokud cena při expiraci stoupne nad strike cenu, put opce nemá žádnou hodnotu, a její vlastník ji nevyužije, zatímco my, jako vlastníci call opce nad strike cenou, můžeme koupit aktivum levněji než na trhu, což je v našem zájmu. Pokud cena při expiraci klesne pod strike cenu, call opce se stane bezcennou, a vlastník put opce nás přinutí odkoupit od něj aktivum za vyšší cenu než na trhu. Tak jako tak, získáme specifické množství aktiva za strike cenu. Toto přímo napodobuje fixní terminovaný kontrakt forwardového typu: Koupíme specifické množství podkladového aktiva za předem danou cenu, ve specifickém bodě v budoucnosti \citep[s.~82-84]{McDonald2013}. 
 
-  Důležité je konstatovat, že oproti opcím za forwardové kontrakty neplatíme prémii, poněvadž obě strany kontraktu mají stejnou příležitost vydělat. I toto je reprezentováno v syntetické pozici. Máme-li forwardovou cenu $F$ pro forwardový kontrakt a strike cenu $K$ pro opce naší syntetické forwardové pozice, můžeme určit, co se stane, je-li $K$ větší nebo menší než $F$. Platí-li $K < F$, kupujeme dané aktivum za pro nás výhodnou cenu. Tento fakt se musí promítnout na dražší prémii call opce, jinak by prodávat tuto opci bylo nevýhodné. Naopak, je-li $K > F$, kupujeme aktivum za pro nás nevýhodnou cenu, a chceme dostat vyšší prémii, pro případ, že bychom museli kupovat aktivum za nevýhodnou cenu. Pokud $K = F$, aby naše syntetická forwardová pozice napodobovala reálný forwardový kontrakt, musí být zisk/prodělek z prémií nulový. Tudíž, prémie call opce musí stát stejně jako prémie put opce. Tímto se cena za syntetickou pozici rovná ceně koupě forwardového kontraktu. Tomuto konceptu říkáme put-call parita. \citep[s.~82-85]{McDonald2013} \citep[Kapitola~2.12]{Wilmott2006}
+  Důležité je konstatovat, že oproti opcím za forwardové kontrakty neplatíme prémii, poněvadž obě strany kontraktu mají stejnou příležitost vydělat. I toto je reprezentováno v syntetické pozici. Máme-li forwardovou cenu $F$ pro forwardový kontrakt a strike cenu $K$ pro opce naší syntetické forwardové pozice, můžeme určit, co se stane, je-li $K$ větší nebo menší než $F$. Platí-li $K < F$, kupujeme dané aktivum za pro nás výhodnou cenu. Tento fakt se musí promítnout na dražší prémii call opce, jinak by prodávat tuto opci bylo nevýhodné. Naopak, je-li $K > F$, kupujeme aktivum za pro nás nevýhodnou cenu, a chceme dostat vyšší prémii, pro případ, že bychom museli kupovat aktivum za nevýhodnou cenu. Pokud $K = F$, aby naše syntetická forwardová pozice napodobovala reálný forwardový kontrakt, musí být zisk/prodělek z prémií nulový. Tudíž, prémie call opce musí stát stejně jako prémie put opce. Tímto se cena za syntetickou pozici rovná ceně koupě forwardového kontraktu. Tomuto konceptu říkáme put-call parita. \citep[s.~82-85]{McDonald2013} \citep[kapitola~2.12]{Wilmott2006}
 
   Pro matematickou formulaci musíme zavést kontext s notací: Řekněme, že v čase 0 kupujeme forwardový kontrakt, kterým se vázáme koupit v čase $T$ podkladové aktivum za forwardovou cenu $F_{0, T}$. Současná hodnota forwardové ceny je značena jako $PV(F_{0, T})$. V syntetické pozici musí být současná hodnota vlastnění aktiva rovna prémie z opcí (možnost koupě) a strike ceně (hodnota aktiva), čili $C(K, T) - P(K, T) + PV(K)$, kde $C(K, T)$ a $P(K, T)$ jsou prémie za danou call a put opci. Dohromady vzniká takováto rovnice: 
 
@@ -450,7 +449,7 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
   Z rovnice put-call parity vyplývá, že ceny call a put opcí nejsou nezávislé – známe-li jednu, můžeme druhou přímo určit. Porušení této rovnosti vytváří arbitrážní příležitost: pokud je call opce oproti put opci předražená (resp. podhodnocená), lze sestavit zajištěné portfolio s jistým ziskem. \citep[s.~85]{McDonald2013} % TODO: Správná citace?
 
   Je však třeba mít na paměti, že put-call parita odvozená výše platí pouze za určitých předpokladů. Předpokládá evropský styl uplatnění – u amerických opcí nelze tuto rovnost použít přímo, protože možnost předčasného uplatnění vytváří nerovnost \citep[Rovnice~11.7]{Hull2021}.
-  Dále vyžaduje, aby obě opce měly stejné datum expirace a stejnou strike cenu, a neuvažuje transakční náklady, které by v praxi mohly arbitrážní zisk pohlcovat. I přes tato omezení je put-call parita užitečným nástrojem pro kontrolu konzistence cen opcí na trhu. \citep[Kapitola~11.4]{Hull2021} % TODO: Zkontrolovat citaci
+  Dále vyžaduje, aby obě opce měly stejné datum expirace a stejnou strike cenu, a neuvažuje transakční náklady, které by v praxi mohly arbitrážní zisk pohlcovat. I přes tato omezení je put-call parita užitečným nástrojem pro kontrolu konzistence cen opcí na trhu. \citep[kapitola~11.4]{Hull2021} % TODO: Zkontrolovat citaci
 
   \subsection{Ohodnocování opcí}
 
@@ -463,7 +462,7 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
   \begin{description}
     \item[Bezarbitrážní oceňování (arbitrage-free pricing)] vychází z předpokladu, že na efektivním trhu neexistuje příležitost k dosažení bezrizikového zisku. Cena opce musí být stanovena tak, aby žádná kombinace nákupu a prodeje opce a podkladového aktiva nevedla k jistému zisku při nulové počáteční investici \citep[s.~14--17]{Hull2021}.
     \item[Replikace (replication)] spočívá v sestavení portfolia z podkladového aktiva a bezrizikové obligace, které má ve všech možných stavech světa stejnou výplatu jako oceňovaná opce. Hodnota opce se pak musí rovnat ceně tohoto replikačního portfolia, jinak by vznikla arbitráž \citep[s.~278--281]{McDonald2013}.
-    \item[Rizikově-neutrální ohodonocení (risk-neutral valuation)] Místo empirické volatility používáme rizikově-neutrální pravdpěpodobnosti, což jsou pravděpodobnosti pod kterými je očekávaná hodnota vývoje akcie $S \, e^{rT}$ \citep[s.~359--362]{McDonald2013} \citep[Kapitola~15.10]{Wilmott2006}. Tímto si zjednodušujeme výpočet rizikových aktiv. \label{sec:risk_neutral}
+    \item[Rizikově-neutrální ohodonocení (risk-neutral valuation)] Místo empirické volatility používáme rizikově-neutrální pravdpěpodobnosti, což jsou pravděpodobnosti pod kterými je očekávaná hodnota vývoje akcie $S \, e^{rT}$ \citep[s.~359--362]{McDonald2013} \citep[kapitola~15.10]{Wilmott2006}. Tímto si zjednodušujeme výpočet rizikových aktiv. \label{sec:risk_neutral}
   \end{description}
 
   Tyto tři principy jsou vzájemně provázané – za předpokladu neexistence arbitráže vedou replikace i rizikově-neutrální ohodnocení ke stejnému výsledku. \citep[s.~365]{McDonald2013}
@@ -477,7 +476,7 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
 
   Pro oceňování opcí se používají různé způsoby, které mají své výhody a nevýhody v závislosti na vyhodnocovaném typu opce. V této práci budou popsány ty nejběžnější, použité pouze na vanilkových opcích. Následuje stručný úvod k principu každé z metod. Všechny zmíněné způsoby vyhodnocení jsou blíže specifikovány a zkoumány ve svých vlastních kapitolách.
 
-  Základním způsobem oceňování opcí jsou binomické stromy. Binomickým stromem můžeme modelovat vývoj ceny aktiva dle volatility, kde každý vrchol reprezentuje cenu po určitém množství vzestupů a poklesů o danou volatilitu. \citep[Kapitola 13]{McDonald2013} Tímto vytvoříme reprezentaci možných cen aktiva a jejich pravděpodobností. Stromy mají několik variant (Coxův-Rossův-Rubinsteinův model, Jarrovův-Ruddův, trinomické stromy, ad.), my se budeme zabývat jenom modelem Cox-Ross-Rubinstein, neboť to je efektivně základní varianta.
+  Základním způsobem oceňování opcí jsou binomické stromy. Binomickým stromem můžeme modelovat vývoj ceny aktiva dle volatility, kde každý vrchol reprezentuje cenu po určitém množství vzestupů a poklesů o danou volatilitu. \citep[kapitola 13]{McDonald2013} Tímto vytvoříme reprezentaci možných cen aktiva a jejich pravděpodobností. Stromy mají několik variant (Coxův-Rossův-Rubinsteinův model, Jarrovův-Ruddův, trinomické stromy, ad.), my se budeme zabývat jenom modelem Cox-Ross-Rubinstein, neboť to je efektivně základní varianta.
 
   Binomické stromy mají variabilní přesnost dle počtu kroků mezi začátkem a datem expirace. Blackův-Scholesův model lze chápat jako limitu binomického stromu s nekonečným počtem kroků. \citep[s.~363]{McDonald2013}. Na rozdíl od binomických stromů, kde musíme pracně konstruovat celý strom a počítat ceny v jeho vrcholech, Blackův-Scholesův model využívá jeden vzorec k výpočtu prémie. Blackův-Scholesův vzorec je výpočetně nejjednodušší, zejména při implementaci na počítači, a vyplývají z něj další užitečné skutečnosti, tzv. greeks – koeficienty senzitivity popisující specifické chování opce. Nicméně, tento model je limitován na evropské opce, a pokud bychom chtěli oceňovat jiné typy opcí, museli bychom jej přepočítat a vytvořit novou rovnici. U amerických opcí k zachycení přidané hodnoty z možnosti předčasného uplatnění použijeme Barone-Adesiho a Whaleyho metodu.
   % TODO: Víc ocitovat
@@ -529,7 +528,7 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
     M_k = \sum \limits^k_{j=1} X_j.
   \end{equation}
 
-  Říkáme, že $M_k$ je symetrická náhodná procházka. \citep[Kapitola~3.2.1]{Shreve2004}
+  Říkáme, že $M_k$ je symetrická náhodná procházka. \citep[kapitola~3.2.1]{Shreve2004}
 
   Z tohoto můžeme definovat škálovanou symetrickou náhodnou procházku jako v rovnici \ref{eq:stepped_random_walk} :
 
@@ -538,7 +537,7 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
     W^{(n)}(t) = \frac{1}{\sqrt{n}} M_{nt},
   \end{equation}
 
-  kde $nt$ je buď celočíselné, nebo vzniká jako interpolace dvou nejbližších celočíselných hodnot \citep[Kapitola~3.2.5]{Shreve2004}.
+  kde $nt$ je buď celočíselné, nebo vzniká jako interpolace dvou nejbližších celočíselných hodnot \citep[kapitola~3.2.5]{Shreve2004}.
 
   Tímto jsme získali náhodný proces se spočetným počtem mezikroků. Abychom získali Brownův pohyb, musíme učinit škálovanou symetrickou náhodnou procházku spojitou pomocí poslání $n \rightarrow \infty$.
 
@@ -549,7 +548,7 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
     Var[\Delta z_i] = t_{i+1} - t_i.
   \end{gather}
 
-  \citep[Kapitola~3.3.1]{Shreve2004}
+  \citep[kapitola~3.3.1]{Shreve2004}
 
   Brownův pohyb je také často nazýván jako Wienerův proces.
 
@@ -559,7 +558,7 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
     dS = \mu S dt + \sigma S dz,
   \end{equation}
 
-  kde $\mu$ je směrnice (čili drift) růstu proměnné bez náhodnosti, $\sigma$ je volatilita a $z$ je Brownův pohyb. \citep[Kapitola~14.3]{Hull2021}
+  kde $\mu$ je směrnice (čili drift) růstu proměnné bez náhodnosti, $\sigma$ je volatilita a $z$ je Brownův pohyb. \citep[kapitola~14.3]{Hull2021}
 
   \subsection{Blackova-Scholesova formule}
 
@@ -612,7 +611,7 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
     \Delta d \, S e^{qT} + \beta \, e^{rT} = C_d,
   \end{gather}
 
-  kde $C_u$ vyjadřuje cenu opce při růstu ceny akcie, $C_d$ vyjadřuje cenu opce při poklesu ceny akcie a $T$ vyjadřuje délku periody. Výdělek z akcie zvyšujeme o $e^{qT}$, což je výše vyplácené dividendy, o které očekáváme, že ji reinvestujeme, a půjčené peníze musíme diskontovat o $e^{rT}$. \citep{CoxRossRubinstein1979} \citep[Kapitola~13]{McDonald2013}
+  kde $C_u$ vyjadřuje cenu opce při růstu ceny akcie, $C_d$ vyjadřuje cenu opce při poklesu ceny akcie a $T$ vyjadřuje délku periody. Výdělek z akcie zvyšujeme o $e^{qT}$, což je výše vyplácené dividendy, o které očekáváme, že ji reinvestujeme, a půjčené peníze musíme diskontovat o $e^{rT}$. \citep{CoxRossRubinstein1979} \citep[kapitola~13]{McDonald2013}
 
   Odečtením rovnic a následnou úpravou získáme: 
 
@@ -633,7 +632,7 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
     \Delta S + \beta = e^{-rT} \left( C_u \frac{e^{(r - q) T} -d}{u - d} + C_d \frac{u - e^{(r - q) T}}{u - d} \right)
   \end{equation}
 
-  \citep{CoxRossRubinstein1979} \citep[Kapitola~13]{McDonald2013}
+  \citep{CoxRossRubinstein1979} \citep[kapitola~13]{McDonald2013}
 
   Očekáváme, že $u > e^{(r - q) T} > d$. Pokud by tato podmínka nebyla splněna, vznikla by arbitrážní příležitost: například pokud $u \le e^{(r-q)T}$, prodali bychom akcii a investovali výnos do bezrizikového aktiva, čímž bychom dosáhli jistého zisku; obdobně pokud $d \ge e^{(r-q)T}$, půjčili bychom si a nakoupili akcii. % TODO: Zdroj
   Jelikož se výdělky z obou portfólií rovnají, a dokážeme jednoznačně určit výdělek portfólia syntetického, musíme být schopni určit i hodnotu opčního portfolia.
@@ -727,7 +726,7 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
     \item centrování stromu.
   \end{itemize}
 
-  Nejčastěji používaným modelem binomického stromu je Coxův-Rossův-Rubinsteinův binomický strom \citep[Kapitola~13]{McDonald2013} \citep[Kapitola~13]{Hull2021} a proto jej využijeme i v této práci.
+  Nejčastěji používaným modelem binomického stromu je Coxův-Rossův-Rubinsteinův binomický strom \citep[kapitola~13]{McDonald2013} \citep[kapitola~13]{Hull2021} a proto jej využijeme i v této práci.
 
   Pro tento specifický model nastavíme:
 
@@ -736,7 +735,7 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
     d = e^{(r - q)T - \sigma \sqrt{T}}.
   \end{gather}
 
-  $e^{(r - q)T}$ je složka upravující cenu o vliv času skrze růst o bezrizikovou úrokovou míru a pokles o vyplácenou dividendu a $\sigma \sqrt{T}$ přidává nejistotu vývoje ceny. \citep[Kapitola~13]{McDonald2013}
+  $e^{(r - q)T}$ je složka upravující cenu o vliv času skrze růst o bezrizikovou úrokovou míru a pokles o vyplácenou dividendu a $\sigma \sqrt{T}$ přidává nejistotu vývoje ceny. \citep[kapitola~13]{McDonald2013}
 
   \subsection{Výhody a nevýhody}
 
@@ -747,7 +746,7 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
   \section{Ohodnocování opcí pomocí Blackova-Scholesova modelu}
 
   \label{sec:black-scholes_theory}
-  U binomických stromů musíme jako parametr stanovit počet kroků od začátku až po expiraci opce, čímž diskretizujeme vývoj ceny podkladového aktiva, což nereflektuje realitu, kde se cena aktiva vyvíjí spojitě vlivem okolních podmínek. Abychom dosáhli spojitosti vývoje ceny podkladového aktiva, museli bychom mít nekonečné množství kroků, což by trochu prodloužilo čekání na ukončení algoritmu. Na tomto principu funguje Blackův-Scholesův model, který funguje jako zobecnění binomických stromů v nekonečnu. \citep[Kapitola~15, úvod]{McDonald2013}
+  U binomických stromů musíme jako parametr stanovit počet kroků od začátku až po expiraci opce, čímž diskretizujeme vývoj ceny podkladového aktiva, což nereflektuje realitu, kde se cena aktiva vyvíjí spojitě vlivem okolních podmínek. Abychom dosáhli spojitosti vývoje ceny podkladového aktiva, museli bychom mít nekonečné množství kroků, což by trochu prodloužilo čekání na ukončení algoritmu. Na tomto principu funguje Blackův-Scholesův model, který funguje jako zobecnění binomických stromů v nekonečnu. \citep[kapitola~15, úvod]{McDonald2013}
 
   \subsubsection{Podmínky modelu}
 
@@ -813,7 +812,7 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
     C(S, K, \sigma, r, T, q) = Se^{-qT}N(d_1) - Ke^{-rT}N(d_2)
   \end{equation}
 
-  \citep[Kapitola~15.1]{McDonald2013} \citep{Merton1973} % TODO: Stránky u Mertona
+  \citep[kapitola~15.1]{McDonald2013} \citep{Merton1973} % TODO: Stránky u Mertona
 
   Mimo to musíme také zohlednit v $d_1$ a $d_2$, že dividenda snižuje hodnotu akcie, tudíž si $d_1$ a $d_2$ definujeme jako:
 
@@ -855,7 +854,7 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
     \kappa &= 1 - e^{-rT}.
   \end{align}
 
-  \citep[Kapitola~3.1]{Haug2007}
+  \citep[kapitola~3.1]{Haug2007}
 
   $S^*$ vyjadřuje kritickou cenu akcie pro danou call opci. Tato kritická cena musí splnit podmínky:
 
@@ -863,7 +862,7 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
     S^* - K = C(S^*, K, \sigma, r, T, q) + (1 - e^{-qT} N[d_1(S^*)])S^*\frac{1}{q_2}.\label{eq:s_star_stock_price}
   \end{equation}
 
-  \citep[Kapitola~3.1]{Haug2007}
+  \citep[kapitola~3.1]{Haug2007}
 
   Pro americké put opce Baroneho-Adesiho a Whaleyho metoda má následující znění:
 
@@ -884,7 +883,7 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
 
   a parametry $d_1(S), M, N, \kappa$ jsou stejné jako v \ref{BAW_params}.
 
-  \citep[Kapitola~3.1]{Haug2007}
+  \citep[kapitola~3.1]{Haug2007}
 
   $S^{**}$ značí kritickou cenu akcie pro put opci. Tato cena musí splňovat:
 
@@ -894,7 +893,7 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
 
   % TODO: Dopsat americké opce
 
-  \citep[Kapitola~3.1]{Haug2007}
+  \citep[kapitola~3.1]{Haug2007}
 
   Kritické ceny akcie $S^*$ a $S^{**}$ hledáme pomocí iterativních metod. V této práci je použita Newtonova-Raphsonova metoda.
 
@@ -904,7 +903,7 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
 
   \label{sec:bs_nr}
   Newtonova-Raphsonova metoda je numerická metoda využívající derivaci funkce k přiblížení se k hledané hodnotě. Metoda se používá pro nalezení kořenu dané funkce.
-  Mějme funkci $f(x)$ a počáteční odhad $x_0$. Chceme najít $x$ takové, že $f(x) = 0$. Principem algoritmu je prodloužení směrnice funkce v bodě počátečního odhadu až do nulové funkční hodnoty. Pro $x_0$ nastavíme jako zlepšení odhadu bod $x$ takový, že $x$ leží na průniku směrnice $f(x_0)$ a osy $x$. Takto můžeme postupně zlepšovat $x$, dokud $f(x) = 0$. \citep[Kapitola~9.4]{Press2007}
+  Mějme funkci $f(x)$ a počáteční odhad $x_0$. Chceme najít $x$ takové, že $f(x) = 0$. Principem algoritmu je prodloužení směrnice funkce v bodě počátečního odhadu až do nulové funkční hodnoty. Pro $x_0$ nastavíme jako zlepšení odhadu bod $x$ takový, že $x$ leží na průniku směrnice $f(x_0)$ a osy $x$. Takto můžeme postupně zlepšovat $x$, dokud $f(x) = 0$. \citep[kapitola~9.4]{Press2007}
 
   V matematickém předpise:
 
@@ -912,7 +911,7 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
     x_{i+1} = x_i - \frac{f(x_i)}{f'(x_i)}
   \end{equation}
 
-  Této rovnici říkáme Newtonova-Raphsonova formule \citep[Kapitola~9.4]{Press2007}.
+  Této rovnici říkáme Newtonova-Raphsonova formule \citep[kapitola~9.4]{Press2007}.
 
   Algoritmus se dá zapsat ve formě podobné Taylorovu polynomu:
 
@@ -936,9 +935,9 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
     f(x + \delta) = 0 \implies \delta \approx - \frac{f(x)}{f'(x)}.
   \end{equation}
 
-  \citep[Kapitola~9.4]{Press2007}
+  \citep[kapitola~9.4]{Press2007}
 
-  Naopak při dostatečně velkých hodnotách pro $\delta$ může algoritmus selhat. Pokud by se algoritmus dostal do okolí lokálního minima či maxima, další odhad může být nastaven na hodnotu velmi vzdálenou od kořene, což může zabránit konvergenci algoritmu. Alternativně se můžeme dostat na takový odhad, ve kterém se dostaneme do cyklu a funkce nekonverguje \citep[Kapitola~9.4]{Press2007}.
+  Naopak při dostatečně velkých hodnotách pro $\delta$ může algoritmus selhat. Pokud by se algoritmus dostal do okolí lokálního minima či maxima, další odhad může být nastaven na hodnotu velmi vzdálenou od kořene, což může zabránit konvergenci algoritmu. Alternativně se můžeme dostat na takový odhad, ve kterém se dostaneme do cyklu a funkce nekonverguje \citep[kapitola~9.4]{Press2007}.
 
   V blízkém okolí $\epsilon$ od $x$, můžeme aproximovat funkci $f$ a její derivaci jako:
 
@@ -959,7 +958,7 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
     \epsilon_{i+1} = - \epsilon^2_i \frac{f''(x)}{2 f'(x)}
   \end{equation}
 
-  \citep[Kapitola~9.4]{Press2007}
+  \citep[kapitola~9.4]{Press2007}
 
   \subsubsection{Nalezení kritické ceny akcie}
 
@@ -1070,7 +1069,7 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
 
   \section{Ohodnocování opcí pomocí přístupu Monte Carlo}
 
-  Metoda Monte Carlo je statistická metoda, užívaná pro velké množství aplikací, kupříkladu počítání vícerozměrných integrálů nebo simulace fyzikálních částic. Použití této metody spočívá ve vygenerování velkého množství pokusů, bodů či jiných relevantních veličin, a následného nalezení průměru, počtu aplikovatelných pokusů, apod. U varianty metody Monte Carlo použité na oceňování opcí princip spočívá v generování velkého množství potenciálních vývojů ceny akcie a následném zprůměrování výplat opce napříč těmito realizacemi \citep[Kapitola~1.1]{Glasserman2004}.
+  Metoda Monte Carlo je statistická metoda, užívaná pro velké množství aplikací, kupříkladu počítání vícerozměrných integrálů nebo simulace fyzikálních částic. Použití této metody spočívá ve vygenerování velkého množství pokusů, bodů či jiných relevantních veličin, a následného nalezení průměru, počtu aplikovatelných pokusů, apod. U varianty metody Monte Carlo použité na oceňování opcí princip spočívá v generování velkého množství potenciálních vývojů ceny akcie a následném zprůměrování výplat opce napříč těmito realizacemi \citep[kapitola~1.1]{Glasserman2004}.
 
   Jádro metody Monte Carlo spočívá v zákoně velkých čísel. Zákon velkých čísel říká, že máme-li posloupnost nezávislých stejně rozdělených náhodných veličin $X_1, X_2, \dots, X_n$ s konečnou střední hodnotou $\mu = \mathbb{E}[X_1]$, potom výběrový průměr konverguje k $\mu$ ve smyslu:
 
@@ -1092,7 +1091,7 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
 
   \subsubsection{Užití rizikově-neutrálního ohodnocení}
 
-  K generování náhodných cen používáme geometrický Brownův pohyb (GBM). Stejný model stojí i za binomickými stromy z~kapitoly~\ref{sec:binom}: parametry $u = e^{(r - q)T + \sigma\sqrt{T}}$ a $d = e^{(r - q)T - \sigma\sqrt{T}}$ jsou jeho diskrétní analogií. Zatímco u binomických stromů aproximujeme GBM binomickým rozdělením, v Monte Carlu generujeme spojité trajektorie přímo \citep[Kapitola~80.2]{Wilmott2006}.
+  K generování náhodných cen používáme geometrický Brownův pohyb (GBM). Stejný model stojí i za binomickými stromy z~kapitoly~\ref{sec:binom}: parametry $u = e^{(r - q)T + \sigma\sqrt{T}}$ a $d = e^{(r - q)T - \sigma\sqrt{T}}$ jsou jeho diskrétní analogií. Zatímco u binomických stromů aproximujeme GBM binomickým rozdělením, v Monte Carlu generujeme spojité trajektorie přímo \citep[kapitola~80.2]{Wilmott2006}.
 
   Proměnnou $\sigma$ můžeme nastavit jako historickou volatilitu (či implikovanou volatilitu, je-li k dispozici). Jako $\mu$ bychom pro generování vývojů s reálnými pravděpodobnostmi museli znát předem očekávaný výnos, který lze jen obtížně odhadnout.
 
@@ -1117,7 +1116,7 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
     S_{t + \Delta t} = S_t \exp\!\left( (r - \frac{\sigma^2}{2}) \Delta t + \sigma \sqrt{\Delta t} \, Z \right), \quad Z \sim \mathcal{N}(0,1), \label{eq:exact_gbm}
   \end{equation}
 
-  které použijeme pro samotnou simulaci v následující sekci \citep[Kapitola~1.1]{Glasserman2004}.
+  které použijeme pro samotnou simulaci v následující sekci \citep[kapitola~1.1]{Glasserman2004}.
 
   \subsubsection{Proč jsou ceny lognormální}
 
@@ -1136,7 +1135,7 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
 
   Pro samotnou simulaci použijeme přímo vzorec~\eqref{eq:exact_gbm}, který generuje lognormální ceny bez nutnosti diskretizace SDE.
 
-  \citep[Kapitola~24.3]{McDonald2013}, \citep[Kapitola~80.3]{Wilmott2006}
+  \citep[kapitola~24.3]{McDonald2013}, \citep[kapitola~80.3]{Wilmott2006}
 
   \subsubsection{Generování cest}
 
@@ -1150,7 +1149,7 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
 
   Pro evropskou opci stačí $M = 1$, tedy jediný skok přímo do splatnosti. Pro opce vyžadující celou cestu je vhodný počet kroků otázkou kompromisu: málo kroků snižuje přesnost (zejména u rozhodování o předčasném uplatnění), mnoho kroků zpomaluje výpočet. Obecně se volí 50--252 kroků ročně (tj. týdenní až denní kroky).
 
-  \citep[Kapitola~24.3]{McDonald2013}
+  \citep[kapitola~24.3]{McDonald2013}
 
   \subsection{Výpočet hodnoty opce}
 
@@ -1160,7 +1159,7 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
     V_0 = e^{-rT} \frac{1}{N} \sum_{i=1}^{N} V(S_i).
   \end{equation}
 
-  \citep[Kapitola~1.1]{Glasserman2004}
+  \citep[kapitola~1.1]{Glasserman2004}
 
   Diskontování bezrizikovou sazbou $r$ převádí výplatu v čase $T$ na její současnou hodnotu v čase $0$.
 
@@ -1185,7 +1184,7 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
     P = e^{-rT} \frac{1}{N} \sum_{i=1}^N \max(0, K - S_i).
   \end{equation}
 
-  \citep[Kapitola~24.4]{McDonald2013}
+  \citep[kapitola~24.4]{McDonald2013}
 
   \subsection{Zlepšení odhadu}
 
@@ -1216,11 +1215,11 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
 
   Díky použití stejné sady náhodných čísel pro $V_1^*$ i $V_2^*$ můžeme očekávat, že chyby obou odhadů jsou vzájemně korelované, a jejich odečtením se rozptyl sníží.
 
-  \citep[Kapitola~80.13.2]{Wilmott2006}
+  \citep[kapitola~80.13.2]{Wilmott2006}
 
   Podobná opce musí být na stejné akcii, a musí mít stejnou expiraci. Lišit se mohou ve strike ceně.
 
-  Směrodatná odchylka odhadu ceny opcí vypočtených Monte Carlo metodou s kontrolní proměnnou je 10 \% směrodatné odchylky odhadu ceny opcí vypočtených naivním Monte Carlo \citep[Kapitola~24.5]{McDonald2013}.
+  Směrodatná odchylka odhadu ceny opcí vypočtených Monte Carlo metodou s kontrolní proměnnou je 10 \% směrodatné odchylky odhadu ceny opcí vypočtených naivním Monte Carlo \citep[kapitola~24.5]{McDonald2013}.
 
   \subsubsection{Antitetické proměnné (antithetic variates)}
 
@@ -1238,7 +1237,7 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
     \hat{V}_{AV} = \frac{1}{N} \sum_{i=1}^N \frac{V(Z_i) + V(-Z_i)}{2}.
   \end{equation}
 
-  \citep[Kapitola~24.5]{McDonald2013}, \citep[Kapitola~4.2]{Glasserman2004} 
+  \citep[kapitola~24.5]{McDonald2013}, \citep[kapitola~4.2]{Glasserman2004} 
 
   \subsection{Americké opce}
 
@@ -1288,7 +1287,7 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
       kde $\text{CF}_i(0)$ je celková diskontovaná výplata z $i$-té cesty.
   \end{enumerate}
 
-  \citep{LongstaffSchwartz2001}, \citep[Kapitola~80.16]{Wilmott2006}
+  \citep{LongstaffSchwartz2001}, \citep[kapitola~80.16]{Wilmott2006}
 
   \subsubsection{Výběr bázické funkce}
 
@@ -1300,7 +1299,7 @@ Forwardovou cenu vyjádříme jako \(F = Se^{(r-q)T}\). Její současná hodnota
 
   Longstaff a Schwartz (2001) původně použili Laguerrovy polynomy, v praxi se však osvědčily jednoduché polynomické funkce \(\{1, X, X^2\}\). Jejich výhodou je, že \(\mathbb{E}[Y \mid X]\) lze dobře aproximovat i malým počtem členů. Více členů zlepšuje přesnost, ale hrozí přeučení (overfitting) — pro naše účely je kvadratická regrese dostačující. Koeficienty \(\beta_j\) se získají metodou nejmenších čtverců na ITM cestách.
 
-  \citep{LongstaffSchwartz2001}, \citep[Kapitola~8.4]{Glasserman2004}
+  \citep{LongstaffSchwartz2001}, \citep[kapitola~8.4]{Glasserman2004}
 
   \subsection{Výhody a nevýhody}
 
@@ -1484,7 +1483,7 @@ Výsledný dataset obsahuje 168~996 opčních kontraktů na 12 amerických akci�
 
   \subsection{Blackův-Scholesův model}
 
-  Vzhledem k jednoduchosti implementace pro evropské opce, a zdánlivé zvládnutelnosti implementace pro opce americké, byl Blackův-Scholesův model v této práci implementován ručně. K implementaci byly použity formulace zmíněny v sekci \ref{sec:black-scholes_theory}, tudíž formulace Blackova-Scholesova modelu s Mertonovo rozšířením dle \citep[Kapitola~15.1]{McDonald2013} a stejný model s Baroneho-Adesiho a Whaleyho aproximací dle \citep[Kapitola~3.1]{Haug2007} pro americké opce.
+  Vzhledem k jednoduchosti implementace pro evropské opce, a zdánlivé zvládnutelnosti implementace pro opce americké, byl Blackův-Scholesův model v této práci implementován ručně. K implementaci byly použity formulace zmíněny v sekci \ref{sec:black-scholes_theory}, tudíž formulace Blackova-Scholesova modelu s Mertonovo rozšířením dle \citep[kapitola~15.1]{McDonald2013} a stejný model s Baroneho-Adesiho a Whaleyho aproximací dle \citep[kapitola~3.1]{Haug2007} pro americké opce.
 
   Implementace pro evropské opce je v podstatě přesný přespis znění Blackova-Scholesova modelu s Mertonovo rozšířením, s pořešením okrajového případu, kde $T = 0$, pro který místo výpočtu vrátíme okamžitou výplatu z využití opce.
 

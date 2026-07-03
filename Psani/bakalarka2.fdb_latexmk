@@ -1,12 +1,12 @@
 # Fdb version 4
-["biber bakalarka2"] 1782576460.60767 "bakalarka2.bcf" "bakalarka2.bbl" "bakalarka2" 1782593265.02473 0
-  "bakalarka2.bcf" 1782593264.36859 139786 c0b11ae834b8301e4981aa03b80d7e40 "lualatex"
+["biber bakalarka2"] 1783076406.49063 "bakalarka2.bcf" "bakalarka2.bbl" "bakalarka2" 1783076413.84714 0
+  "bakalarka2.bcf" 1783076413.20587 139721 ec073a96b96a329aa30d57e1a6219636 "lualatex"
   "thesis.bib" 1782339464.91503 3993 50202d5c127497b0e098b2af921c2464 ""
   (generated)
   "bakalarka2.bbl"
   "bakalarka2.blg"
   (rewritten before read)
-["lualatex"] 1782593255.18255 "bakalarka2.tex" "bakalarka2.pdf" "bakalarka2" 1782593265.02513 0
+["lualatex"] 1783076407.32646 "bakalarka2.tex" "bakalarka2.pdf" "bakalarka2" 1783076413.8475 0
   "/etc/texmf/tex/generic/config/language.dat" 1775415801 2774 23432d78ba890d76256b3f33c553a888 ""
   "/etc/texmf/tex/generic/config/language.dat.lua" 1775415801 1493 0cf75b944ee4f3579780f7adace81c20 ""
   "/home/matej/.texlive/texmf-var/luatex-cache/generic/fonts/hb/062c5352532e8e3f15b9c33cbb9c6500a94e4eeeddd357d6bbe30511b9050754.luc" 1776984476.74431 90645 b1917e77675a1cc34a4de609a9e251a7 ""
@@ -242,11 +242,11 @@
   "/var/lib/texmf/web2c/luahbtex/lualatex.fmt" 1780226639 5659738 57ea8c91456e716429b235e8061dabe1 ""
   "LOGO_PRF_CZ_RGB_standard.jpg" 1779085239.53794 68207 42e9215e5a3b51f4a5d7e51b7c017441 ""
   "appendix_a.tex" 1782583704.89638 2789 07fdde66d02d1a63654cef3e11cd9dcd ""
-  "bakalarka2.aux" 1782593264.33859 49198 cba4a8aeeec5a3e0b4bccb2922b7addb "lualatex"
-  "bakalarka2.bbl" 1782576461.46121 42054 4400f02c04fb6ce5532dc10126654f8d "biber bakalarka2"
-  "bakalarka2.run.xml" 1782593264.37059 2596 746b3b729dc0ef0d9075046bbe1d0f8b "lualatex"
-  "bakalarka2.tex" 1782593245.93659 118316 bca64d9b61201c56281252803c7b0068 ""
-  "bakalarka2.toc" 1782593264.37059 6100 717581b55e4f096bd7a1a2cb29a6212d "lualatex"
+  "bakalarka2.aux" 1783076413.18687 48366 e4306714d98ca1c27f1f23cffaa8c279 "lualatex"
+  "bakalarka2.bbl" 1783076407.30487 42054 4400f02c04fb6ce5532dc10126654f8d "biber bakalarka2"
+  "bakalarka2.run.xml" 1783076413.20725 2596 560600cac3f18fd5b2f084fd9a40082a "lualatex"
+  "bakalarka2.tex" 1783076399.63087 118722 b32da37d846627635aca17be1431a5ba ""
+  "bakalarka2.toc" 1783076413.20725 6024 2f89f4c67bc52f8383c39df0bb558376 "lualatex"
   "figures/error-by-ticker_all.pdf" 1782576104.06839 8357 027b5ff0ef6688f7cc01e2894d42e5dc ""
   "figures/error-by-time.pdf" 1782580040.09629 14131 5027e202a6a029942b3faadb9eb39216 ""
   "figures/error-by-volatility.pdf" 1782579873.56947 12505 1674250c4c9f4e7b1a49f799259d6076 ""
