@@ -1,12 +1,12 @@
 # Fdb version 4
-["biber bakalarka2"] 1783076406.49063 "bakalarka2.bcf" "bakalarka2.bbl" "bakalarka2" 1783076413.84714 0
-  "bakalarka2.bcf" 1783076413.20587 139721 ec073a96b96a329aa30d57e1a6219636 "lualatex"
-  "thesis.bib" 1782339464.91503 3993 50202d5c127497b0e098b2af921c2464 ""
+["biber bakalarka2"] 1783093464.52154 "bakalarka2.bcf" "bakalarka2.bbl" "bakalarka2" 1783123039.47804 0
+  "bakalarka2.bcf" 1783123038.87693 139654 60634e047bc56f7916ec9556e984064e "lualatex"
+  "thesis.bib" 1783093463.09326 4038 1f5e6fb84de9411565272830aad9534f ""
   (generated)
   "bakalarka2.bbl"
   "bakalarka2.blg"
   (rewritten before read)
-["lualatex"] 1783076407.32646 "bakalarka2.tex" "bakalarka2.pdf" "bakalarka2" 1783076413.8475 0
+["lualatex"] 1783123033.02723 "bakalarka2.tex" "bakalarka2.pdf" "bakalarka2" 1783123039.47842 0
   "/etc/texmf/tex/generic/config/language.dat" 1775415801 2774 23432d78ba890d76256b3f33c553a888 ""
   "/etc/texmf/tex/generic/config/language.dat.lua" 1775415801 1493 0cf75b944ee4f3579780f7adace81c20 ""
   "/home/matej/.texlive/texmf-var/luatex-cache/generic/fonts/hb/062c5352532e8e3f15b9c33cbb9c6500a94e4eeeddd357d6bbe30511b9050754.luc" 1776984476.74431 90645 b1917e77675a1cc34a4de609a9e251a7 ""
@@ -41,7 +41,6 @@
   "/usr/share/texmf-dist/fonts/tfm/public/cm/cmmi10.tfm" 1775415801 1528 abec98dbc43e172678c11b3b9031252a ""
   "/usr/share/texmf-dist/fonts/tfm/public/cm/cmmi12.tfm" 1775415801 1524 4414a8315f39513458b80dfc63bff03a ""
   "/usr/share/texmf-dist/fonts/tfm/public/cm/cmmi5.tfm" 1775415801 1508 3b32edd0d68f6498a5a375e78f9edc5e ""
-  "/usr/share/texmf-dist/fonts/tfm/public/cm/cmmi6.tfm" 1775415801 1512 f21f83efb36853c0b70002322c1ab3ad ""
   "/usr/share/texmf-dist/fonts/tfm/public/cm/cmmi7.tfm" 1775415801 1528 e2423ae06dc7dee599cceb79d1c9dc32 ""
   "/usr/share/texmf-dist/fonts/tfm/public/cm/cmmi9.tfm" 1775415801 1524 d89e2d087a9828407a196f428428ef4a ""
   "/usr/share/texmf-dist/tex/context/base/mkii/supp-pdf.mkii" 1775415801 71627 94eb9990bed73c364d7f53f960cc8c5b ""
@@ -94,7 +93,6 @@
   "/usr/share/texmf-dist/tex/latex/biblatex/blx-case-expl3.sty" 1775415801 9961 107fdb78f652fccae7bce0d23bdc19cd ""
   "/usr/share/texmf-dist/tex/latex/biblatex/blx-compat.def" 1775415801 13919 5426dbe90e723f089052b4e908b56ef9 ""
   "/usr/share/texmf-dist/tex/latex/biblatex/blx-dm.def" 1775415801 32761 18d14e3b502c120f79b2184de4e21d14 ""
-  "/usr/share/texmf-dist/tex/latex/biblatex/blx-natbib.def" 1775415801 2190 4b4fcc6752fa7201177431e523c40d74 ""
   "/usr/share/texmf-dist/tex/latex/biblatex/blx-unicode.def" 1775415801 3826 b1b1ddae2ee92ba165499a80e7294313 ""
   "/usr/share/texmf-dist/tex/latex/biblatex/lbx/american.lbx" 1775415801 169 40f2892b6b9cee1ffa9c07b78605a5a1 ""
   "/usr/share/texmf-dist/tex/latex/biblatex/lbx/czech.lbx" 1775415801 33845 f01d11eb31680362cfd7dd43a463378b ""
@@ -242,11 +240,11 @@
   "/var/lib/texmf/web2c/luahbtex/lualatex.fmt" 1780226639 5659738 57ea8c91456e716429b235e8061dabe1 ""
   "LOGO_PRF_CZ_RGB_standard.jpg" 1779085239.53794 68207 42e9215e5a3b51f4a5d7e51b7c017441 ""
   "appendix_a.tex" 1782583704.89638 2789 07fdde66d02d1a63654cef3e11cd9dcd ""
-  "bakalarka2.aux" 1783076413.18687 48366 e4306714d98ca1c27f1f23cffaa8c279 "lualatex"
-  "bakalarka2.bbl" 1783076407.30487 42054 4400f02c04fb6ce5532dc10126654f8d "biber bakalarka2"
-  "bakalarka2.run.xml" 1783076413.20725 2596 560600cac3f18fd5b2f084fd9a40082a "lualatex"
-  "bakalarka2.tex" 1783076399.63087 118722 b32da37d846627635aca17be1431a5ba ""
-  "bakalarka2.toc" 1783076413.20725 6024 2f89f4c67bc52f8383c39df0bb558376 "lualatex"
+  "bakalarka2.aux" 1783123038.85793 48402 47981b0865fe363f1a02aab8b10136df "lualatex"
+  "bakalarka2.bbl" 1783093465.38826 44956 6850cfb7ac94861a9f00254bbb68fb71 "biber bakalarka2"
+  "bakalarka2.run.xml" 1783123038.87924 2562 ecee5b41c9b2358c192a1a6fec1b1f47 "lualatex"
+  "bakalarka2.tex" 1783123024.00693 121053 b0337d0b025338b693ae9430cfc43912 ""
+  "bakalarka2.toc" 1783123038.87924 6155 86c3af80d9b74e4934b28d29275638f0 "lualatex"
   "figures/error-by-ticker_all.pdf" 1782576104.06839 8357 027b5ff0ef6688f7cc01e2894d42e5dc ""
   "figures/error-by-time.pdf" 1782580040.09629 14131 5027e202a6a029942b3faadb9eb39216 ""
   "figures/error-by-volatility.pdf" 1782579873.56947 12505 1674250c4c9f4e7b1a49f799259d6076 ""

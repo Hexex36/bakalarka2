@@ -151,7 +151,6 @@ INPUT /usr/share/texmf-dist/tex/latex/biblatex/blx-unicode.def
 INPUT /usr/share/texmf-dist/tex/generic/unicode-data/UnicodeData.txt
 INPUT /usr/share/texmf-dist/tex/latex/biblatex/blx-compat.def
 INPUT /usr/share/texmf-dist/tex/latex/biblatex/biblatex.def
-INPUT /usr/share/texmf-dist/tex/latex/biblatex/blx-natbib.def
 INPUT /usr/share/texmf-dist/tex/latex/biblatex-apa/apa.bbx
 INPUT /usr/share/texmf-dist/tex/latex/biblatex/bbx/standard.bbx
 INPUT /usr/share/texmf-dist/tex/latex/biblatex-apa/apa.cbx
@@ -258,18 +257,6 @@ INPUT ./bakalarka2.toc
 OUTPUT bakalarka2.toc
 INPUT /usr/share/texmf-dist/fonts/tfm/public/cm/cmmi5.tfm
 INPUT /usr/share/texmf-dist/fonts/tfm/public/amsfonts/symbols/msam5.tfm
-INPUT /usr/share/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm5.tfm
-INPUT /usr/share/texmf-dist/fonts/tfm/public/cm/cmmi6.tfm
-INPUT /usr/share/texmf-dist/fonts/tfm/public/cm/cmmi5.tfm
-INPUT /usr/share/texmf-dist/fonts/tfm/public/amsfonts/symbols/msam7.tfm
-INPUT /usr/share/texmf-dist/fonts/tfm/public/amsfonts/symbols/msam5.tfm
-INPUT /usr/share/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm7.tfm
-INPUT /usr/share/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm5.tfm
-INPUT /usr/share/texmf-dist/fonts/tfm/public/cm/cmmi5.tfm
-INPUT /usr/share/texmf-dist/fonts/tfm/public/cm/cmmi5.tfm
-INPUT /usr/share/texmf-dist/fonts/tfm/public/amsfonts/symbols/msam5.tfm
-INPUT /usr/share/texmf-dist/fonts/tfm/public/amsfonts/symbols/msam5.tfm
-INPUT /usr/share/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm5.tfm
 INPUT /usr/share/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm5.tfm
 INPUT ./figures/validation-scatter_all.pdf
 INPUT ./figures/validation-scatter_all.pdf
