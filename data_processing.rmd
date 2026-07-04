@@ -1,9 +1,11 @@
-# Setup + načtení stock price dat
-
-```{r load_stock_data}
+```{r setup}
 library(readr)
 library(dplyr)
+```
 
+# Načtení stock price dat
+
+```{r load_stock_data}
 stock_jan <- read_csv("Data_fetch/stock_prices_2026-01-26.csv")
 stock_feb <- read_csv("Data_fetch/stock_prices_2026-02-27.csv")
 stock_mar <- read_csv("Data_fetch/stock_prices_2026-03-27.csv")
@@ -37,26 +39,18 @@ s_no_div_may <- calc_S_no_dividend(stock_may)
 # Funkce pro výpočet T
 
 ```{r calc_T}
-calc_T <- function(origin_date, expirations, stock_df) {
+calc_T <- function(origin_date, expirations) {
   data.frame(expiration = expirations) %>%
-    rowwise() %>%
-    mutate(
-      trading_days = (as.numeric(as.Date(expiration) - origin_date) + 1) / 365 * 252,
-      whole_weeks = trading_days %/% 5,
-      remaining = trading_days %% 5,
-      T = (whole_weeks + remaining / 5) / 52
-    ) %>%
-    select(expiration, T) %>%
-    ungroup()
+    mutate(T = (as.numeric(as.Date(expiration) - origin_date) + 1) / 365)
 }
 ```
 
 # Funkce pro enrichment options dat
 
 ```{r enrich_options}
-enrich_options <- function(options_df, origin_date, s_no_div_df, stock_df, style) {
+enrich_options <- function(options_df, origin_date, s_no_div_df, style) {
   unique_expirations <- unique(options_df$expiration)
-  t_df <- calc_T(origin_date, unique_expirations, stock_df)
+  t_df <- calc_T(origin_date, unique_expirations)
 
   options_df %>%
     left_join(s_no_div_df, by = c("ticker" = "Ticker")) %>%
@@ -91,16 +85,16 @@ origin_feb <- as.Date("2026-02-27")
 origin_mar <- as.Date("2026-03-27")
 origin_may <- as.Date("2026-05-26")
 
-am_jan <- enrich_options(am_jan, origin_jan, s_no_div_jan, stock_jan, "American")
-am_feb <- enrich_options(am_feb, origin_feb, s_no_div_feb, stock_feb, "American")
-am_mar <- enrich_options(am_mar, origin_mar, s_no_div_mar, stock_mar, "American")
+am_jan <- enrich_options(am_jan, origin_jan, s_no_div_jan, "American")
+am_feb <- enrich_options(am_feb, origin_feb, s_no_div_feb, "American")
+am_mar <- enrich_options(am_mar, origin_mar, s_no_div_mar, "American")
 
-eu_jan <- enrich_options(eu_jan, origin_jan, s_no_div_jan, stock_jan, "European")
-eu_feb <- enrich_options(eu_feb, origin_feb, s_no_div_feb, stock_feb, "European")
-eu_mar <- enrich_options(eu_mar, origin_mar, s_no_div_mar, stock_mar, "European")
+eu_jan <- enrich_options(eu_jan, origin_jan, s_no_div_jan, "European")
+eu_feb <- enrich_options(eu_feb, origin_feb, s_no_div_feb, "European")
+eu_mar <- enrich_options(eu_mar, origin_mar, s_no_div_mar, "European")
 
-am_may <- enrich_options(am_may, origin_may, s_no_div_may, stock_may, "American")
-eu_may <- enrich_options(eu_may, origin_may, s_no_div_may, stock_may, "European")
+am_may <- enrich_options(am_may, origin_may, s_no_div_may, "American")
+eu_may <- enrich_options(eu_may, origin_may, s_no_div_may, "European")
 ```
 
 # Sloučení a uložení

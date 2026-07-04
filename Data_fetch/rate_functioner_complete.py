@@ -2,7 +2,7 @@ import os
 
 import pandas as pd
 import numpy as np
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Dict, Optional
 
 COLUMN_MAPPING = {
@@ -265,11 +265,18 @@ class RateFuncer:
             lambda x: stock_data_map.get(x, {}).get("volatility")
         )
         
-        # Add dividend yield column
-        options_df["dividend_yield"] = options_df["Ticker"].map(
-            lambda x: stock_data_map.get(x, {}).get("dividend_yield")
+        # Compute dividend yield per option row (depends on expiration, rate, stock price)
+        options_df["dividend_yield"] = options_df.apply(
+            lambda row: stock_calculator.calculate_q_for_option(
+                ticker=row["Ticker"],
+                expiration_date=row["Expiration"],
+                risk_free_rate=row["treasury_rate"],
+                stock_price=row["current_stock_price"],
+                target_date=target_date,
+            ),
+            axis=1,
         )
-        
+
         return options_df
 
 
@@ -365,6 +372,99 @@ class StockPriceVolatilityCalculator:
             print(f"Error calculating volatility for {ticker}: {e}")
             return None
  
+    def _analyze_dividend_pattern(self, ticker: str) -> Optional[Dict]:
+        """
+        Analyze historical dividends to determine average amount and frequency.
+
+        Returns dict with avg_dividend, avg_gap_days, last_div_date,
+        or None if no dividends found.
+        """
+        ticker_mask = self.stock_data["Ticker"] == ticker
+        ticker_data = self.stock_data[ticker_mask].copy()
+        ticker_data = ticker_data.sort_values(by="Date")
+
+        # Filter dividend events
+        div_events = ticker_data[ticker_data["Dividends"] > 0]
+
+        if len(div_events) == 0:
+            return None
+
+        avg_dividend = float(div_events["Dividends"].mean())
+        last_div_date = div_events["Date"].iloc[-1].normalize()
+
+        if len(div_events) >= 2:
+            gaps = div_events["Date"].diff().dt.days.dropna()
+            avg_gap_days = float(gaps.mean())
+        else:
+            avg_gap_days = None
+
+        return {
+            "avg_dividend": avg_dividend,
+            "avg_gap_days": avg_gap_days,
+            "last_div_date": last_div_date,
+        }
+
+    def calculate_q_for_option(
+        self,
+        ticker: str,
+        expiration_date: str,
+        risk_free_rate: float,
+        stock_price: float,
+        target_date: str,
+    ) -> float:
+        """
+        Calculate continuous dividend yield q for a specific option
+        using forward-looking projected dividends.
+
+        q = -ln(1 - D/S) / T
+
+        where D = sum of PV of expected dividends before expiration.
+        """
+        if not hasattr(self, "_pattern_cache"):
+            self._pattern_cache = {}
+        if ticker not in self._pattern_cache:
+            self._pattern_cache[ticker] = self._analyze_dividend_pattern(ticker)
+        pattern = self._pattern_cache[ticker]
+        if pattern is None:
+            return 0.0
+
+        target_dt = pd.to_datetime(target_date, utc=True).normalize()
+        exp_dt = pd.to_datetime(expiration_date, utc=True).normalize()
+
+        T_years = (exp_dt - target_dt).days / 365.25
+        if T_years <= 0:
+            return 0.0
+
+        avg_gap = pattern["avg_gap_days"]
+        if avg_gap is None or avg_gap <= 0:
+            return 0.0
+
+        avg_div = pattern["avg_dividend"]
+        if avg_div <= 0:
+            return 0.0
+
+        r = risk_free_rate if risk_free_rate is not None else 0.0
+
+        # Project forward from last dividend date
+        div_date = pattern["last_div_date"]
+
+        # Move to first dividend after target_date
+        while div_date <= target_dt:
+            div_date += timedelta(days=avg_gap)
+
+        # Sum PV of all dividends before expiration
+        D = 0.0
+        while div_date <= exp_dt:
+            t_i = (div_date - target_dt).days / 365.25
+            D += avg_div * np.exp(-r * t_i)
+            div_date += timedelta(days=avg_gap)
+
+        if D <= 0 or D >= stock_price:
+            return 0.0
+
+        q = -np.log(1 - D / stock_price) / T_years
+        return float(q)
+
     def calculate_dividend_yield(self, ticker: str, lookback_days: int = 252) -> Optional[float]:
         """
         Calculate continuous dividend yield from historical dividend payments.

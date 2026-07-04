@@ -13,7 +13,7 @@ american_data <- just_all %>% filter(option_style == "American")
 titul_summary_am <- american_data %>%
   group_by(ticker) %>%
   summarise(
-    dividend_status = ifelse(first(q) > 0, "Dividendový", "Bezdividendový"),
+    dividend_status = ifelse(max(q) > 0, "Dividendový", "Bezdividendový"),
     n_expirations = n_distinct(expiration),
     min_T = round(min(T), 3),
     max_T = round(max(T), 3),
@@ -31,7 +31,7 @@ european_data <- just_all %>% filter(option_style == "European")
 titul_summary_eu <- european_data %>%
   group_by(ticker) %>%
   summarise(
-    dividend_status = ifelse(first(q) > 0, "Dividendový", "Bezdividendový"),
+    dividend_status = ifelse(max(q) > 0, "Dividendový", "Bezdividendový"),
     n_expirations = n_distinct(expiration),
     min_T = round(min(T), 3),
     max_T = round(max(T), 3),
