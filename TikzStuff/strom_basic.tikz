@@ -11,6 +11,8 @@
 		\node [style=none] (12) at (4, 8.75) {$S = u^2S_0$};
 		\node [style=none] (13) at (4, 4.75) {$S = udS_0$};
 		\node [style=none] (14) at (4, 0.5) {$S = d^2S_0$};
+		\node [style=none] (15) at (-4, 4.25) {};
+		\node [style=none] (16) at (-4, 4.25) {$S = S_0$};
 	\end{pgfonlayer}
 	\begin{pgfonlayer}{edgelayer}
 		\draw (2) to (4);
