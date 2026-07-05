@@ -1,0 +1,4 @@
+Black-Scholes completed in: 23.61 seconds
+CRR Binomial Tree completed in: 234.93 seconds
+Monte Carlo completed in: 9298.95 seconds
+

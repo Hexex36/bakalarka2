@@ -53,9 +53,24 @@ head(euro_chains_mar)
 head(usa_chains_mar)
 ```
 
+``` {r data_may}
+euro_chains_may <- read_csv("./Data_fetch/european_options_2026-05-26_greeks.csv")
+usa_chains_may <- read_csv("././Data_fetch/american_options_2026-05-26_greeks.csv")
+
+origin_date <- as.Date("2026-05-26")
+
+# Calculate T for euro_chains (assuming there's an expiration column)
+euro_chains_may$T <- (as.numeric(as.Date(euro_chains_may$expiration) - origin_date) + 1) / 365
+# Calculate T for usa_chains
+usa_chains_may$T <- (as.numeric(as.Date(usa_chains_may$expiration) - origin_date) + 1) / 365
+
+head(euro_chains_may)
+head(usa_chains_may)
+```
+
 ``` {r coagulate_chains}
-euro_chains <- dplyr::bind_rows(euro_chains_jan, euro_chains_feb, euro_chains_mar)
-usa_chains <- dplyr::bind_rows(usa_chains_jan, usa_chains_feb, usa_chains_mar)
+euro_chains <- dplyr::bind_rows(euro_chains_jan, euro_chains_feb, euro_chains_mar, euro_chains_may)
+usa_chains <- dplyr::bind_rows(usa_chains_jan, usa_chains_feb, usa_chains_mar, usa_chains_may)
 ```
 
 ``` {r split_chains}

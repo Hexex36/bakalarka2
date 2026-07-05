@@ -1,0 +1,13 @@
+\begin{tikzpicture}
+	\begin{pgfonlayer}{nodelayer}
+		\node [style=new style 0] (2) at (-4, 3) {$V_{0, 0}$};
+		\node [style=new style 0] (3) at (0, 1) {$V_{1, 0}$};
+		\node [style=new style 0] (4) at (0, 5) {$V_{1, 1}$};
+		\node [style=none] (7) at (0, 6.5) {$S = uS_0$};
+		\node [style=none] (8) at (0, 2.5) {$S = dS_0$};
+	\end{pgfonlayer}
+	\begin{pgfonlayer}{edgelayer}
+		\draw (2) to (4);
+		\draw (2) to (3);
+	\end{pgfonlayer}
+\end{tikzpicture}

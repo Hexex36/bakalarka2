@@ -1,12 +1,12 @@
 # Fdb version 4
-["biber bakalarka2"] 1783093464.52154 "bakalarka2.bcf" "bakalarka2.bbl" "bakalarka2" 1783157144.97472 0
-  "bakalarka2.bcf" 1783157143.50906 139654 60634e047bc56f7916ec9556e984064e "lualatex"
-  "thesis.bib" 1783093463.09326 4038 1f5e6fb84de9411565272830aad9534f ""
+["biber bakalarka2"] 1783239197.74589 "bakalarka2.bcf" "bakalarka2.bbl" "bakalarka2" 1783239489.68675 0
+  "bakalarka2.bcf" 1783239488.44933 139730 e3b7b8d15e7c768428fa09d4e4fdbb7a "lualatex"
+  "thesis.bib" 1783206549.67259 4312 63673f899d3f79dc5fbea9fede28f879 ""
   (generated)
   "bakalarka2.bbl"
   "bakalarka2.blg"
   (rewritten before read)
-["lualatex"] 1783157126.82113 "bakalarka2.tex" "bakalarka2.pdf" "bakalarka2" 1783157144.97657 0
+["lualatex"] 1783239475.59478 "bakalarka2.tex" "bakalarka2.pdf" "bakalarka2" 1783239489.68739 0
   "/etc/texmf/tex/generic/config/language.dat" 1775415801 2774 23432d78ba890d76256b3f33c553a888 ""
   "/etc/texmf/tex/generic/config/language.dat.lua" 1775415801 1493 0cf75b944ee4f3579780f7adace81c20 ""
   "/home/matej/.texlive/texmf-var/luatex-cache/generic/fonts/hb/062c5352532e8e3f15b9c33cbb9c6500a94e4eeeddd357d6bbe30511b9050754.luc" 1776984476.74431 90645 b1917e77675a1cc34a4de609a9e251a7 ""
@@ -23,7 +23,7 @@
   "/home/matej/.texlive/texmf-var/luatex-cache/generic/fonts/otl/libertinusmath-regular.luc" 1776984478.33131 676850 6f995e31a3a9530f090a8fece44f6329 ""
   "/home/matej/.texlive/texmf-var/luatex-cache/generic/fonts/otl/lmroman12-bold.luc" 1776984474.88831 128286 2eada6e204f20e561b89bc6169b38d21 ""
   "/home/matej/.texlive/texmf-var/luatex-cache/generic/fonts/otl/lmroman12-regular.luc" 1776984473.93431 127657 842a8e48deccc1ef18d5ed9dce3da0d0 ""
-  "/home/matej/.texlive/texmf-var/luatex-cache/generic/names/luaotfload-lookup-cache.luc" 1782588318.06848 15409 1faddcb4cad831888895ec4d82f138e9 ""
+  "/home/matej/.texlive/texmf-var/luatex-cache/generic/names/luaotfload-lookup-cache.luc" 1783239133.00231 15506 4fcff35d52b28bd445210fc8458f1723 ""
   "/home/matej/.texlive/texmf-var/luatex-cache/generic/names/luaotfload-names.luc.gz" 1775430350.13166 414180 9b13a56f8b547c86199e76f1117ea850 ""
   "/usr/share/texmf-dist/fonts/opentype/adobe/sourcecodepro/SourceCodePro-Regular.otf" 1775415801 131128 f471e697282189889a1514d0ebcf5491 ""
   "/usr/share/texmf-dist/fonts/opentype/public/libertinus-fonts/LibertinusMath-Regular.otf" 1775415801 588848 85516be07e4691c1817fa657a3ec9349 ""
@@ -240,11 +240,11 @@
   "/var/lib/texmf/web2c/luahbtex/lualatex.fmt" 1780226639 5659738 57ea8c91456e716429b235e8061dabe1 ""
   "LOGO_PRF_CZ_RGB_standard.jpg" 1779085239.53794 68207 42e9215e5a3b51f4a5d7e51b7c017441 ""
   "appendix_a.tex" 1783157126.18006 2908 d4eff2dc0051f814053acf372071c885 ""
-  "bakalarka2.aux" 1783157143.45306 48402 47981b0865fe363f1a02aab8b10136df "lualatex"
-  "bakalarka2.bbl" 1783093465.38826 44956 6850cfb7ac94861a9f00254bbb68fb71 "biber bakalarka2"
-  "bakalarka2.run.xml" 1783157143.51193 2562 ecee5b41c9b2358c192a1a6fec1b1f47 "lualatex"
-  "bakalarka2.tex" 1783123024.00693 121053 b0337d0b025338b693ae9430cfc43912 ""
-  "bakalarka2.toc" 1783157143.51193 6155 86c3af80d9b74e4934b28d29275638f0 "lualatex"
+  "bakalarka2.aux" 1783239488.39633 48653 a0b5485de4443fc18b72e1cf91f9dedf "lualatex"
+  "bakalarka2.bbl" 1783239199.21532 48264 a1519b9b3bb892b8d5afaeb72b84c95a "biber bakalarka2"
+  "bakalarka2.run.xml" 1783239488.45233 2562 ecee5b41c9b2358c192a1a6fec1b1f47 "lualatex"
+  "bakalarka2.tex" 1783239473.80233 120889 7a7b43eb7e9077f1b46b10598d4ce61b ""
+  "bakalarka2.toc" 1783239488.45233 6048 c608445b3d45c183e91c079141fd4fff "lualatex"
   "figures/error-by-ticker_all.pdf" 1782576104.06839 8357 027b5ff0ef6688f7cc01e2894d42e5dc ""
   "figures/error-by-time.pdf" 1782580040.09629 14131 5027e202a6a029942b3faadb9eb39216 ""
   "figures/error-by-volatility.pdf" 1782579873.56947 12505 1674250c4c9f4e7b1a49f799259d6076 ""
@@ -253,7 +253,7 @@
   "figures/method-agreement.pdf" 1782582411.79035 10038347 8740b105a376757462876a85049807dd ""
   "figures/time-sensitivity.pdf" 1782582357.15495 12283 ed8b1d255661b99a9cf64426bc367863 ""
   "figures/validation-scatter.pdf" 1782590880.84654 11014801 070bc15ca571742b9457528753817cd6 ""
-  "figures/validation-scatter_all.pdf" 1782576081.1142 16242803 957b686e9977e704b7b0ae4f7cd72420 ""
+  "figures/validation-scatter_all.pdf" 1783171427.44348 22150667 6f329394c09a517a56ed6c1fe64edca0 ""
   "figures/volatility-sensitivity.pdf" 1782582299.62835 11475 14c2aecaca67f6293a173be0898929bd ""
   "kitheses.cls" 1781721616.00964 2600 f1349da43554586dcacdd1794eac1ada ""
   (generated)
