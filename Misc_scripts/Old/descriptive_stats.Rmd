@@ -1,0 +1,480 @@
+---
+title: "Deskriptivní statistika"
+output: html_document
+---
+
+- Cíle:
+    - Popis dat do práce
+    - Nalezení nesrovnalostí a chyb v datech
+    - Porovnání tržních a modelových cen
+
+```{r setup, include=FALSE}
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(knitr)
+library(kableExtra)
+dir.create("../figures", showWarnings = FALSE)
+
+load_prices <- function(path, am_eu, call_put) {
+  read_csv(path) %>%
+    mutate(am_eu = am_eu, call_put = call_put)
+}
+
+df_raw <- bind_rows(
+  load_prices("../calculated_prices/american_calls.csv", "american", "calls"),
+  load_prices("../calculated_prices/american_puts.csv", "american", "puts"),
+  load_prices("../calculated_prices/european_calls.csv", "european", "calls"),
+  load_prices("../calculated_prices/european_puts.csv", "european", "puts")
+) %>%
+  rename(true_price = option_price) %>%
+  mutate(
+    moneyness_regime = case_when(
+      call_put == "calls" & S / K < 0.95 ~ "OTM",
+      call_put == "calls" & S / K <= 1.05 ~ "ATM",
+      call_put == "calls" ~ "ITM",
+      call_put == "puts" & S / K < 0.95 ~ "ITM",
+      call_put == "puts" & S / K <= 1.05 ~ "ATM",
+      call_put == "puts" ~ "OTM"
+    ),
+    time_regime = case_when(
+      T <= 0.1 ~ "Short",
+      T <= 0.5 ~ "Medium",
+      TRUE ~ "Long"
+    )
+  )
+
+df <- df_raw
+
+df_model <- df_raw %>%
+  pivot_longer(cols = c(user_bs, user_crr, user_mc),
+               names_to = "model",
+               values_to = "teor_price") %>%
+  mutate(
+    model = recode(model, user_bs = "bs", user_crr = "crr", user_mc = "mc"),
+    rel_error = (teor_price - true_price) / true_price
+  )
+```
+
+## 0 – Global overview
+
+```{r global-overview}
+cat("Rows:", nrow(df), "| Columns:", ncol(df), "| Unique tickers:", n_distinct(df$ticker))
+```
+
+```{r global-counts}
+kable(
+  df %>% count(am_eu, call_put),
+  caption = "Počet opcí na kategorii"
+)
+```
+
+```{r global-numeric-summary}
+num_cols <- c("S", "K", "r", "sigma", "T", "q", "true_price")
+df_filtered <- df[df$true_price > 0, ]
+summary_rows <- lapply(num_cols, function(col) {
+  vals <- df_filtered[[col]]
+  data.frame(
+    column = col,
+    n = sum(!is.na(vals)),
+    na = sum(is.na(vals)),
+    mean = mean(vals, na.rm = TRUE),
+    sd = sd(vals, na.rm = TRUE),
+    min = min(vals, na.rm = TRUE),
+    median = median(vals, na.rm = TRUE),
+    max = max(vals, na.rm = TRUE)
+  )
+})
+kable(bind_rows(summary_rows), digits = 4, caption = "Globální summary všech numerických sloupců")
+```
+
+- Vysoké sigma pro ^VIX. VIX je index nad volatilitou. Musíme si dávat pozor, ale nemělo by být moc problémové.
+- KO obsahuje vysoké hodnoty pro `q` (0.136, 0.101). Podezřelé, nutno potom zkontrolovat. (Vysoké dividendy? 10 % je fakt hodně...)
+
+```{r ticker-summary}
+ticker_summary <- df %>%
+  group_by(ticker) %>%
+  summarise(
+    n = n(),
+    S_mean = mean(S, na.rm = TRUE),
+    S_min  = min(S, na.rm = TRUE),
+    S_max  = max(S, na.rm = TRUE),
+    K_mean = mean(K, na.rm = TRUE),
+    K_min  = min(K, na.rm = TRUE),
+    K_max  = max(K, na.rm = TRUE),
+    sigma_mean = mean(sigma, na.rm = TRUE),
+    sigma_min  = min(sigma, na.rm = TRUE),
+    sigma_max  = max(sigma, na.rm = TRUE),
+    T_min  = min(T, na.rm = TRUE),
+    T_max  = max(T, na.rm = TRUE),
+    q_mean = mean(q, na.rm = TRUE),
+    price_mean = mean(true_price, na.rm = TRUE),
+    price_min  = min(true_price, na.rm = TRUE),
+    price_max  = max(true_price, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(n))
+kable(ticker_summary, digits = 2, caption = "Per-ticker summary (seřazeno dle počtu opcí)")
+```
+
+## 1 – Coverage
+
+```{r coverage-category}
+kable(
+  df %>% count(am_eu, call_put),
+  caption = "Počet opcí na kategorii"
+)
+```
+
+```{r coverage-ticker-cat}
+ticker_cat_counts <- df %>%
+  count(ticker, call_put) %>%
+  pivot_wider(names_from = call_put, values_from = n, values_fill = 0)
+kable(ticker_cat_counts, caption = "Počet opcí na ticker × call/put")
+```
+
+```{r coverage-ticker-bar}
+df %>%
+  count(ticker) %>%
+  ggplot(aes(x = reorder(ticker, n), y = n)) +
+  geom_col() +
+  coord_flip() +
+  labs(x = "Ticker", y = "Počet opcí", title = "Počet opcí na ticker") +
+  theme_minimal()
+ggsave("../figures/descriptive_coverage_by_ticker.pdf", width = 8, height = 5)
+```
+
+NFLX má drtivě hodně opcí: 25k, čili o 25 % víc než druhá největší, NVDA.
+Z evropských má nejvíc RUT, po něm VIX. Zbytek je prakticky nepodstatný. RUT má >50% evropských opcí.
+
+```{r coverage-ticker-boxplot-american-calls}
+df %>%
+  filter(am_eu == "american", call_put == "calls") %>%
+  ggplot(aes(x = reorder(ticker, true_price, FUN = median), y = true_price)) +
+  geom_boxplot() +
+  labs(x = "Ticker", y = "Tržní cena", title = "Rozmezí true_price napříč tickery – american calls") +
+  theme_minimal()
+ggsave("../figures/descriptive_price_by_ticker_american_calls.pdf", width = 10, height = 6)
+```
+
+```{r coverage-ticker-boxplot-american-puts}
+df %>%
+  filter(am_eu == "american", call_put == "puts") %>%
+  ggplot(aes(x = reorder(ticker, true_price, FUN = median), y = true_price)) +
+  geom_boxplot() +
+  labs(x = "Ticker", y = "Tržní cena", title = "Rozmezí true_price napříč tickery – american puts") +
+  theme_minimal()
+ggsave("../figures/descriptive_price_by_ticker_american_puts.pdf", width = 10, height = 6)
+```
+
+```{r coverage-ticker-boxplot-european-calls}
+df %>%
+  filter(am_eu == "european", call_put == "calls") %>%
+  ggplot(aes(x = reorder(ticker, true_price, FUN = median), y = true_price)) +
+  geom_boxplot() +
+  labs(x = "Ticker", y = "Tržní cena", title = "Rozmezí true_price napříč tickery – european calls") +
+  theme_minimal()
+ggsave("../figures/descriptive_price_by_ticker_european_calls.pdf", width = 10, height = 6)
+```
+
+```{r coverage-ticker-boxplot-european-puts}
+df %>%
+  filter(am_eu == "european", call_put == "puts") %>%
+  ggplot(aes(x = reorder(ticker, true_price, FUN = median), y = true_price)) +
+  geom_boxplot() +
+  labs(x = "Ticker", y = "Tržní cena", title = "Rozmezí true_price napříč tickery – european puts") +
+  theme_minimal()
+ggsave("../figures/descriptive_price_by_ticker_european_puts.pdf", width = 10, height = 6)
+```
+
+## 2 – Distribuce vstupních parametrů
+
+```{r param-summary}
+param_data <- df %>% distinct(ticker, S, K, r, sigma, T, q, am_eu, call_put)
+
+param_summary <- param_data %>%
+  group_by(am_eu, call_put) %>%
+  summarise(
+    across(c(S, K, r, sigma, T, q),
+           list(mean = ~ mean(., na.rm = TRUE),
+                sd   = ~ sd(., na.rm = TRUE),
+                min  = ~ min(., na.rm = TRUE),
+                median = ~ median(., na.rm = TRUE),
+                max  = ~ max(., na.rm = TRUE)),
+           .names = "{.col}_{.fn}"),
+    .groups = "drop"
+  )
+kable(param_summary, digits = 4, caption = "Summary statistika parametrů dle kategorie")
+```
+
+```{r param-histograms}
+h_data <- param_data %>%
+  pivot_longer(cols = c(sigma, T, r, q), names_to = "param", values_to = "value")
+
+ggplot(h_data, aes(x = value)) +
+  geom_histogram(bins = 40, fill = "steelblue", alpha = 0.7) +
+  facet_wrap(~ param, scales = "free", ncol = 2) +
+  labs(x = "Hodnota", y = "Count", title = "Distribuce sigma, T, r, q") +
+  theme_minimal()
+ggsave("../figures/descriptive_param_histograms.pdf", width = 8, height = 6)
+```
+
+`q` je rozumně rozložené, většina v 0. Pár opcí na mezi 0.10 - 0.15 a 0.05 - 0.1, což je podezřelé.
+
+`r` má pro všechny opce rozumnou hodnotu.
+
+`sigma` nabývá od pohledu rozumných hodnot, většinou 0.3 - 0.7. Jsou tam nějaké které vypadají na 0.10 - 0.20 a 1+, nutno prozkoumat.
+
+## 3 – Moneyness & time profily
+
+
+```{r regime-table}
+regime_counts <- df %>%
+  count(am_eu, call_put, moneyness_regime, time_regime) %>%
+  pivot_wider(names_from = time_regime, values_from = n, values_fill = 0)
+kable(regime_counts, caption = "Počet opcí dle moneyness a time regime")
+```
+
+```{r regime-bar}
+df %>%
+  count(am_eu, call_put, moneyness_regime) %>%
+  mutate(moneyness_regime = factor(moneyness_regime, c("OTM", "ATM", "ITM"))) %>%
+  ggplot(aes(x = moneyness_regime, y = n, fill = moneyness_regime)) +
+  geom_col() +
+  facet_wrap(~ am_eu + call_put, scales = "free_y") +
+  labs(x = "Moneyness", y = "Počet opcí", title = "Rozložení moneyness dle kategorie") +
+  scale_fill_manual(values = c("OTM" = "#E41A1C", "ATM" = "#4DAF4A", "ITM" = "#377EB8")) +
+  theme_minimal()
+ggsave("../figures/descriptive_moneyness_bar.pdf", width = 8, height = 6)
+```
+
+```{r regime-moneyness-european-by-ticker}
+df %>%
+  filter(am_eu == "european") %>%
+  count(ticker, call_put, moneyness_regime) %>%
+  mutate(moneyness_regime = factor(moneyness_regime, c("OTM", "ATM", "ITM"))) %>%
+  ggplot(aes(x = reorder(ticker, n, sum), y = n, fill = moneyness_regime)) +
+  geom_col() +
+  facet_wrap(~ call_put, scales = "free_y") +
+  scale_fill_manual(values = c("OTM" = "#E41A1C", "ATM" = "#4DAF4A", "ITM" = "#377EB8")) +
+  labs(x = "Ticker", y = "Počet opcí", fill = "Moneyness",
+       title = "Moneyness evropských opcí dle tickeru") +
+  theme_minimal()
+ggsave("../figures/descriptive_moneyness_european_by_ticker.pdf", width = 8, height = 5)
+```
+
+Moneyness u amerických opcí vypadá dobře, většina v OTM/ITM, nějaký v ATM.
+Většina evropských opcí je OTM, potom asi 20% je ATM, a potom nejmíň je v ITM. To je podezřelé.
+Abnormální množství ATM opcí na RUT.
+
+## 4 – Ceny: trh vs model
+
+```{r price-summary}
+price_summary <- df_model %>%
+  group_by(am_eu, call_put, model) %>%
+  summarise(
+    across(c(true_price, teor_price),
+           list(mean = ~ mean(., na.rm = TRUE),
+                sd   = ~ sd(., na.rm = TRUE),
+                min  = ~ min(., na.rm = TRUE),
+                median = ~ median(., na.rm = TRUE),
+                max  = ~ max(., na.rm = TRUE)),
+           .names = "{.col}_{.fn}"),
+    .groups = "drop"
+  )
+kable(price_summary, digits = 4, caption = "Summary true_price a teor_price dle kategorie a modelu")
+```
+
+```{r price-boxplot}
+df_model %>%
+  pivot_longer(cols = c(true_price, teor_price), names_to = "type", values_to = "price") %>%
+  mutate(type = recode(type, true_price = "Trh", teor_price = "Model")) %>%
+  ggplot(aes(x = model, y = price, fill = type)) +
+  geom_boxplot(outlier.size = 0.3) +
+  facet_wrap(~ am_eu + call_put, scales = "free_y") +
+  labs(x = "Model", y = "Cena", title = "Tržní vs modelové ceny", fill = "Zdroj") +
+  theme_minimal()
+ggsave("../figures/descriptive_price_boxplot.pdf", width = 10, height = 8)
+```
+
+Pro americké opce, call opce jsou modely podhodnoceny a put opce jsou nadhodnoceny.
+Pro evropské opce je to právě naopak.
+
+## 5 – Relativní chyba
+
+```{r rel-error-summary}
+rel_summary <- df_model %>%
+  group_by(am_eu, call_put, model) %>%
+  summarise(
+    mean   = mean(rel_error, na.rm = TRUE),
+    median = median(rel_error, na.rm = TRUE),
+    sd     = sd(rel_error, na.rm = TRUE),
+    q1     = quantile(rel_error, 0.25, na.rm = TRUE),
+    q3     = quantile(rel_error, 0.75, na.rm = TRUE),
+    p5     = quantile(rel_error, 0.05, na.rm = TRUE),
+    p95    = quantile(rel_error, 0.95, na.rm = TRUE),
+    .groups = "drop"
+  )
+kable(rel_summary, digits = 4, caption = "Summary relativní chyby dle kategorie a modelu")
+```
+
+```{r rel-error-density}
+df_model %>%
+  ggplot(aes(x = rel_error, color = model, fill = model)) +
+  geom_density(alpha = 0.2) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "grey50") +
+  facet_wrap(~ am_eu + call_put, scales = "free") +
+  labs(x = "Relativní chyba (model - trh) / trh",
+       y = "Hustota",
+       title = "Distribuce relativní chyby",
+       color = "Model", fill = "Model") +
+  theme_minimal()
+ggsave("../figures/descriptive_rel_error_density.pdf", width = 10, height = 8)
+```
+
+```{r rel-error-heatmap}
+rel_heatmap <- df_model %>%
+  group_by(am_eu, call_put, model, moneyness_regime, time_regime) %>%
+  summarise(mean_rel_err = mean(rel_error, na.rm = TRUE), .groups = "drop") %>%
+  mutate(moneyness_regime = factor(moneyness_regime, c("OTM", "ATM", "ITM")))
+
+ggplot(rel_heatmap, aes(x = moneyness_regime, y = time_regime, fill = mean_rel_err)) +
+  geom_tile() +
+  geom_text(aes(label = sprintf("%.2f", mean_rel_err)), size = 2.5) +
+  facet_grid(am_eu + call_put ~ model) +
+  scale_fill_viridis_c() +
+  labs(x = "Moneyness", y = "Time to Expiration",
+       title = "Průměrná relativní chyba dle regime a modelu",
+       fill = "Mean rel. error") +
+  theme_minimal()
+ggsave("../figures/descriptive_rel_error_heatmap.pdf", width = 10, height = 8)
+```
+
+## 6 – Převzato z results.Rmd
+
+```{r scatter-true-vs-model}
+df_model %>%
+  ggplot(aes(x = true_price, y = teor_price)) +
+  geom_point(alpha = 0.05, size = 0.2) +
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray50") +
+  facet_wrap(~ am_eu + call_put + model, scales = "free", ncol = 3) +
+  labs(x = "Tržní cena", y = "Modelová cena",
+       title = "Modelové ceny vs tržní ceny") +
+  theme_minimal()
+ggsave("../figures/descriptive_scatter_all.pdf", width = 12, height = 10)
+```
+
+```{r error-metrics}
+error_metrics <- df_model %>%
+  mutate(abs_error = abs(true_price - teor_price)) %>%
+  group_by(am_eu, call_put, model) %>%
+  summarise(
+    MAE  = mean(abs_error, na.rm = TRUE),
+    RMSE = sqrt(mean((true_price - teor_price)^2, na.rm = TRUE)),
+    Bias = mean(true_price - teor_price, na.rm = TRUE),
+    .groups = "drop"
+  )
+kable(error_metrics, digits = 4, caption = "MAE, RMSE, Bias dle kategorie a modelu")
+```
+
+```{r error-rmse-by-ticker-american}
+df_model %>%
+  filter(am_eu == "american") %>%
+  mutate(abs_error = abs(true_price - teor_price)) %>%
+  group_by(call_put, model, ticker) %>%
+  summarise(RMSE = sqrt(mean((true_price - teor_price)^2, na.rm = TRUE)),
+            .groups = "drop") %>%
+  ggplot(aes(x = reorder(ticker, RMSE, mean), y = RMSE, fill = model)) +
+  geom_col(position = "dodge") +
+  facet_wrap(~ call_put, scales = "free_y") +
+  labs(x = "Ticker", y = "RMSE", title = "RMSE napříč tickery – americké opce") +
+  theme_minimal()
+ggsave("../figures/descriptive_rmse_by_ticker_american.pdf", width = 10, height = 6)
+```
+
+```{r error-rmse-by-ticker-european}
+df_model %>%
+  filter(am_eu == "european") %>%
+  mutate(abs_error = abs(true_price - teor_price)) %>%
+  group_by(call_put, model, ticker) %>%
+  summarise(RMSE = sqrt(mean((true_price - teor_price)^2, na.rm = TRUE)),
+            .groups = "drop") %>%
+  ggplot(aes(x = reorder(ticker, RMSE, mean), y = RMSE, fill = model)) +
+  geom_col(position = "dodge") +
+  facet_wrap(~ call_put, scales = "free_y") +
+  labs(x = "Ticker", y = "RMSE", title = "RMSE napříč tickery – evropské opce") +
+  theme_minimal()
+ggsave("../figures/descriptive_rmse_by_ticker_european.pdf", width = 10, height = 6)
+```
+
+```{r error-top25}
+top_errors <- df_model %>%
+  mutate(abs_error = abs(true_price - teor_price)) %>%
+  arrange(desc(abs_error)) %>%
+  slice_head(n = 25) %>%
+  select(ticker, S, K, T, model, true_price, teor_price, abs_error)
+kable(top_errors, digits = 4, caption = "Top 25 největších absolutních chyb")
+```
+
+```{r error-top25-zero-teor}
+top_errors_zero <- df_model %>%
+  filter(teor_price == 0, model != "mc") %>%
+  mutate(abs_error = abs(true_price - teor_price)) %>%
+  arrange(desc(abs_error)) %>%
+  slice_head(n = 25) %>%
+  select(ticker, S, K, T, model, true_price, teor_price, abs_error)
+kable(top_errors_zero, digits = 4, caption = "Top 25 největších absolutních chyb s teor_price = 0 (bez MC)")
+```
+
+```{r scatter-nflx-nvda}
+df_model %>%
+  filter(ticker %in% c("NFLX", "NVDA")) %>%
+  ggplot(aes(x = true_price, y = teor_price, color = ticker)) +
+  geom_point(alpha = 0.3, size = 0.5) +
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray50") +
+  facet_wrap(~ model) +
+  labs(x = "Tržní cena", y = "Modelová cena",
+       title = "NFLX a NVDA – modelové vs tržní ceny") +
+  theme_minimal()
+ggsave("../figures/descriptive_scatter_nflx_nvda.pdf", width = 10, height = 4)
+```
+
+```{r scatter-rut}
+df_model %>%
+  filter(ticker == "^RUT") %>%
+  ggplot(aes(x = true_price, y = teor_price, color = model)) +
+  geom_point(alpha = 0.3, size = 0.5) +
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray50") +
+  facet_wrap(~ call_put) +
+  labs(x = "Tržní cena", y = "Modelová cena",
+       title = "^RUT – modelové vs tržní ceny") +
+  theme_minimal()
+ggsave("../figures/descriptive_scatter_rut.pdf", width = 10, height = 4)
+```
+
+```{r scatter-american-remaining}
+df_model %>%
+  filter(am_eu == "american", !ticker %in% c("NFLX", "NVDA")) %>%
+  ggplot(aes(x = true_price, y = teor_price, color = ticker)) +
+  geom_point(alpha = 0.3, size = 0.5) +
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray50") +
+  facet_wrap(~ model) +
+  labs(x = "Tržní cena", y = "Modelová cena",
+       title = "Ostatní americké tituly – modelové vs tržní ceny") +
+  theme_minimal()
+ggsave("../figures/descriptive_scatter_american_remaining.pdf", width = 10, height = 5)
+```
+
+```{r scatter-european-remaining}
+df_model %>%
+  filter(am_eu == "european", ticker != "^RUT") %>%
+  ggplot(aes(x = true_price, y = teor_price, color = ticker)) +
+  geom_point(alpha = 0.3, size = 0.5) +
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray50") +
+  facet_wrap(~ model) +
+  labs(x = "Tržní cena", y = "Modelová cena",
+       title = "Ostatní evropské tituly – modelové vs tržní ceny") +
+  theme_minimal()
+ggsave("../figures/descriptive_scatter_european_remaining.pdf", width = 10, height = 5)
+```

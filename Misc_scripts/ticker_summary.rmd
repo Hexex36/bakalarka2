@@ -1,0 +1,111 @@
+---
+title: "Sumarizace titulů použitých při případových analýzách"
+author: "Bakalářská práce"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    keep_tex: true
+    toc: false
+    number_sections: false
+header-includes:
+  - \usepackage{booktabs}
+  - \usepackage{float}
+---
+
+```{r load_data, echo=FALSE, message=FALSE, warning=FALSE}
+library(readr)
+library(dplyr)
+library(knitr)
+library(tidyr)
+
+just_all <- read_csv("Data_fetch/complete_dataset.csv")
+```
+
+# Sumarizace titulů
+
+## Americké opce
+
+```{r american_summary, echo=FALSE, results='asis'}
+american_data <- just_all %>% filter(option_style == "American")
+
+titul_summary_am <- american_data %>%
+  group_by(ticker) %>%
+  summarise(
+    dividend_status = ifelse(max(q) > 0, "Dividendový", "Bezdividendový"),
+    n_expirations = n_distinct(expiration),
+    min_T = round(min(T), 3),
+    max_T = round(max(T), 3),
+    min_KS = round(min(pomer_K_S), 3),
+    max_KS = round(max(pomer_K_S), 3),
+    n_strikes = n_distinct(K),
+    n_options = n(),
+    .groups = "drop"
+  ) %>%
+  arrange(ticker)
+
+kable(titul_summary_am,
+      col.names = c("Titul", "Status", "# expirací", "Min T", "Max T", "Min K/S", "Max K/S", "# strike", "# opcí"),
+      caption = "Sumarizace amerických opcí",
+      format = "latex",
+      booktabs = TRUE) %>%
+  kableExtra::kable_styling(latex_options = "hold_position") %>%
+  kableExtra::add_footnote("T je počítáno jako (dny do expirace + 1) / 365, tj. 0DTE opce mají T = 1/365 ≈ 0.003.")
+```
+
+## Evropské opce
+
+```{r european_summary, echo=FALSE, results='asis'}
+european_data <- just_all %>% filter(option_style == "European")
+
+titul_summary_eu <- european_data %>%
+  group_by(ticker) %>%
+  summarise(
+    dividend_status = ifelse(max(q) > 0, "Dividendový", "Bezdividendový"),
+    n_expirations = n_distinct(expiration),
+    min_T = round(min(T), 3),
+    max_T = round(max(T), 3),
+    min_KS = round(min(pomer_K_S), 3),
+    max_KS = round(max(pomer_K_S), 3),
+    n_strikes = n_distinct(K),
+    n_options = n(),
+    .groups = "drop"
+  ) %>%
+  arrange(ticker)
+
+kable(titul_summary_eu,
+      col.names = c("Titul", "Status", "# expirací", "Min T", "Max T", "Min K/S", "Max K/S", "# strike", "# opcí"),
+      caption = "Sumarizace evropských opcí",
+      format = "latex",
+      booktabs = TRUE) %>%
+  kableExtra::kable_styling(latex_options = "hold_position") %>%
+  kableExtra::add_footnote("T je počítáno jako (dny do expirace + 1) / 365, tj. 0DTE opce mají T = 1/365 ≈ 0.003.")
+```
+
+# Dividendové vs bezdividendové opce
+
+```{r dividend_split, echo=FALSE, results='asis'}
+dividend_split <- just_all %>%
+  mutate(dividend_status = ifelse(q > 0, "Dividendové", "Bezdividendové")) %>%
+  group_by(dividend_status, option_style, option_type) %>%
+  summarise(pocet = n(), .groups = "drop") %>%
+  pivot_wider(names_from = c(option_style, option_type), values_from = pocet, values_fill = 0)
+
+kable(dividend_split,
+      col.names = c("Status", "American Call", "American Put", "European Call", "European Put"),
+      caption = "Počet opcí podle dividendového statusu a typu",
+      format = "latex",
+      booktabs = TRUE) %>%
+  kableExtra::kable_styling(latex_options = "hold_position")
+```
+
+# Celkový přehled
+
+```{r overview, echo=FALSE}
+cat("Celkový počet opcí:", nrow(just_all), "\n")
+cat("Počet titulů:", n_distinct(just_all$ticker), "\n")
+cat("Dividendové tituly:", sum(titul_summary_am$dividend_status == "Dividendový") + sum(titul_summary_eu$dividend_status == "Dividendový"), "\n")
+cat("Bezdividendové tituly:", sum(titul_summary_am$dividend_status == "Bezdividendový") + sum(titul_summary_eu$dividend_status == "Bezdividendový"), "\n")
+cat("Rozsah T:", min(just_all$T), "až", max(just_all$T), "\n")
+cat("Rozsah strike cen:", min(just_all$K), "až", max(just_all$K), "\n")
+```

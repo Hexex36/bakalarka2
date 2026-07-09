@@ -213,7 +213,7 @@ V Ústí nad Labem dne \today   \hfill Podpis: \makebox[4cm][s]{\dotfill}
 \vfill
 
 \begin{flushright}
-    Děkuji vedoucímu práce \vedouciDAT za pomoc při získávání literárních zdrojů, korekturu práce a objasnění mnoha nových termínů v oblasti opcí. \\
+    Děkuji vedoucímu práce \vedouciDAT, za pomoc při získávání literárních zdrojů, korekturu práce a objasnění mnoha nových termínů v oblasti opcí. \\
     Děkuji Ing. Romanovi Vaibarovi, Ph.D., MBA., za pomoc při výběru dat \\ a propujčení výpočetní síly pro zpracování dat.
 \end{flushright}
 
@@ -269,7 +269,17 @@ The goal of this bachelor's thesis is to systematize and compare stock option pr
 
 \chapter{Úvod}
 
-  Bakalářská práce se věnuje modelům ohodnocení opcí, specificky opcí na obchodní podíly. Cílem této práce je poskytnout čtenáři základní porozumění těchto modelů (včetně potřebných informací o opcích), a porovnat tyto modely z hlediska přesnosti oproti skutečným dat z burz, komplexity a času výpočtu a citlivosti na parametry opcí (volatilita, čas do expirace) pro evropské a americké kupní a prodejní opce. Práce se týká ohodnocení skrze Blackův-Scholesův model, vytvoření binomického stromu a simulace Monte Carlo. Výstupem práce je srovnání doporučených užití modelů pro použití ve firmní sféře a pro specficiké vlastnosti opce a akcie.
+  % Bakalářská práce se věnuje modelům ohodnocení opcí, specificky opcí na obchodní podíly. Cílem této práce je poskytnout čtenáři základní porozumění těchto modelů (včetně potřebných informací o opcích), a porovnat tyto modely z hlediska přesnosti oproti skutečným dat z burz, komplexity a času výpočtu a citlivosti na parametry opcí (volatilita, čas do expirace) pro evropské a americké kupní a prodejní opce. Práce se týká ohodnocení skrze Blackův-Scholesův model, vytvoření binomického stromu a simulace Monte Carlo. Výstupem práce je srovnání doporučených užití modelů pro použití ve firmní sféře a pro specficiké vlastnosti opce a akcie.
+
+  Práce se věnuje modelům ohodnocení opcí, specificky opcí na obchodní podíly. Opce jsou finanční kontrakty, které dávají držiteli možnost koupit/prodat specifické podkladové aktivum za předem dohodnutou cenu. Opce se používají především ke třem účelům: k zajištění proti nepříznivému vývoji ceny, ke spekulaci na budoucí cenové pohyby a k arbitráži mezi různými trhy.
+  Ohodnocování opcí je obsáhlá oblast finanční matematiky, z důvodu složitosti ohodnocení tohoto instrumentu. Musíme stanovit odhad vývoje aktiva, zjistit velikost potenciální výplaty v případě využití, a kolik by mělo držitele opce stát právo od obchodu odstoupit. Mimo to je ohodnocení různé pro různé typy opcí: evropské a americké, kupní a prodejní. S důležitostí opcí jako finančního instrumentu a složitosti úkolu je ohodnocování opcí stále velmi relevantní a zkoumané téma.
+  
+  Cílem této práce je poskytnout čtenáři základní porozumění fungování opcí, problematiky jejich ohodnocování a způsobů vypočtení jejich hodnoty, a poskytnout analýzu metod výpočtu hodnoty opcí, detailující doporučené případy použití, senzitivitu na jednotlivé parametry a porování s reálnými opčními daty.
+
+  Teoretická část objasňuje co to je opce, co působí na její cenu, jaké jsou její typy a na asociované koncepty ohodnocování, jako jsou put-call parita nebo rizikově-neutrální ohodnocení, a poté poskytne přehled a stručné vysvětlení fungování modelů ohodnocení.
+  Práce se zaměřuje na ohodnocení opcí pomocí binomických stromů, specificky Coxovy-Rossovy-Rubinsteinovými stromy, Blackovo-Scholesovo modelem a metodou Monte Carlo. Všechny metody jsou testovány na evropské i americké opce, kupní i prodejní opce a opce neplatící dividendy, i opce platící dividendy. Pro Blackovo-Scholesovo model bude uvedeno rozšíření na americké opce pomocí Baroneho-Adesiho a Whaleyho aproximace a pro Monte Carlo bude použita na ohodnocení amerických opcí Longstaff-Schwartzova metoda.
+
+  V praktické části je ukazána metodologie sběru dat z Yahoo Finance, způsob implementace ohodnocení a generování odhadů hodnoty opces následným porovnáním proti reálným datům, a regrese na jednotlivé parametry za účelem nalezení, který model je nejrezistetnější vůči extrémnosti daného parametru. Výstupem práce by mělo být srování případů užití, co se týče typů opcí, vlastností parametrů nebo časové náročnosti.
 
 \chapter{Teoretická část}
 
@@ -291,7 +301,7 @@ The goal of this bachelor's thesis is to systematize and compare stock option pr
     \item Pokud držitel má právo prodat aktivum, jedná se o \textbf{prodejní} neboli \textbf{put} opci.
   \end{itemize}
 
-  Cena opce není ovlivněna pouze cenou podkladového aktiva a strike cenou, ale také dobou do expirace $T$, volatilitou $\sigma$, bezrizikovou úrokovou mírou $r$ a případnými dividendami (jejichž spojitou míru označujeme $q$). Tabulka \ref{tab:price_modifiers} ukazuje, jestli má při zvýšení hodnoty daného faktoru, za předpokladu zachování hodnoty ostatních faktorů) cena opce tendenci klesat, či stoupat. 
+  Cena opce není ovlivněna pouze cenou podkladového aktiva a strike cenou, ale také dobou do expirace $T$, volatilitou $\sigma$, bezrizikovou úrokovou mírou $r$ a případnými dividendami (jejichž spojitou míru označujeme $q$). Tabulka \ref{tab:price_modifiers} ukazuje, jestli má při zvýšení hodnoty daného faktoru, za předpokladu zachování hodnoty ostatních faktorů, cena opce tendenci klesat, či stoupat. 
 
   \begin{table}[h]
     \caption{Faktory ovlivňující cenu opce}
@@ -303,7 +313,7 @@ The goal of this bachelor's thesis is to systematize and compare stock option pr
       \midrule
       Cena podkladového aktiva $S$ $\uparrow$ & $\uparrow$ & $\downarrow$ \\
       Strike cena $K$ $\uparrow$ & $\downarrow$ & $\uparrow$ \\
-      Doba do expirace $T$ $\uparrow$ & $\uparrow$ & $\uparrow$ \\
+      Doba do expirace $T$ $\downarrow$ & $\downarrow$ & $\downarrow$ \\
       Volatilita $\sigma$ $\uparrow$ & $\uparrow$ & $\uparrow$ \\
       Bezriziková míra $r$ $\uparrow$ & $\uparrow$ & $\downarrow$ \\
       Dividenda $q$ $\uparrow$ & $\downarrow$ & $\uparrow$ \\
@@ -338,7 +348,7 @@ The goal of this bachelor's thesis is to systematize and compare stock option pr
 
 Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývají \UV{in-the-money}, nebo zkráceně ITM, zatímco opce, které by při okamžitém uplatnění měly zápornou výplatu, se nazývají \UV{out-of-the-money}, čili OTM. O OTM opcích říkáme, že mají nulovou vnitřní hodnotu. Pokud by opce měla nulovou výplatu, říkáme že je \UV{at-the-money}, čili ATM \parencites[kapitola~2.3]{Wilmott2006}[s.~58-59]{McDonald2013}.
 
-  Cenu opce lze rozdělit na dvě složky: vnitřní hodnotu a časovou hodnotu. Vnitřní hodnota je výplata, kterou by opce přinesla při okamžitém uplatnění -- pro call opci $\max(0, S-K)$, pro put opci $\max(0, K-S)$. Opce ITM mají kladnou vnitřní hodnotu, zatímco opce OTM a ATM mají vnitřní hodnotu nulovou. Časová hodnota se zavádí jako rozdíl mezi tržní cenou opce a její vnitřní hodnotou; představuje prémii za možnost, že se cena podkladového aktiva do expirace změní ve prospěch držitele. Časová hodnota s blížící se expirací klesá (time decay) a v den expirace je nulová \parencites[s.~234]{Hull2021}. Tato skutečnost jde vidět i v tabulce \ref{tab:price_modifiers}, kde říkáme, že s delší dobou do expirace cena opce stoupá \parencites[kapitola~2.3]{Wilmott2006}.
+  Hodnotu opce lze rozdělit na dvě složky: vnitřní hodnotu a časovou hodnotu. Vnitřní hodnota je výplata, kterou by opce přinesla při okamžitém uplatnění -- pro call opci $\max(0, S-K)$, pro put opci $\max(0, K-S)$. Opce ITM mají kladnou vnitřní hodnotu, zatímco opce OTM a ATM mají vnitřní hodnotu nulovou. Časová hodnota se zavádí jako rozdíl mezi tržní cenou opce a její vnitřní hodnotou; představuje prémii za možnost, že se cena podkladového aktiva do expirace změní ve prospěch držitele. Časová hodnota s blížící se expirací klesá (time decay) a v den expirace je nulová \parencites[s.~234]{Hull2021}. Tato skutečnost jde vidět i v tabulce \ref{tab:price_modifiers}, kde říkáme, že s delší dobou do expirace cena opce stoupá \parencites[kapitola~2.3]{Wilmott2006}.
 
   Z předchozího příkladu lze vidět, že z dosavadní definice opcí vypisovatel nemůže profitovat, což znamená, že žádný racionální účastník trhu by nikdy nechtěl vypisovat opce. Pro přidání možnosti vypisovatele mít zisk se používájí tzv. opční prémie.
   Opční prémie je částka, kterou zaplatíme vypisovateli, abychom vyrovnali potenciální riziko finanční ztráty. Pokud by se držitel rozhodl nechat opci vypršet, vypisovatel si nechá opční prémii, čímž vydělá \parencites[s.~9]{McDonald2013}.% TODO: Strana 9? To nezní správně...
@@ -359,7 +369,7 @@ Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývaj
 
   V ukázkách jsme pro zjednodušení vynechali z výpočtů výplat obou stran výši opční prémie. Stanovíme-li $C$ jako označení výše opční prémie call opce a $P$ jako výši opční prémie put opce, pro opce počítáme zisk/ztrátu v čase uplatnění opce dle tabulky \ref{tab:option_profits}.
 
-  \textbf{V této kapitole, a v následujících podkapitolách, pojednáváme o opcích obecně. V dalších kapitolách náš pohled zúžujeme na opce na akcie.}
+  \textbf{V této kapitole, a v následujících podkapitolách, pojednáváme o opcích obecně, není-li řečeno jinak. V dalších kapitolách náš pohled zúžujeme na opce na akcie, pokud není explicitně řečeno jinak.}
 
   Existují specifické typy opcí, které umožňují jiné způsoby uplatnění, či jinak vyhodnocují strike cenu. Toto ocenění platí pro tzv. vanilkové opce, jak je vysvětleno v další sekci.
 
@@ -372,7 +382,7 @@ Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývaj
   \parencites[s.~185]{McDonald2013}{Crawley2023}{Webull}.
   Akciové indexy pouze sledují cenu a nedávají žádné podkladové aktivum, jde čistě jen o zisk ze spekulace, či k zajištění se proti negativnímu vývoji cen.
 
-  Pokud opce umožňuje ji uplatnit před datem expirace, říkáme, že tato opce má \textbf{americký} styl uplatnění. Předčasné uplatnění je opět pouze právo, tudíž můžeme nechat opci neuplatněnou až do data expirace. Tímto způsobem můžeme napodobit chování opce evropské. Důsledkem můžeme v zásadě na jakoukoliv obchodní strategii použít opce americké namísto evropských, je-li to výhodné. Jelikož držitel získává výhodu navíc, která mu dává lepší možnost vydělat na úkor vypisovatele, platíme větší nebo stejnou prémii než za opci evropskou \footnote{Stejné prémie mají např. opce, které jsou silně OTM, tudíž bezcenné.}.
+  Pokud opce umožňuje ji uplatnit před datem expirace, říkáme, že tato opce má \textbf{americký} styl uplatnění. Předčasné uplatnění je opět pouze právo, tudíž můžeme nechat opci neuplatněnou až do data expirace. Tímto způsobem můžeme napodobit chování opce evropské. Důsledkem můžeme v zásadě na jakoukoliv obchodní strategii použít opce americké namísto evropských, je-li to výhodné. Jelikož držitel získává výhodu navíc, která mu dává lepší možnost vydělat na úkor vypisovatele, platíme větší nebo stejnou prémii než za opci evropskou \footnote{Stejné prémie mají např. opce, které jsou silně OTM, tudíž s nulovou vnitřní hodnotou.}.
 
   Pro americké call opce na akcie bez dividend je právo předčasného uplatnění nevýhodné. Uplatněním opce ztrácíme ochranu před náhlým poklesem hodnoty aktiva, urychlujeme čas, ve kterém musíme uhradit koupi aktiva, a který můžeme využít investicí do jiných prostředků, a ještě k tomu ztrácíme peníze vydělané potenciálním prodejem této opce.
   Pokud by cena americké call opce $C$ byla nižší než $S - K$, účastník trhu by opci koupil, ihned uplatnil a akcii prodal na trhu, čímž by dosáhl okamžitého bezrizikového zisku $S - K - C > 0$. Na efektivním trhu proto musí platit $C \ge S - K$. Před expirací je cena dokonce ostře větší než $S - K$, protože opce poskytuje ochranu před poklesem – držitel nemusí uplatnit, pokud cena klesne, což je právo, za které se platí. Abychom z držení opce měli co největší možnou výplatu, je lepší opci prodat, než ji uplatnit. Pro opce na akcie vyplácející dividendy dává předčasné uplatnění smysl, specificky před vyplácením dividendy \parencites[s.~291-293]{McDonald2013}. Pro put opce dává předčasné uplatnění také smysl, kupříkladu v případě, kdy je cena aktiva nulová. Cena se níže propadnout nemůže, tudíž uplatněním získáme maximální možnou výplatu. % TODO: Správná citace?
@@ -435,7 +445,7 @@ Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývaj
 
   \subsubsection{Put-call parita pro opce na akciích}
 
-  Pro oceňování opcí na akcie můžeme forwardovou cenu vyjádřit jako cenu akcie diskontovanou o míru vyplácené dividendy. Nevyplácí-li opce žádnou dividendu, můžeme forwardovou cenu napsat jako cenu akcie úročenou o bezrizikovou úrokovou míru, čili $S \, e^{rT}$, díky principu rizikově neutrálního oceňování \footnote{Viz sekci \ref{sec:risk_neutral}.}. Při vyplácení dividendy poklesne cena akcie o $S \, e^{qT}$. Při využití těchto dvou faktů získáme rovnici \ref{eq:forw_price}: 
+  Pro oceňování opcí na akcie můžeme forwardovou cenu vyjádřit jako cenu akcie diskontovanou o míru vyplácené dividendy. Nevyplácí-li opce žádnou dividendu, můžeme forwardovou cenu napsat jako cenu akcie úročenou o bezrizikovou úrokovou míru, čili $S \, e^{rT}$ \parencites[s.~139]{McDonald2013}. Při vyplácení dividendy poklesne cena akcie o $S \, e^{qT}$. Při využití těchto dvou faktů získáme rovnici \ref{eq:forw_price}: 
 
   \begin{equation}
     \label{eq:forw_price}
@@ -479,7 +489,7 @@ Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývaj
     \item[Rizikově-neutrální ohodonocení (risk-neutral valuation)] Místo skutečných pravděpodobností používáme rizikově-neutrální pravdpěpodobnosti, což jsou pravděpodobnosti, které vylučují arbitráž \parencites[s.~359--362]{McDonald2013}[kapitola~15.10]{Wilmott2006}. \label{sec:risk_neutral}
   \end{description}
 
-  Tyto tři principy jsou vzájemně provázané. Kupříkladu, bezarbitrážního oceňování dosáhneme změnou pravděpodobnostní míry na rizikově-neutrální. Toto je blíže ukázáno v \ref{sec:binom_risk_neutral}. 
+  Tyto tři principy jsou vzájemně provázané. Kupříkladu, bezarbitrážního oceňování dosáhneme změnou pravděpodobnostní míry na rizikově-neutrální. Toto je blíže ukázáno v \ref{sec:binom_rn}. 
 
   Všechny dále uvedené metody vyžadují jako vstup odhad volatility ceny podkladového aktiva. Zde je nutné rozlišovat dva typy volatility:
   \begin{itemize}
@@ -492,10 +502,9 @@ Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývaj
 
   Základním způsobem oceňování opcí jsou binomické stromy. Binomickým stromem můžeme modelovat vývoj ceny aktiva dle volatility, kde každý vrchol reprezentuje cenu po určitém množství vzestupů a poklesů o danou volatilitu \parencites[kapitola 13]{McDonald2013}. Tímto vytvoříme reprezentaci možných cen aktiva a jejich pravděpodobností. Stromy mají několik variant (Coxův-Rossův-Rubinsteinův model, Jarrovův-Ruddův, trinomické stromy, atd.), my se budeme zabývat jenom modelem Cox-Ross-Rubinstein, neboť to je efektivně základní varianta.
 
-  Binomické stromy mají variabilní přesnost dle počtu kroků mezi začátkem a datem expirace. Blackův-Scholesův model lze chápat jako limitu binomického stromu s nekonečným počtem kroků. \parencites[s.~363]{McDonald2013}. Na rozdíl od binomických stromů, kde musíme pracně konstruovat celý strom a počítat ceny v jeho vrcholech, Blackův-Scholesův model využívá jeden vzorec k výpočtu prémie. Blackův-Scholesův vzorec je výpočetně nejjednodušší, zejména při implementaci na počítači, a vyplývají z něj další užitečné skutečnosti, tzv. greeks – koeficienty senzitivity popisující specifické chování opce. Nicméně, tento model je limitován na evropské opce. Adaptace na jiné druhy opcí je potenciálně možná pro specifické typy exotickcých opcí, ale typicky je tato adaptace zdlouhavá a náročná, a využívá další komplexní koncepty. U amerických opcí k zachycení přidané hodnoty z možnosti předčasného uplatnění použijeme Barone-Adesiho a Whaleyho metodu.
-  % TODO: Víc ocitovat
+  Binomické stromy mají variabilní přesnost dle počtu kroků mezi začátkem a datem expirace. Blackův-Scholesův model lze chápat jako limitu binomického stromu s nekonečným počtem kroků. \parencites[s.~363]{McDonald2013}. Na rozdíl od binomických stromů, kde musíme pracně konstruovat celý strom a počítat ceny v jeho vrcholech, Blackův-Scholesův model využívá jeden vzorec k výpočtu prémie. Blackův-Scholesův vzorec je výpočetně nejjednodušší, zejména při implementaci na počítači, a vyplývají z něj další užitečné skutečnosti, tzv. greeks – koeficienty senzitivity popisující specifické chování opce. Nicméně, tento model je limitován na evropské opce. Adaptace na jiné druhy opcí je potenciálně možná pro specifické typy exotických opcí, ale typicky je tato adaptace zdlouhavá a náročná, a využívá další komplexní koncepty. U amerických opcí k zachycení přidané hodnoty z možnosti předčasného uplatnění použijeme Baroneho-Adesiho a Whaleyho metodu.
 
-  Metodou Monte Carlo rozumíme způsob vyhodnocování, ve kterém simulujeme velké množství náhodných vývojů ceny (se zohledněním volatility) a bereme průměrnou hodnotu opce ze všech simulací. Tento způsob ohodnocení je založen na principu velkých čísel, který říká, že vezmeme-li nekonečně mnoho nezávislých náhodných veličin se stejnou střední hodnotou, jejich aritmetický průměr se limitně blíží střední hodnotě. %TODO: Ocitovat
+  Metodou Monte Carlo rozumíme způsob vyhodnocování, ve kterém simulujeme velké množství náhodných vývojů ceny (se zohledněním volatility) a bereme průměrnou hodnotu opce ze všech simulací. Tento způsob ohodnocení je založen na principu velkých čísel, který říká, že vezmeme-li nekonečně mnoho nezávislých náhodných veličin se stejnou střední hodnotou, jejich aritmetický průměr se limitně blíží střední hodnotě. \parencites[kapitoly~8.2,8.4]{Ross2019}.
   Monte Carlo je výpočetně nejnáročnější, protože musíme simulovat velké množství náhodných cest ceny akcie (minimálně $25 000 \text{ až } 100 000$), nicméně je také nejflexibilnější. Její hlavní výhoda spočívá v tom, že při změně vlastností opčního kontraktu není nutné vyvíjet nový komplexní analytický model; stačí pouze upravit algoritmus výplatní funkce na konci simulovaných cest. Z tohoto důvodu je metoda Monte Carlo vysoce populární zejména pro oceňování exotických opcí.
 
   \subsection{Práce s dividendy}
@@ -516,12 +525,12 @@ Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývaj
 
   Spojitou dividendovou míru si můžeme odvodit jako:
 
-  \begin{gather}
-    S e^{-qT} = S - \sum_{i = 1}^{n} d_i e^{-r T_i}, \\
-    e^{-qT} = 1 - \frac{1}{S} \sum_{i = 1}^{n} d_i e^{-r T_i}, \\
-    -qT = ln(1 - \frac{1}{S} \sum_{i = 1}^{n} d_i e^{-r T_i}), \\
-    q = - \frac{ln(1 - \frac{1}{S} \sum_{i = 1}^{n} d_i e^{-r T_i})}{T}.
-  \end{gather}
+  \begin{align}
+    S e^{-qT} &= S - \sum_{i = 1}^{n} d_i e^{-r T_i}, \\
+      e^{-qT} &= 1 - \frac{1}{S} \sum_{i = 1}^{n} d_i e^{-r T_i}, \\
+          -qT &= ln(1 - \frac{1}{S} \sum_{i = 1}^{n} d_i e^{-r T_i}), \\
+            q &= - \frac{ln(1 - \frac{1}{S} \sum_{i = 1}^{n} d_i e^{-r T_i})}{T}.
+  \end{align}
 
   \subsection{Geometrický Brownův pohyb}
 
@@ -547,7 +556,7 @@ Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývaj
 
   \parencites[kapitola~3.2.5]{Shreve2004}.
 
-  Tímto jsme získali náhodný proces se spočetným počtem mezikroků. Abychom získali Brownův pohyb, musíme učinit škálovanou symetrickou náhodnou procházku spojitou pomocí nastavením nekonečného počtu mezikroků, čili $n \rightarrow \infty$.
+  Tímto jsme získali náhodný proces se spočetným počtem mezikroků. Abychom získali Brownův pohyb, musíme učinit škálovanou symetrickou náhodnou procházku spojitou pomocí nastavením nekonečného počtu mezikroků, čili $t \rightarrow \infty$.
 
   Alternativně můžeme Brownův pohyb definovat jako spojitou funkci $W(t)$ pro všechna $t \ge 0$. Pro všechny časové momenty $0 = t_0 < t_1 < ... < t_{m-1}$ definujeme $\Delta z_i$ jako $W(t_{i + 1}) - W(t_i)$. Musí platit, že inkrementy $\Delta z_0, \Delta z_1, ..., \Delta z_{m-1}$ jsou vzájemně nezávislé, a pro libovolné $i, 0 \le i \le m-1$, platí:
 
@@ -559,13 +568,13 @@ Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývaj
   \parencites[kapitola~3.3.1]{Shreve2004}
 
   Brownův pohyb je také často nazýván jako Wienerův proces. Z Brownova pohybu můžeme definovat Geometrický Brownův pohyb, který je základem všech ohodnocovacích metod.
-  Označme $S$ jako cenu podkladového aktiva v současnosti, $\mu$ jako koeficient driftu (pro finanční matematiku lze říct očekávaný výnos aktiva), $\sigma$ jako volatilitu aktiva  $dt$ jako časový přírůstek a $dz$ jako přírůstek Brownova pohybu, čili náhodnou složku. Potom Geometrický Brownův pohyb definujeme jako:
+  Označme $S$ jako cenu podkladového aktiva v současnosti, $\mu$ jako koeficient driftu udávájící deterministickou změnu procesu v čase (z hlediska finanční matematiky očekávaný výnos aktiva v čase), $\sigma$ jako volatilitu procesu, $dt$ jako časový přírůstek a $dz$ jako přírůstek Brownova pohybu, čili náhodnou složku. Potom Geometrický Brownův pohyb definujeme jako:
 
   \begin{equation}
     dS = \mu S dt + \sigma S dz,
   \end{equation}
 
-  \parencites[kapitola~14.3]{Hull2021}.
+  \parencites[kapitola~14.3]{Hull2021}[s.~2]{Haug2007}.
 
   \subsection{Blackova-Scholesova parciálně diferenční rovnice}
 
@@ -583,55 +592,62 @@ Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývaj
 
   Nemůžeme s jistotou predikovat, jak se bude vyvíjet cena akcie. Jedním ze způsobů, jak se s tímto vypořádat, je modelovat očekávanou hodnotu zvětšení či zmenšení hodnoty akcie v budoucnosti. Na tomto principu funguje oceňování opce pomocí binomických stromů.
 
-  Binomický strom je kořenový strom, jehož každý vrchol má nejvíce právě jeden výchozí bod a maximálně dva koncové body. %TODO: Zdroj
-  Tento strom využijeme k zjednodušení vývoje ceny akcie v čase: Místo toho, aby akcie mohla nabýt libovolné hodnoty z reálných čísel, řekneme, že cena akcie se v diskrétním okamžiku multiplikativně zvedne o specifickou hodnotu, pokud její cena roste, a cena akcie se v diskrétním okamžiku mulitplikativně sníží o specifickou hodnotu, pokud cena klesne. Je-li počáteční cena akcie $S$, můžeme tyto násobující konstanty označit jako $u$ pro pohyb nahoru, a $d$ pro pohyb dolů, a cenu po růstu $uS$ a cenu po snížení $dS$. Všechny tyto zmíněné ceny akcií jsou popsány v binomickém stromu, kde $S$ je výchozí bod a $uS, dS$ jsou koncové body. Obvykle volíme $u > 1$ a $d < 1$, aby $u$ reprezentovalo růst a $d$ pokles ceny; přesné hodnoty závisí na zvoleném modelu. %TODO: Zdroj
+  Binomický strom je kořenový strom, jehož každý vrchol má právě jeden výchozí bod a maximálně dva koncové body. %TODO: Zdroj
+  Tento strom využijeme k zjednodušení vývoje ceny akcie v čase: Místo toho, aby akcie mohla nabýt libovolné hodnoty z reálných čísel, řekneme, že cena akcie se v diskrétním okamžiku multiplikativně zvedne o specifickou hodnotu, pokud její cena roste, a cena akcie se v diskrétním okamžiku mulitplikativně sníží o specifickou hodnotu, pokud cena klesne. Je-li počáteční cena akcie $S$, můžeme tyto násobující konstanty označit jako $u$ pro pohyb nahoru, a $d$ pro pohyb dolů, a cenu po růstu $uS$ a cenu po snížení $dS$. Všechny tyto zmíněné ceny akcií jsou popsány v binomickém stromu, kde $S$ je výchozí bod a $uS, dS$ jsou koncové body. Volíme $u > 1$ a $d < 1$, aby $u$ reprezentovalo růst a $d$ pokles ceny; přesné hodnoty závisí na zvoleném modelu. %TODO: Zdroj
 
   \subsection{Předpoklady modelu}
 
-  Pro zavedení modelu budeme předpokládat:
+  Pro zavedení modelu budeme předpokládat ideální podmínky na trhu pro akcii a opci.
   
   \begin{itemize}
     \item Bezriziková úroková míra je známá a konstantní v čase.
     \item Cena podílu je náhodným procesem ve spojitém čase, který se řídí geometickým Brownovým pohybem.
-    \item Neplatíme žádné poplaty za koupi či prodání podílu nebo opce.
+    \item Neplatíme žádné poplatky za koupi či prodání podílu nebo opce.
     \item Je možné půjčit nebo si půjčit jakýkoliv zlomek ceny finančního instrumentu při bezrizikové úrokové míře, ať už na koupi nebo držení.
-    \item Instumenty můžeme prodat za jejich plnou cenu, a získáváme plný zisk z prodeje (nemusíme počítat s placením poplatků za prodej).
     \item Opce je evropská.
   \end{itemize}
+
+  \parencites[s.~640]{BlackScholes1973}
 
   Předpoklad evropských opcí není nutný, ale pro jednodušší vysvětlování americkým opcím budeme věnovat vlastní sekci.
 
   Není-li řečeno jinak, budeme pracovat s Coxovo-Rossovo-Rubinsteinovy stromy.
 
- \subsection{Ohodnocení pomocí binomického stromu}
+ \subsection{Postup ohodnocení}
 
  \subsubsection{Sestrojení stromu}
 
- Pro vytvoření stromu pro nás budou relevnantní čtyři parametry: počet binomických kroků $n$, současná cena akcie $S_0$, časové rozmezí mezi binomickými kroky $t$ a volatilita akcie $\sigma$. $t$ si nastavíme jako podíl času do expirace a počtu binomických kroků ($T/n$). Čím větší je počet binomických kroků, tím přesnější a náročnější je výpočet.
- Z těchto parametrů získáme míru růstu a posklesu cenu akcie na daný binomický krok, $u$ a $d$, zavedené jako:
+ Pro vytvoření stromu pro nás jsou relevantní čtyři parametry: počet binomických kroků $n$, výchozí cena akcie $S_0$, časové rozmezí mezi binomickými kroky $t$ a volatilita akcie $\sigma$. $t$ nastavíme jako podíl času do expirace a počtu binomických kroků ($T/n$). Čím větší je počet binomických kroků, tím přesnější a obsáhlejší je výpočet.
+ Z těchto parametrů získáme míru růstu a posklesu cenu akcie na daný binomický krok, $u$ a $d$. Pro Coxovy-Rossovy-Rubinsteinovy stromy jsou $u$ a $d$ definované jako:
 
  \begin{gather}
    u = e^{\sigma \sqrt{t}}, \\
-   d = e^{-\sigma \sqrt{t}}, \\
+   d = e^{-\sigma \sqrt{t}}, 
  \end{gather}
 
  \parencites[s.~281]{Haug2007}
 
  %TODO: Ozdrojovat (CoxRossRubenstein, Haug)
 
- Sestrojení stromu začneme kořenem $V_{0, 0}$. Notaci $V_{x, y}$ můžeme interpretovat jako vrchol po $x$ binomických krocích, kde cena akcie stoupla $y$-krát. V bodě $V_{0, 0}$ je hodnota akcie rovna $S_0$. Z kořene povedeme hrany do dvou nových vrcholů: $V_{1, 1}$, kde hodnota akcie se rovná hodnotě akcie ve výchozím bodě vynásobené $u$ ($uS_0$), úročené o bezrizikovou úrokovou míru a diskontováno vyplacenou dividendovou mírou, a $V_{1, 0}$, kde hodnota akcie se rovná hodnotě akcie ve výchozím bodě vynásobené $d$ ($dS_0$), také úročené o bezrizikovou úrokovou míru a diskontováno vyplacenou dividendovou mírou.
- Obecně, pro vrchol $V_{x, y}$ můžeme říci, že hodnota akcie v tomto vrcholu je $S_0 e^{(r-q)xt} u^y d^{x - y}$.
+ Sestrojení stromu začneme kořenem $V_{0, 0}$. Notaci $V_{x, y}$ můžeme interpretovat jako vrchol obsahující hodnotu akcie po $x$ binomických krocích, kde cena akcie stoupla $y$-krát. V bodě $V_{0, 0}$ je hodnota akcie rovna $S_0$. Z kořene povedeme hrany do dvou nových vrcholů: $V_{1, 1}$, kde hodnota akcie se rovná hodnotě akcie ve výchozím bodě vynásobené $u$ ($uS_0$), úročené o bezrizikovou úrokovou míru a diskontováno vyplacenou dividendovou mírou, a $V_{1, 0}$, kde hodnota akcie se rovná hodnotě akcie ve výchozím bodě vynásobené $d$ ($dS_0$), také úročené o bezrizikovou úrokovou míru a diskontováno vyplacenou dividendovou mírou.
+ Strom sestrojíme dle grafu \ref{fig:binom_one_step_tree} \footnote{V rámci čitelnosti je z grafu vynechána diskontace dividendou a úročení. \label{foot:simple_labels}}:
 
- \begin{figure}
+ \begin{figure}[h]
    \centering
    \caption{Binomický strom o jednom kroku}
    \label{fig:binom_one_step_tree}
    \ctikzfig{TikzStuff/strom_very_basic}
  \end{figure}
 
- Z posledních vytvořených listů stromu ($V_{1, 0}, V_{1, 1}$) můžeme vést hrany do vrcholů $V_{2, 0}, V_{2, 1}, V_{2, 2}$, jak je vyobrazeno v \ref{fig:binom_two_step_tree}.
+ Obecně, pro vrchol $V_{x, y}$ můžeme říci, že hodnota akcie, označena jako $S_{x, y}$ v tomto vrcholu je:
 
- \begin{figure}
+ \begin{equation}
+   S_{x, y} = S_0 e^{(r-q)xt} u^y d^{x - y}.
+ \end{equation}
+
+ Z posledních vytvořených listů stromu ($V_{1, 0}, V_{1, 1}$) můžeme vést hrany do vrcholů $V_{2, 0}, V_{2, 1}, V_{2, 2}$ dle grafu \ref{fig:binom_two_step_tree} \footref{foot:simple_labels}:
+
+ \begin{figure}[h]
    \centering
    \caption{Binomický strom o dvou krocích}
    \label{fig:binom_two_step_tree}
@@ -644,7 +660,7 @@ Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývaj
 
  \subsubsection{Ohodnocení opce}
 
- Pro ohodnocení opce postupujeme v opačném směru. Začneme ohodnocením listů: Listy se nachází v datu expirace, tudíž ve vrcholu $V_{x, y}$, který je list, je hodnota opce $\max(S_0 e^{(r-q)xt} u^y d^{x-y} - K, 0)$ pro kupní opce a $\max(K - S_0 e^{(r-q)xt} u^y d^{x-y}, 0)$ pro prodejní opce. Poté pokračujeme ohodnocením výchozích vrcholů již ohodnocených vrcholů. Cena opce, jejiž konečné vrcholy jsou již ohodnoceny, se za pomocí odvození skrze replikační ocěnění (viz sekce \ref{sec:binom_replication}) určuje jako:
+ Pro ohodnocení opce postupujeme v opačném směru. Začneme ohodnocením listů: Listy se nachází v datu expirace, tudíž ve vrcholu $V_{x, y}$, který je list, je hodnota opce $\max(S_{x, y} - K, 0)$ pro kupní opce a $\max(K - S_{x, y}, 0)$ pro prodejní opce. Poté pokračujeme ohodnocením výchozích vrcholů již ohodnocených vrcholů. Hodnota opce, jejiž konečné vrcholy jsou již ohodnoceny, se za pomocí odvození skrze replikační ocenění (viz sekce \ref{sec:binom_replication}) určuje jako:
 
  \begin{equation}
    C = e^{-rt} \left( C_u \frac{1-d}{u - d} + C_d \frac{u - 1}{u - d} \right),
@@ -656,7 +672,13 @@ Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývaj
 
   \begin{equation}
     \label{eq:binom_rn_out}
-    C = e^{-rt}\bigl(p\ C_u + (1-p) C_d\bigr).
+    C = e^{-rt}\bigl(p\ C_u + (1-p) C_d\bigr),
+  \end{equation}
+
+  kde $p$ označuje rizikově-neutrální pravděpodobnost růstu hodnoty akcie a platí:
+
+  \begin{equation}
+    p = \frac{1 - d}{u - d}.
   \end{equation}
 
   Těmito způsoby se můžeme propočítat až k hodnotě kořenu, čímž získáme hodnotu opce.
@@ -664,14 +686,16 @@ Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývaj
   Pro evropské opce specificky lze celý postup redukovat na jednu rovnici:
 
   \begin{gather}
-    C = e^{-rt} \sum_{x=1}^{n} p^x (1 - p)^{n - x} \max(S e^{(r-q)t} u^x d^{n-x} - K, 0), \\
-    P = e^{-rt} \sum_{x=1}^{n} p^x (1 - p)^{n - x} \max(K - S e^{(r-q)t} u^i d^{n-x}, 0).
+    C = e^{-rt} \sum_{x=1}^{n} \left( \frac{n!}{x!(n - x)!}\right) p^x (1 - p)^{n - x} \max(S_0 e^{(r-q)t} u^x d^{n-x} - K, 0), \\
+    P = e^{-rt} \sum_{x=1}^{n} \left( \frac{n!}{x!(n - x)!}\right) p^x (1 - p)^{n - x} \max(K - S_0 e^{(r-q)t} u^i d^{n-x}, 0).
   \end{gather}
+
+  \parencites[rovnice~7.1,7.2]{Haug2007}
 
 
   \subsubsection{Příklad výpočtu}
 
-  Jak příklad si uvedeme výpočet evropské call opce na akcii, která má parametry:
+  Za účelem demonstrace postupu výpočtu bude uveden postup výpočet evropské call opce na akcii, která má parametry:
   \begin{itemize}
     \item $S_0 = 100$,
     \item $K = 110$,
@@ -707,14 +731,14 @@ Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývaj
     S_{2, 2} = S_{1, 1} e^{rt} u = 146.23 e^{0.08 + 0.3} \approx 213.83.
   \end{equation*}
 
-  Výpočet zbytku hodnot postupuje dle stejného algoritmu:
+  Při výpočtu zbytku hodnot se postupuje dle stejného postupu:
 
   \begin{gather*}
     S_{2, 1} = S_{1, 1} e^{rt} d = 146.23 e^{0.08 - 0.3} \approx 117.35, \\
     S_{2, 0} = S_{1, 0} e^{rt} d = 80.25 e^{0.08 - 0.3} \approx 64.40.
   \end{gather*}
 
-  \begin{figure*}
+  \begin{figure*}[h]
     \centering
     \caption{Výše hodnoty akcií pro ukázkový příklad}
     \ctikzfig{TikzStuff/strom_example_stock}
@@ -771,12 +795,12 @@ Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývaj
  \subsubsection{Replikační ocenění}
 
  \label{sec:binom_replication}
- Replikační princip říká, že lze sestavit portfolio z podkladového aktiva a bezrizikové obligace, které má stejnou výplatu jako opce. Replikační princip nyní využijeme k důkazu jednodznačené určitelnosti ceny opce.
+ Replikační princip říká, že lze sestavit portfolio z podkladového aktiva a bezrizikové obligace, které má stejnou výplatu jako opce. Replikační princip nyní využijeme k důkazu jednodnačené určitelnosti ceny opce.
 
  Definujeme si dvě portfolia:
   \begin{description}
     \item[Opční portfolio] skládající se z jedné call opce o ceně $C$.
-    \item[Syntetické portfolio] skládající se z $\Delta$ podílů akcie, na které se vztahují příslušné call opce, a z hodnoty investice do bezrizikového aktiva $\beta$. Akcie vyplácí spojitou dividendu míry $q$, která se reinvestuje do akcie.
+    \item[Syntetické portfolio] skládající se z $\Delta$ podílů akcie, na které se vztahují příslušné call opce, a z investice do bezrizikového aktiva o hodnotě $\beta$. Akcie vyplácí spojitou dividendu míry $q$, která se reinvestuje do akcie.
   \end{description}
 
   Parametry $\Delta$ a $\beta$ nastavíme tak, aby se výplaty obou portfólií rovnaly. V časovém momentu $h$ se výplata syntetického portfolia rovná:
@@ -785,13 +809,13 @@ Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývaj
     \Delta S_h e^{qh} + \beta e^{rh},
   \end{equation}
 
-  kde $S_h$ je hodnota akcie v časovém okamžiku $h$, čili dle vývoje akcie buď $dS e^{(r-q)h}$ nebo $uS e^{(r-q)h}$. Poněvadž reinvestujeme dividendu zpět do akcie, v okamžik $h$ budeme vlastnit $\Delta e^{qh}$ podílů. Půjčené peníze úročí o $e^{rh}$ \\ \parencites{CoxRossRubinstein1979}[kapitola~13]{McDonald2013}.
+  kde $S_h$ je hodnota akcie v časovém okamžiku $h$, čili dle vývoje akcie buď $dS e^{(r-q)h}$ nebo $uS e^{(r-q)h}$. Poněvadž reinvestujeme dividendu zpět do akcie, v okamžik $h$ budeme vlastnit $\Delta e^{qh}$ podílů. Půjčené peníze úročí o $e^{rh}$ \parencites{CoxRossRubinstein1979}[kapitola~13]{McDonald2013}.
 
-  Jelikož jsme si nastavili, že se hodnoty obou rovnaly, musí platit:
+  Jelikož je nastaveno, že se výplaty obou portfolií rovnají, musí platit:
 
   \begin{gather}
     \Delta uS e^{(r-q)h} e^{qh} + \beta e^{rh} = C_u, \\
-    \Delta dS e^{(r-q)h} e^{qh} + \beta e^{rh} = C_d, \\
+    \Delta dS e^{(r-q)h} e^{qh} + \beta e^{rh} = C_d, 
   \end{gather}
 
   kde $C_u$ vyjadřuje cenu opce při růstu ceny akcie a $C_d$ vyjadřuje cenu opce při poklesu ceny akcie.
@@ -808,14 +832,14 @@ Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývaj
     \beta = e^{-rh} \left( \frac{u C_d - d C_u}{u - d} \right).
   \end{equation}
 
-  Jelikož jsme nastavili obě portfolia tak, aby se rovnala, jsme schopni vyjádřit cenu opce jako:
+  Poněvadž se výplaty obou portfolií rovnají, jsme schopni vyjádřit cenu opce jako:
 
   \begin{equation}
     \label{eq_value}
     \Delta S + \beta = e^{-rh} \left( C_u \frac{1 - d}{u - d} + C_d \frac{u - 1}{u - d} \right)
   \end{equation}
 
-  Očekáváme, že $u \ge 1 \ge d$. Pokud by tato podmínka nebyla splněna, vznikla by arbitrážní příležitost: Například pokud $u < 1$, prodali bychom akcii a investovali výnos do bezrizikového aktiva, čímž bychom dosáhli jistého zisku; obdobně pokud $d > 1$, půjčili bychom si a nakoupili akcii. % TODO: Zdroj
+  Očekáváme, že $u \ge 1 \ge d$. Pokud by tato podmínka nebyla splněna, vznikla by arbitrážní příležitost: Například pokud $u < 1$, prodali bychom akcii a investovali výnos do bezrizikového aktiva, čímž bychom dosáhli jistého zisku; obdobně pokud $d > 1$, půjčili bychom si a nakoupili akcii. \parencites[s.~311]{McDonald2013}
   Jelikož se výplaty obou portfolií rovnají, a dokážeme jednoznačně určit výplaty portfólia syntetického portfolia, musíme být schopni jednoznačně určit výplatu opčního portfolia.
 
  \subsubsection{Rizikově-neutrální oceňování}
@@ -877,18 +901,17 @@ Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývaj
 
   \subsubsection{Podmínky modelu}
 
-  Podmínky pro užití modelu jsou vesměs stejné, jako podmínky užití modelu binomických stromů.
+  Podmínky pro užití modelu jsou stejné, jako podmínky užití modelu binomických stromů.
   
   \begin{itemize}
     \item Bezriziková úroková míra je známá a konstantní v čase.
     \item Cena podílu je náhodným procesem ve spojitém čase, který se řídí geometickým Brownovým pohybem.
     \item Neplatíme žádné poplaty za koupi či prodání podílu nebo opce.
     \item Je možné půjčit nebo si půjčit jakýkoliv zlomek ceny finančního instrumentu při bezrizikové úrokové míře, ať už na koupi nebo držení.
-    \item Instumenty můžeme prodat za jejich plnou cenu, a získáváme plný zisk z prodeje (nemusíme počítat s placením poplatků za prodej).
     \item Opce je evropská.
   \end{itemize}
 
-  \parencites{BlackScholes1973}
+  \parencites[s.~640]{BlackScholes1973}
 
   \subsubsection{Blackova-Scholesova rovnice}
 
@@ -907,7 +930,7 @@ Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývaj
     d_2 = d_1 - \sigma \sqrt{T}.
   \end{gather}
 
-  \parencites[s.~363,365]{McDonald2013}[rovnice~13]{BlackScholes1973}. % TODO: Sekce?
+  \parencites[s.~363,365]{McDonald2013}[rovnice~13]{BlackScholes1973}[rovnice~1.1]{Haug2007}. % TODO: Sekce?
 
   Z put-call parity můžeme odvodit Blackův-Scholesův model pro put opce:
 
@@ -922,7 +945,7 @@ Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývaj
 
   kde $C(S, K, \sigma, r, T)$ je hodnota call opce a $P(S, K, \sigma, r, T)$ je hodnota put opce.
 
-  Potom můžeme Blackovu-Scholesovu formuli pro evropské put opce zapsat jako:
+  Potom můžeme Blackovu-Scholesovu rovnici pro evropské put opce bez dividend zapsat jako:
 
   \begin{equation}
     P(S, K, \sigma, r, T) = Ke^{-rT}N(-d_2) - SN(-d_1)
@@ -930,16 +953,16 @@ Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývaj
 
   kde $d_1$ a $d_2$ jsou stejné jako v sadě rovnic \eqref{eq:d_1} a \eqref{eq:d_2}.
 
-  % TODO: Ocitovat
+  \parencites[s.~366]{McDonald2013}[rovnice~1.2]{Haug2007}. % TODO: Sekce?
 
   Zatímco využití Blackova-Scholesova modelu na opce na akcie nevyplácející dividendu je prosté, pro použití na akcie platící dividendu musíme použít upravenou variantu tohoto modelu. Mertonovo rozšíření Black-Scholesova modelu říká, že musíme snížit $S$ o míru odpovídající spojitému dividendovému výnosu $q$, čili převést $S$ na $Se^{-qT}$. % TODO: Ozdrojovat
-  Blackova-Scholesova-Mertonova formule pro evropské call opce na akcie vyplácející spojitou dividenovou výplatu má následující znění:
+  Blackova-Scholesova-Mertonova rovnice pro evropské call opce na akcie vyplácející spojitou dividenovou výplatu má následující znění:
 
   \begin{equation}
     C(S, K, \sigma, r, T, q) = Se^{-qT}N(d_1) - Ke^{-rT}N(d_2).
   \end{equation}
 
-  \parencites[kapitola~15.1]{McDonald2013}{Merton1973} % TODO: Stránky u Mertona
+  \parencites[kapitola~15.1]{McDonald2013}[rovnice~1.11]{Haug2007}{Merton1973} % TODO: Stránky u Mertona
 
   Mimo to musíme také zohlednit v $d_1$ a $d_2$, že dividenda snižuje hodnotu akcie, tudíž $d_1$ a $d_2$ modifikujeme jako:
 
@@ -948,17 +971,19 @@ Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývaj
     d_2 = d_1 - \sigma \sqrt{T}.
   \end{gather}
 
-  Stejně jako u Blackova-Scholesova modelu můžeme odvodit Mertonovo rozšíření pomocí put-call parity. Blackův-Scholesův model pro ohodnocování evropských put opcí na akcie vyplácející dividendy definujeme jako:
+  Stejně jako u Blackova-Scholesova modelu můžeme odvodit Mertonovo rozšíření pomocí put-call parity. Blackův-Scholesův-Mertonův model pro ohodnocování evropských put opcí na akcie vyplácející dividendy definujeme jako:
   \begin{equation}
-    P(S, K, \sigma, r, T, q) = Ke^{-rT}N(-d_2) - Se^{-qT}N(-d_1)
+    P(S, K, \sigma, r, T, q) = Ke^{-rT}N(-d_2) - Se^{-qT}N(-d_1).
   \end{equation}
+
+  \parencites[rovnice~1.12]{Haug2007}
 
   \subsection{Americké opce}
 
   \label{sec:bs_american}
   Blackův-Scholesův model nelze aplikovat na (všechny) americké opce, poněvadž nebere v potaz předčasné uplatnění opce. Pro americké call opce bez dividend toto není problém, poněvadž u těch se předčasné uplatnění nevyplatí, nicméně u všech ostatních toto představuje problém. % TODO: Ozdrojovat tvrzení o předčasném uplatnění
 
-  Pro tento problém existuje několik způsobů, jak aproximovat hodnotu americké opce pomocí Blackova-Scholesova-Mertonova modelu. Mnou vybraný je \textbf{Baroneova-Adesiho a Whaleyho metoda}. Tato metoda zavádí bonus pro hodnotu opce za možnost předčasného uplatnění, který se přičítá k hodnotě opce z Blackova-Scholesova-Mertonova modelu. Obecná definice pro call opce vypadá takto:
+  Pro tento problém existuje několik způsobů, jak aproximovat hodnotu americké opce pomocí Blackova-Scholesova-Mertonova modelu. Pro tuto práci je vybraná \textbf{Baroneova-Adesiho a Whaleyho metoda}. Tato metoda zavádí bonus pro hodnotu opce za možnost předčasného uplatnění, který se přičítá k hodnotě opce z Blackova-Scholesova-Mertonova modelu. Obecná definice pro call opce vypadá takto:
 
   \begin{equation}
     C_a(S, K, \sigma, r, T, q) = 
@@ -983,10 +1008,10 @@ Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývaj
 
   \parencites[kapitola~3.1]{Haug2007}
 
-  $S^*$ vyjadřuje kritickou cenu akcie pro danou call opci. Tato kritická cena musí splnit podmínky:
+  Symbol $S^*$ vyjadřuje kritickou cenu akcie pro danou call opci. Tato kritická cena musí splnit podmínky:
 
   \begin{equation}
-    S^* - K = C(S^*, K, \sigma, r, T, q) + (1 - e^{-qT} N[d_1(S^*)])S^*\frac{1}{q_2}.\label{eq:s_star_stock_price}
+    S^* - K = C(S^*, K, \sigma, r, T, q) + (1 - e^{-qT} N[d_1(S^*)])S^*\frac{1}{q_C}.\label{eq:s_star_stock_price}
   \end{equation}
 
   \parencites[kapitola~3.1]{Haug2007}
@@ -1012,13 +1037,11 @@ Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývaj
 
   \parencites[kapitola~3.1]{Haug2007}
 
-  $S^{**}$ značí kritickou cenu akcie pro put opci. Tato cena musí splňovat:
+  Symbol $S^{**}$ značí kritickou cenu akcie pro put opci. Tato cena musí splňovat:
 
   \begin{equation}
-    K - S^{**} = P(S^{**}, K, \sigma, r, T, q) - (1 - e^{-qT}N[-d_1(S^{**})])S^{**} \frac{1}{q_1} \label{eq:s_ss_stock_price}
+    K - S^{**} = P(S^{**}, K, \sigma, r, T, q) - (1 - e^{-qT}N[-d_1(S^{**})])S^{**} \frac{1}{q_P} \label{eq:s_ss_stock_price}
   \end{equation}
-
-  % TODO: Dopsat americké opce
 
   \parencites[kapitola~3.1]{Haug2007}
 
@@ -1027,16 +1050,17 @@ Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývaj
   \subsubsection{Newtonova-Raphsonova metoda}
 
   \label{sec:bs_nr}
-  Newtonova-Raphsonova metoda je numerická metoda využívající derivaci funkce k přiblížení se k hledané hodnotě. Metoda se používá pro nalezení kořenu dané funkce.
+  Newtonova-Raphsonova metoda je numerická metoda využívající derivaci funkce k přiblížení se k hledané hodnotě. Metoda se používá pro nalezení kořene dané funkce.
   Mějme funkci $f(x)$ a počáteční odhad $x_0$. Chceme najít $x$ takové, že $f(x) = 0$. Principem algoritmu je prodloužení směrnice funkce v bodě počátečního odhadu až do nulové funkční hodnoty. Pro $x_0$ nastavíme jako zlepšení odhadu bod $x$ takový, že $x$ leží na průniku směrnice $f(x_0)$ a osy $x$. Takto můžeme postupně zlepšovat $x$, dokud $f(x) = 0$. \parencites[kapitola~9.4]{Press2007}
 
   V matematickém předpise:
 
   \begin{equation}
-    x_{i+1} = x_i - \frac{f(x_i)}{f'(x_i)}
+    \label{eq:iteration}
+    x_{i+1} = x_i - \frac{f(x_i)}{f'(x_i)},
   \end{equation}
 
-  Této rovnici říkáme Newtonova-Raphsonova formule \parencites[kapitola~9.4]{Press2007}.
+  kde $x_i$ je $i$-tý odhad hledané hodnoty. Této rovnici říkáme Newtonova-Raphsonova formule.
 
   Newtonův-Raphsonův algoritmus je odvozen z Taylorova polynomu prvního řádu:
 
@@ -1049,8 +1073,8 @@ Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývaj
   Předpokládají se dostatečně malé hodnoty $\delta$ a funkce $f$, pro kterou platí:
 
   \begin{itemize}
-    \item $f$ je spojitá a hladká v okolí kořene $x + \delta$,
-    \item pro všechny body v okolí kořene $x + \delta$ má $f$ nenulovou derivaci,
+    \item $f$ je spojitá a hladká v okolí kořene $x + \delta$.
+    \item Pro všechny body v okolí kořene $x + \delta$ má $f$ nenulovou derivaci.
     \item $f$ je dvakrát diferencovatelná.
   \end{itemize}
 
@@ -1060,9 +1084,9 @@ Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývaj
     f(x + \delta) = 0 \implies \delta \approx - \frac{f(x)}{f'(x)}.
   \end{equation}
 
-  %TODO: Odůvodnit
+  Tento vztah nám říká, o jakou hodnotu $\delta$ musíme aktuální odhad $x$ posunout, abychom se přiblížili ke kořeni, což přímo vede k definici iteračního schématu v rovnici \ref{eq:iteration}.
 
-  Naopak při dostatečně velkých hodnotách pro $\delta$ může algoritmus selhat. Pokud by se algoritmus dostal do okolí lokálního minima či maxima, další odhad může být nastaven na hodnotu velmi vzdálenou od kořene, což může zabránit konvergenci algoritmu. Alternativně se můžeme dostat na takový odhad, ve kterém se dostaneme do cyklu a funkce nekonverguje \parencites[kapitola~9.4]{Press2007}.
+  Při dostatečně velkých hodnotách pro $\delta$ může algoritmus selhat. Pokud by se algoritmus dostal do okolí lokálního minima či maxima, další odhad může být nastaven na hodnotu velmi vzdálenou od kořene, což může zabránit konvergenci algoritmu. Alternativně se můžeme dostat na takový odhad, ve kterém se dostaneme do cyklu a funkce nekonverguje \parencites[kapitola~9.4]{Press2007}.
 
   V blízkém okolí $\epsilon$ okolo $x$, můžeme aproximovat funkci $f$ a její derivaci jako:
 
@@ -1072,7 +1096,7 @@ Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývaj
     f'(x + \epsilon) &= f'(x) + \epsilon f''(x) + \epsilon^2 \frac{f'''(x)}{2} + ...
   \end{align}
 
-  Dle Newtonova-Raphsonovy formule platí:
+  Nechť $\epsilon_i = |x - x_i|$, kde $x$ je hledaná hodnota a $x_i$ je $i$-tý odhad hledané hodnoty. Dle Newtonova-Raphsonovy formule platí:
 
   \begin{equation}
     \epsilon_{i+1} = \epsilon_i - \frac{f(x_i)}{f'(x_i)}
@@ -1084,6 +1108,8 @@ Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývaj
   \end{equation}
 
   \parencites[kapitola~9.4]{Press2007}
+
+  Tento výsledný vztah je pro hodnocení algoritmu klíčový, protože formálně dokazuje kvadratickou konvergenci Newtonovy-Raphsonovy metody v blízkém okolí kořene. Vztah ukazuje, že chyba v následujícím kroku $\epsilon_{i+1}$ je úměrná druhé mocnině chyby předchozí $\epsilon_i^2$. V praxi to znamená, že jakmile se algoritmus dostane dostatečně blízko ke kořeni, počet správných desetinných míst se s každou další iterací přibližně zdvojnásobuje. Právě tato vysoká rychlost konvergence je hlavní předností Newtonovy-Raphsonovy metody oproti jiným numerickým metodám (např. metodě bisekce).
 
   \subsubsection{Nalezení kritické ceny akcie}
 
@@ -1133,13 +1159,13 @@ Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývaj
     h_1 = ((r-q)T - 2 \sigma \sqrt{T}) \left[ \frac{K}{K - S^{**}(\infty)} \right].
   \end{equation}
 
-  $S^{**}(\infty)$ reprezentuje kritickou cenu akcie s datem expirace v nekonečnu:
+  Symbol $S^{**}(\infty)$ reprezentuje kritickou cenu akcie s datem expirace v nekonečnu:
 
   \begin{equation}
     S^{**}(\infty) = \frac{K}{1 - 2 [1 - N - \sqrt{(1 - N)^2 + 4M}]^{-1}}.
   \end{equation}
 
-  Zlepšením j-tého odhadu kritické ceny, značené jako $S^{**}_j$, rozumíme nastavení $S^{**}_{j+1}$ jako:
+  Zlepšením $j$-tého odhadu kritické ceny, značené jako $S^{**}_j$, rozumíme nastavení $S^{**}_{j+1}$ jako:
 
   \begin{equation}
     S^{**}_{j+1} = \frac{K - RHS_p(S^{**}_j) + b_j S^{**}_j}{1 + b_j},
@@ -1215,7 +1241,7 @@ Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývaj
 
   \subsection{Simulace vývoje ceny}
 
-  Jak již bylo zmíněno, primárním principem Monte Carla je v tomto případě generování potenciálních vývojů ceny akcie. Tyto vývoje by měly napodobovat potenciální vývoje reálné akcie, neměly by být nahodilé. Abychom omezili náhodnost tak, aby nám vyhovovala, musíme zavést pár konceptů:
+  Jak již bylo zmíněno, primárním principem Monte Carla je v tomto případě generování potenciálních vývojů ceny akcie. Tyto vývoje by měly napodobovat potenciální vývoje reálné akcie, neměly by být nahodilé. Abychom omezili náhodnost tak, aby nám vyhovovala, musíme zavést pár konceptů.
 
   \subsubsection{Užití rizikově-neutrálního ohodnocení}
 
@@ -1350,11 +1376,11 @@ Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývaj
     \hat{V}_{AV} = \frac{1}{N} \sum_{i=1}^N \frac{V(Z_i) + V(-Z_i)}{2}.
   \end{equation}
 
-  \parencites[kapitola~24.5]{McDonald2013}, \parencites[kapitola~4.2]{Glasserman2004} 
+  \parencites[kapitola~24.5]{McDonald2013}[kapitola~4.2]{Glasserman2004} 
 
   \subsection{Americké opce}
 
-  \subsubsection{Problém předčasného uplatnění}
+  Při zpracování hodnoty amerických opcí Monte Carlo naráží na tři problémy:
 
   \paragraph{První problém: odhad pokračovací hodnoty.}
   Rozhodnutí, zda opci uplatnit, vyžaduje porovnání okamžitého zisku při uplatnění a očekávané hodnoty při pokračování v držení opce. Tuto očekávanou hodnotu — pokračovací hodnotu — nelze spolehlivě určit z jedné simulované cesty. Každá cesta je jen jedna z mnoha možných realizací; potřebujeme odhadnout podmíněnou střední hodnotu \(\mathbb{E}[Y \mid S(t) = s]\) napříč všemi cestami ve stejném časovém okamžiku, kde $Y$ představuje diskontovanou hodnotu budoucích peněžních toků z opce.
@@ -1393,18 +1419,32 @@ Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývaj
 
   Nicméně, Monte Carlo je ze všech rozebíraných modelů nejjednodušší na implementaci pro exotické opce. Technicky vzato, stačí jen modifikovat funkci generující cesty a následně funkci vracející výplatu v daný čas.
 
+  % #############
+  % #############
+
   \chapter{Praktická část}
+
+  \section{Cíle a metodologie}
+
+  Cílem této části práce je získat data o skutečných opcích z burzy Yahoo Finance, získat jejich ohodnocení skrze výše zmíněné modely a následně tyto vypočtené hodnoty porovnat s hodnotou opcí v realitě.
+
+  Přesnost modelů se bude počítat ve dvou formách: absolutní a relativní. Absolutní přesnost se počítá jako "vypočtená cena - reálná cena", a zachytává reálný rozdíl v ceně. Tato forma je více senzitivní na rozdíly na drahých akciích, u kterých odchylka 5 \% může být větší než odchylka 300 \% u levných akcií.
+  Relativní přesnost budeme počítat jako symetrickou MAPE (Mean Absolute Percentage Error): \UV{$|2 \cdot (\text{vypočtená cena} - \text{reálná cena})| / |(\text{vypočtená cena} + \text{reálná cena})$|}. Tímto limitujeme chybu na uzavřený interval $<-1; 1>$, kde ideální stav se nachází v hodnotě $0$, kde se vypočtená cena a reálná cena rovnají. Toto ohodnocení je lepší pro porovnání výsledků mezi drahými a levnými akciemi.
+
+  Z odchylek od reálných hodnot můžeme vytvořit analýzu parametrů, a zjistit, které parametry a jak ovlivňují ceny opcí. 
+  Senzitivitu parametrů získáme pomocí regrese, specificky skrze model GLM, kde jako nezávislé proměnné vystupují parametr a datum sběru, a jako závislá proměnná vystupují odchylky v přesnosti. Budu zkoušet regresi na přesnosti absolutní i relativní.
+
+  S pomocí těchto odchylek a informacích o senzitivitě na parametry získáme údaje o validitě jednotlivých modelů, které použijeme pro jejich srovnání. 
 
   \section{Sběr dat}
 
   \subsection{Sbíraná data}
 
-  Plánem práce je vyzkoušet metody zmíněné v teoretické části na evropských a amerických opcích. Můžeme předpokládat, že opce na normálně obchodovaných akciích společností jsou americké a že opce na indexy jsou evropské. 
-  \parencites[s.~185]{McDonald2013}{Crawley2023}{Webull}
-  Z důvodu neschopnosti nalezí evropských opcí na akcie budou tyto opce nahrazeny evropskými opcemi na akciové indexy, které jsou svými vlastnostmi velmi podobné.
+  Sbíraná data pocházejí ze serveru Yahoo Finance (\url{https://finance.yahoo.com/}). Server byl vybrán kvůli možnosti bezplatného přístupu a jednoduchosti extrakce dat skrze knihovnu \texttt{yfinance}.
+  Opce na akcie na společnosti na Yahoo Finance jsou amerického typu. Z důvodu nedostupnosti dat o evropských opcích na akcie na společnosti, a to nejen na serveru Yahoo Finance, jsem se rozhodl tyto opce substituovat opcemi na akcie na indexy, jelikož opce na akcie na indexy jsou evropského typu, kvůli nutnosti cash-settlementu\footnote{Viz sekce \ref{sec:cash-settlement}}.
 
   Pro praktickou část byly vybrány akcie z indexu S\&P500. Tento výběr byl zvolen z důvodu likvidity opčních kontraktů, stability společností a dostupnosti dat z veřejných zdrojů. Cílem bylo získat tituly pokrývající různé úrovně volatility a dividendové politiky.
- Historická volatilita byla spočtena z denních uzavíracích cen za poslední obchodní rok (252 pracovních dní) jako standardní odchylka logaritmických výnosů přepočtená na roční bázi. Akcie byly rozděleny do tří kategorií: nízká (\(\sigma \le 0{,}35\)), střední (\(0{,}35 < \sigma < 0{,}50\)) a vysoká (\(\sigma \ge 0{,}50\)) volatilita. Dividendový status byl určen podle aktuálního dividendového výnosu \(q\); pokud \(q > 0\), je akcie považována za dividendovou.
+ Historická volatilita byla spočtena z denních uzavíracích cen za poslední obchodní rok (252 pracovních dní) jako standardní odchylka logaritmických výnosů přepočtená na roční bázi. Akcie byly rozděleny do tří kategorií dle per annum volatility: nízká volatilita (\(\sigma \le 0{,}35\)), střední volatilita (\(0{,}35 < \sigma < 0{,}50\)) a vysoká volatilita (\(\sigma \ge 0{,}50\)). Dividendový status byl určen podle získaných historických dat. Pokud akcie na daný titul platila pravidelně dividendu v získaných datech na poslední rok, počítáme tento titul mezi tituly platící dividendu.
 
  \begin{table}[h]
    \centering
@@ -1412,30 +1452,30 @@ Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývaj
    \label{tab:selected_stocks}
    \begin{tabular}{lcccc}
      \toprule
-     \textbf{Ticker} & \textbf{Společnost} & \(\sigma\) & \(q\) (\%) & \textbf{Počet opcí} \\
+     \textbf{Titul} & \textbf{Společnost} & \(\sigma\) p.a. & Plátce dividend & \textbf{Počet opcí} \\
      \midrule
      \multicolumn{5}{l}{\textbf{Nízká volatilita (\(\sigma \le 0{,}35\))}} \\
-     JNJ  & Johnson \& Johnson & 0{,}185 & 2{,}16 & 3\,428 \\
-     KO   & Coca-Cola          & 0{,}167 & 2{,}71 & 2\,738 \\
-     PG   & Procter \& Gamble  & 0{,}186 & 2{,}95 & 2\,870 \\
-     MSFT & Microsoft          & 0{,}253 & 0{,}85 & 12\,453 \\
-     AAPL & Apple              & 0{,}291 & 0{,}39 & 10\,020 \\
-     GOOGL & Alphabet          & 0{,}304 & 0{,}27 & 13\,970 \\
-     AMZN & Amazon             & 0{,}335 & 0{,}00 & 8\,321 \\
-     NFLX & Netflix            & 0{,}335 & 0{,}00 & 25\,755 \\
+     JNJ  & Johnson \& Johnson & 0{,}185 & Ano & 3\,428 \\
+     KO   & Coca-Cola          & 0{,}167 & Ano & 2\,738 \\
+     PG   & Procter \& Gamble  & 0{,}186 & Ano & 2\,870 \\
+     MSFT & Microsoft          & 0{,}253 & Ano & 12\,453 \\
+     AAPL & Apple              & 0{,}291 & Ano & 10\,020 \\
+     GOOGL & Alphabet          & 0{,}304 & Ano & 13\,970 \\
+     AMZN & Amazon             & 0{,}335 & Ne & 8\,321 \\
+     NFLX & Netflix            & 0{,}335 & Ne & 25\,755 \\
      \midrule
      \multicolumn{5}{l}{\textbf{Střední volatilita (\(0{,}35 < \sigma < 0{,}50\))}} \\
-     META & Meta Platforms     & 0{,}377 & 0{,}34 & 20\,250 \\
-     NVDA & NVIDIA             & 0{,}412 & 0{,}02 & 15\,611 \\
+     META & Meta Platforms     & 0{,}377 & Ano & 20\,250 \\
+     NVDA & NVIDIA             & 0{,}412 & Ano & 15\,611 \\
      \midrule
      \multicolumn{5}{l}{\textbf{Vysoká volatilita (\(\sigma \ge 0{,}50\))}} \\
-     TSLA & Tesla              & 0{,}562 & 0{,}00 & 20\,143 \\
-     AMD  & AMD                & 0{,}624 & 0{,}00 & 11\,841 \\
+     TSLA & Tesla              & 0{,}562 & Ne & 20\,143 \\
+     AMD  & AMD                & 0{,}624 & Ne & 11\,841 \\
      \bottomrule
    \end{tabular}
  \end{table}
 
-Z tabulky \ref{tab:selected_stocks} je patrné, že akcie s nízkou volatilitou mají zpravidla vyšší dividendový výnos (JNJ, KO, PG), zatímco akcie s vysokou volatilitou dividendy nevyplácejí (TSLA, AMD). Hranice mezi nízkou a střední volatilitou je u AMZN a NFLX velmi těsná (\(\sigma \approx 0{,}335\)), což je nutné zohlednit při interpretaci výsledků.
+Z tabulky \ref{tab:selected_stocks} je patrné, že akcie s nízkou volatilitou mají zpravidla vyšší dividendový výnos (JNJ, KO, PG), zatímco akcie s vysokou volatilitou dividendy nevyplácejí (TSLA, AMD). Hranice mezi nízkou a střední volatilitou je u akcií na společnost Amazon a Netflix velmi těsná (\(\sigma \approx 0{,}335\)), což je nutné zohlednit při interpretaci výsledků.
 
 Evropské opce jsou zastoupeny opcemi na akciové indexy vybranými z těch, které Yahoo Finance nabízí. Indexy nevyplácejí dividendy, tedy \(q = 0\).
 
@@ -1457,9 +1497,12 @@ Evropské opce jsou zastoupeny opcemi na akciové indexy vybranými z těch, kte
 \end{tabular}
 \end{table}
 
-Index \^{}VIX představuje speciální případ – jeho podkladovým aktivem je volatilita, nikoli cena. Tomu odpovídá i jeho historická volatilita \(\sigma \approx 1{,}3\), která je řádově vyšší než u ostatních indexů. Výsledky pro \^{}VIX je třeba interpretovat s ohledem na tuto skutečnost, neboť standardní oceňovací předpoklady (lognormalita, konstantní volatilita) zde nemusí být splněny.
+%TODO: Rozvést indexy - Jaké jsou, na co jsou, etc.
 
-Německé indexové opce (\^{}XDA{}--\^{}XDN) mají v datasetu velmi omezený počet záznamů (35–92 opcí), což odráží nízkou likviditu těchto kontraktů na Yahoo Finance.
+Index CBOE Volatility Index (\^VIX) představuje speciální případ – jeho podkladovým aktivem je volatilita, nikoli cena. Tomu odpovídá i jeho historická volatilita \(\sigma \approx 1{,}3\), která je řádově vyšší než u ostatních indexů.
+%Výsledky pro \^{}VIX je třeba interpretovat s ohledem na tuto skutečnost, neboť standardní oceňovací předpoklady (lognormalita, konstantní volatilita) zde nemusí být splněny. % TODO: Proč?
+
+%TODO: Posunout níž - Německé indexové opce (\^{}XDA{}--\^{}XDN) mají v datasetu velmi omezený počet záznamů (35–92 opcí), což odráží nízkou likviditu těchto kontraktů na Yahoo Finance.
 
   \subsection{Postup sběru}
 

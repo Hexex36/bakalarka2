@@ -1,0 +1,415 @@
+---
+output:
+  pdf_document:
+    keep_tex: true
+  html_document:
+    toc: true
+---
+
+``` {r}
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(knitr)
+library(kableExtra)
+```
+
+``` {r}
+load_prices <- function(path, am_eu, call_put) {
+  read_csv(path) %>%
+    mutate(am_eu = am_eu, call_put = call_put)
+}
+
+df_raw <- bind_rows(
+  load_prices("../calculated_prices/american_calls.csv", "american", "calls"),
+  load_prices("../calculated_prices/american_puts.csv", "american", "puts"),
+  load_prices("../calculated_prices/european_calls.csv", "european", "calls"),
+  load_prices("../calculated_prices/european_puts.csv", "european", "puts")
+) %>%
+  rename(true_price = option_price) %>%
+  mutate(
+    moneyness_regime = case_when(
+      call_put == "calls" & S / K < 0.95 ~ "OTM",
+      call_put == "calls" & S / K <= 1.05 ~ "ATM",
+      call_put == "calls" ~ "ITM",
+      call_put == "puts" & S / K < 0.95 ~ "ITM",
+      call_put == "puts" & S / K <= 1.05 ~ "ATM",
+      call_put == "puts" ~ "OTM"
+    ),
+    time_regime = case_when(
+      T <= 0.1 ~ "Short",
+      T <= 0.5 ~ "Medium",
+      TRUE ~ "Long"
+    )
+  ) %>%
+  mutate(pricing_error = (true_price - user_bs)/true_price)
+
+df <- df_raw
+
+df$SK_ratio <- df$S / df$K
+```
+
+# Deskriptivní analýza
+
+``` {r}
+subset <- c("SK_ratio", "sigma", "q", "r", "T")
+
+df_subset <- df[subset]
+
+summary(df_subset)
+```
+
+Pokud bychom začínali od konce, `r` a `T` vypadají rozumně. `r` se pohybuje mezi 3.3 % až 4.1 %, což vypadá vcelku důvěryhodně, neb je v normách získáných ze zdroje bezrizikových mír. `T` se pohybuje mezi 1 dnem a necelými 3 lety, nic extra pozoruhodného. Medián i průměr se drží hodnoty pro první dny, což by sedělo, neb většina opcí má krátkou expiraci.
+
+Na `q` pozorujeme hodnoty od 0 % do 13.6 %. 13.6 % je velmi vysoké, a pro opce které jej maj, je to prudce vyšší než `r`. Toto je z důvodu délky expirace: expirace pro tyto opce je 18 dní. Cena opce klesne za krátký čas, což "nafoukne" `q`. Asi akceptovatelné.
+
+Pro `sigma` se data pohybují celkově mezi 6 % a 138 %, s prvním a třetím kvartilem 28 % a 43 %. Rozložení dat celkově vypadá ok, ale je nutno prozkoumat outliery.
+Hodnoty 138 % patří indexu VIX, což je index na volatilitě. V podstatě asi dává smysl, nutno na to dávat pozor.
+Hodnoty 6.29% patří měnovému indexu nad Eurem (?) (^XDE). Euro je asi stabilní, takže opět dává smysl.
+
+`S/K` má první a třetí kvantil mezi hodnotami 0.7 a 1.36 a medián 0.98, což vypadá, jako že nám dává smysluplné hodnoty. Minimum v 0.03 a maximum v 430.66 jsou extrémy, ale asi pochopitelné.
+
+``` {r}
+top_sk <- df %>%
+  arrange(desc(sigma)) %>%
+  slice_min(sigma, n = 25) %>%
+  select(ticker, am_eu, call_put, S, K, q, T, sigma, true_price)
+
+print(top_sk, row.names = FALSE, n = 25)
+```
+
+``` {r stats-by-ticker}
+stats_by_ticker <- df %>%
+  group_by(ticker) %>%
+  summarise(
+    across(all_of(subset),
+      list(
+        min = ~ min(.x, na.rm = TRUE),
+        median = ~ median(.x, na.rm = TRUE),
+        max = ~ max(.x, na.rm = TRUE)
+      ),
+      .names = "{col}_{fn}"
+    )
+  )
+```
+
+- VIX, NVDA, NFLX mají extrémně malá minima `S/K`, měnové fondy (XDA, XDB, XDE, XDN) mají extrémně velká minima `S/K`. Extrémně malá maxima `S/K` pro měnové fondy, extrémně velká `S/K` pro AAPL, AMD, GOOGL, META, NFLX, NVDA, TSLA.
+
+- Význačně malé sigma pro měnové fondy, VIX má velmi vysoké `sigma` (až 138 %). Došlo k destabilizaci NVDA a TSLA (vysoké rozdíly v sigma, stále v rozumných mírách).
+
+- PG a zvlášť KO mají velmi velké maximální `q`.
+
+``` {r sbt_printout}
+kable(stats_by_ticker)
+```
+
+``` {r scatter-am-calls}
+df %>%
+  filter(am_eu == "american", call_put == "calls") %>%
+  group_by(ticker) %>%
+  mutate(max_val = pmax(max(user_bs, na.rm = TRUE),
+                         max(true_price, na.rm = TRUE))) %>%
+  ggplot(aes(x = user_bs, y = true_price)) +
+  geom_blank(aes(x = max_val, y = max_val)) +
+  geom_point(alpha = 0.15, size = 0.3) +
+  geom_abline(slope = 1, intercept = 0, color = "red", linewidth = 0.5) +
+  facet_wrap(~ticker, nrow = 3, ncol = 4, scales = "free") +
+  labs(x = "Black-Scholes price", y = "Market price") +
+  theme_minimal()
+```
+
+- NFLX a NVDA velmi misshapen. Častý odhad ceny 0 když trh hodnotí více.
+
+- AAPL, AMZN, PG, KO plus-mínus drží ideální tvar. AMD, GOOGL, JNJ konzistentně přeceňují, META, MSFT podhodnocují. TSLA obecně nestabilní s vyšší hodnotou.
+
+``` {r scatter-am-puts}
+df %>%
+  filter(am_eu == "american", call_put == "puts") %>%
+  group_by(ticker) %>%
+  mutate(max_val = pmax(max(user_bs, na.rm = TRUE),
+                         max(true_price, na.rm = TRUE))) %>%
+  ggplot(aes(x = user_bs, y = true_price)) +
+  geom_blank(aes(x = max_val, y = max_val)) +
+  geom_point(alpha = 0.15, size = 0.3) +
+  geom_abline(slope = 1, intercept = 0, color = "red", linewidth = 0.5) +
+  facet_wrap(~ticker, nrow = 3, ncol = 4, scales = "free") +
+  labs(x = "Black-Scholes price", y = "Market price") +
+  theme_minimal()
+```
+
+- NFLX a NVDA opět velmi misshapen, pro hodnotné opce silně přeceňujeme.
+
+- AMD, AAPL, GOOGL, JNJ, KO, PG celkem sedí, AMZN, META, MSFT, TSLA přeceňují
+
+``` {r scatter-eu-calls}
+df %>%
+  filter(am_eu == "european", call_put == "calls") %>%
+  group_by(ticker) %>%
+  mutate(max_val = pmax(max(user_bs, na.rm = TRUE),
+                         max(true_price, na.rm = TRUE))) %>%
+  ggplot(aes(x = user_bs, y = true_price)) +
+  geom_blank(aes(x = max_val, y = max_val)) +
+  geom_point(alpha = 0.15, size = 0.3) +
+  geom_abline(slope = 1, intercept = 0, color = "red", linewidth = 0.5) +
+  facet_wrap(~ticker, nrow = 3, ncol = 2, scales = "free") +
+  labs(x = "Black-Scholes price", y = "Market price") +
+  theme_minimal()
+```
+
+RUT a VIX přeceňují. XDE a XDN all over the place.
+
+``` {r scatter-eu-puts}
+df %>%
+  filter(am_eu == "european", call_put == "puts") %>%
+  group_by(ticker) %>%
+  mutate(max_val = pmax(max(user_bs, na.rm = TRUE),
+                         max(true_price, na.rm = TRUE))) %>%
+  ggplot(aes(x = user_bs, y = true_price)) +
+  geom_blank(aes(x = max_val, y = max_val)) +
+  geom_point(alpha = 0.15, size = 0.3) +
+  geom_abline(slope = 1, intercept = 0, color = "red", linewidth = 0.5) +
+  facet_wrap(~ticker, nrow = 3, ncol = 2, scales = "free") +
+  labs(x = "Black-Scholes price", y = "Market price") +
+  theme_minimal()
+```
+
+RUT podceňuje, VIX ideální, XDB a XDE podceňuje.
+
+# Analýza chyb
+
+``` {r}
+subset <- c("ticker", "S", "K", "call_put", "SK_ratio", "sigma", "q", "r", "T", "user_bs", "true_price", "expiration")
+# df_ens <- df[(df$ticker == "NFLX" | df$ticker == "NVDA") & df$user_bs < 10, subset]
+df_ens <- df[df$ticker == "NFLX" & df$call_put == "puts", subset]
+
+head(df_ens)
+```
+
+``` {r}
+df_ens <- df_ens %>%
+  mutate(snapshot_date = as.Date(expiration) - round(T * 365)) %>%
+  mutate(snapshot_month = format(snapshot_date, "%m")) %>%
+  mutate(pricing_error = true_price - user_bs)
+
+head(df_ens[c("ticker", "true_price", "user_bs", "snapshot_date", "snapshot_month")])
+unique(df_ens$snapshot_date)
+```
+
+``` {r}
+top_K <- df_ens %>%
+  filter(true_price < 10 & K > 100 & K < 266) %>%
+  slice_min(K, n = 50) %>%
+  select(S, K, T, pricing_error, user_bs, true_price)
+
+kable(top_K)
+```
+
+``` {r}
+top_en <- df_ens %>%
+  slice_max(K, n = 25) %>%
+  select(ticker, call_put, S, K, T, sigma, user_bs, true_price)
+
+# print(top_en, row.names = FALSE, n = 25)
+
+kable(top_en)
+```
+
+``` {r}
+df_ens <- df[df$ticker == "NVDA" & df$call_put == "calls", subset]
+
+df_ens <- df_ens %>%
+  mutate(snapshot_date = as.Date(expiration) - round(T * 365)) %>%
+  mutate(snapshot_month = format(snapshot_date, "%m"))
+
+#head(df_ens[c("ticker", "true_price", "user_bs", "snapshot_date", "snapshot_month")])
+#unique(df_ens$snapshot_date)
+
+top_en <- df_ens %>%
+  slice_max(true_price, n = 25) %>%
+  select(ticker, call_put, S, K, T, sigma, user_bs, true_price)
+
+# print(top_en, row.names = FALSE, n = 25)
+
+kable(top_en)
+```
+
+``` {r date_scatter, eval = FALSE, echo = FALSE}
+max_val <- max(max(df_ens$user_bs, na.rm = TRUE),
+               max(df_ens$true_price, na.rm = TRUE))
+
+ggplot(df_ens, aes(x = user_bs, y = true_price, color = snapshot_month)) +
+  geom_blank(aes(x = max_val, y = max_val)) +
+  geom_point(alpha = 0.4, size = 0.8) +
+  labs(x = "Black-Scholes price", y = "Market price", color = "Month") +
+  theme_minimal()
+```
+
+``` {r moneyness-error}
+df_moneyness <- df %>%
+  filter(ticker %in% c("NFLX") & call_put == "puts") %>%
+  mutate(pricing_error = true_price - user_bs)
+```
+
+``` {r}
+ggplot(df_moneyness, aes(x = K, y = S, color = ticker)) +
+  geom_point(alpha = 0.3, size = 0.5) +
+  geom_smooth(method = "lm", se = FALSE, linewidth = 0.8) +
+  labs(x = "Moneyness (S/K)", y = "Pricing error (Market - BS)",
+       color = "Ticker") +
+  theme_minimal()
+```
+
+Zatímco do určitých hodnot `K` je oceňování vcelku stabilní, od specifických hodnot u NFLX a NVDA dojede k velkému skoku nahoru. Hodnoty se srovánvají s našimi výpočty (tvoří zápornou logaritmickou křivku). Do určitých `K` data vypadají validní, ale nejsem si jistý že můžeme takhle nitpickovat.
+
+Pro NFLX bych pro call opce odstranil hodnoty, pro které je `true_price` větší než 400 a `K` větší než 266. Hodnoty `true_price` větší než 400 jsou nesmyslné a 266 pro `K` je poslední hodnota u které je `true_price` menší než 400 a má `K` menší než 800. Za 266 dochází ke skokovému zvýšení odhadované ceny, což u deep OTM opce nedává vůbec smysl. Pro put opce můžeme odstranit opce s `K` > 266 a opce které pro `K` > 100 mají `true_price` < 10.
+
+Pro NVDA můžeme pro call opce asi celkem bezpečně odstranit hodnoty `true_price` větší než 300 a `K` větší než 500. Pro put opce můžeme odstranit opce které mají pro `K` > 300 `true_price` menší než 100 a opce které mají `K` > 500.
+
+``` {r doctoring}
+df_doctored <- df %>%
+  filter((ticker != "NFLX" | call_put != "calls") | (K < 266 & true_price < 400)) %>%
+  filter((ticker != "NVDA" | call_put != "calls") | (K < 500 & true_price < 300)) %>%
+  filter((ticker != "NFLX" | call_put != "puts") | (K < 266 & (K < 100 | true_price > 10))) %>%
+  filter((ticker != "NVDA" | call_put != "puts") | (K < 500 & (K < 300 | true_price > 100)))
+```
+
+``` {r}
+top_K <- df_reg %>%
+  # filter(true_price < 10 & K > 100 & K < 266) %>%
+  slice_max(pricing_error, n = 50) %>%
+  select(ticker, S, K, T, pricing_error, model_price, true_price)
+
+kable(top_K)
+```
+
+``` {r}
+df_temp <- df_doctored %>%
+  filter(K > 100 & ticker == "NFLX" & call_put == "puts") %>%
+  slice_min(true_price, n = 25) %>%
+  select(K, true_price)
+
+kable(df_temp)
+
+```
+
+
+``` {r}
+ggplot(df_temp, aes(x = K, y = true_price)) +
+  geom_point(alpha = 0.3, size = 0.5) +
+  labs(x = "Moneyness (S/K)", y = "Pricing error (Market - BS)", color = "Ticker") +
+  theme_minimal()
+```
+
+``` {r}
+ggplot(df_doctored, aes(x = K, y = pricing_error, color = ticker)) +
+  geom_point(alpha = 0.3, size = 0.5) +
+  labs(x = "Moneyness (S/K)", y = "Pricing error (Market - BS)",
+       color = "Ticker") +
+  theme_minimal()
+```
+
+
+``` {r scatter-am-calls}
+df_doctored %>%
+  filter(am_eu == "american", call_put == "calls") %>%
+  group_by(ticker) %>%
+  mutate(max_val = pmax(max(user_bs, na.rm = TRUE),
+                         max(true_price, na.rm = TRUE))) %>%
+  ggplot(aes(x = user_bs, y = true_price)) +
+  geom_blank(aes(x = max_val, y = max_val)) +
+  geom_point(alpha = 0.15, size = 0.3) +
+  geom_abline(slope = 1, intercept = 0, color = "red", linewidth = 0.5) +
+  facet_wrap(~ticker, nrow = 3, ncol = 4, scales = "free") +
+  labs(x = "Black-Scholes price", y = "Market price") +
+  theme_minimal()
+```
+
+``` {r scatter-am-puts}
+df_doctored %>%
+  filter(am_eu == "american", call_put == "puts") %>%
+  group_by(ticker) %>%
+  mutate(max_val = pmax(max(user_bs, na.rm = TRUE),
+                         max(true_price, na.rm = TRUE))) %>%
+  ggplot(aes(x = user_bs, y = true_price)) +
+  geom_blank(aes(x = max_val, y = max_val)) +
+  geom_point(alpha = 0.15, size = 0.3) +
+  geom_abline(slope = 1, intercept = 0, color = "red", linewidth = 0.5) +
+  facet_wrap(~ticker, nrow = 3, ncol = 4, scales = "free") +
+  labs(x = "Black-Scholes price", y = "Market price") +
+  theme_minimal()
+```
+
+``` {r scatter-eu-calls}
+df %>%
+  filter(am_eu == "european", call_put == "calls") %>%
+  group_by(ticker) %>%
+  mutate(max_val = pmax(max(user_bs, na.rm = TRUE),
+                         max(true_price, na.rm = TRUE))) %>%
+  ggplot(aes(x = user_bs, y = true_price)) +
+  geom_blank(aes(x = max_val, y = max_val)) +
+  geom_point(alpha = 0.15, size = 0.3) +
+  geom_abline(slope = 1, intercept = 0, color = "red", linewidth = 0.5) +
+  facet_wrap(~ticker, nrow = 3, ncol = 2, scales = "free") +
+  labs(x = "Black-Scholes price", y = "Market price") +
+  theme_minimal()
+```
+
+``` {r scatter-eu-puts}
+df %>%
+  filter(am_eu == "european", call_put == "puts") %>%
+  group_by(ticker) %>%
+  mutate(max_val = pmax(max(user_bs, na.rm = TRUE),
+                         max(true_price, na.rm = TRUE))) %>%
+  ggplot(aes(x = user_bs, y = true_price)) +
+  geom_blank(aes(x = max_val, y = max_val)) +
+  geom_point(alpha = 0.15, size = 0.3) +
+  geom_abline(slope = 1, intercept = 0, color = "red", linewidth = 0.5) +
+  facet_wrap(~ticker, nrow = 3, ncol = 2, scales = "free") +
+  labs(x = "Black-Scholes price", y = "Market price") +
+  theme_minimal()
+```
+
+# Regresní analýza
+
+# Absolutní
+
+``` {r}
+ggplot(df_reg, aes(x = K, y = pricing_error, color = ticker)) +
+  geom_point(alpha = 0.3, size = 0.5) +
+  geom_smooth(method = "lm", se = FALSE, linewidth = 0.8) +
+  labs(x = "Moneyness (S/K)", y = "Pricing error (Market - BS)",
+       color = "Ticker") +
+  theme_minimal()
+```
+
+``` {r}
+df_reg <- df_doctored %>%
+  pivot_longer(cols = c(user_bs, user_crr, user_mc),
+               names_to = "model",
+               values_to = "model_price") %>%
+  mutate(pricing_error = true_price - model_price) %>%
+  filter(is.finite(pricing_error))
+```
+
+``` {r}
+K_crr <- lm(pricing_error ~ K, data = df_reg %>% filter(model == "user_crr" & call_put == "calls" & am_eu == "american"))
+K_bs <- lm(pricing_error ~ K, data = df_reg %>% filter(model == "user_bs" & call_put == "calls" & am_eu == "american"))
+K_mc <- lm(pricing_error ~ K, data = df_reg %>% filter(model == "user_mc" & call_put == "calls" & am_eu == "american"))
+```
+
+``` {r}
+plot(K_crr)
+```
+
+``` {r reg-plot}
+ggplot(df_reg %>% filter(call_put == "calls" & am_eu == "american"), aes(x = T, y = pricing_error, color = model)) +
+  geom_point(alpha = 0.15, size = 0.3) +
+  geom_smooth(method = "lm", se = FALSE, linewidth = 0.8) +
+  labs(x = "Strike price (K)", y = "Relative pricing error",
+       color = "Model") +
+  theme_minimal()
+```
+
+# Relativní
+
