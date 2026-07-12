@@ -509,6 +509,7 @@ Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývaj
 
   \subsection{Práce s dividendy}
 
+  \label{sec:dividends}
   Toto téma se vztahuje k práci s opcemi na akcie.
 
   Dividenda je částka vyplácená vlastníkům podílů společnosti. Dividenda je tradičně vyplácena pravidelně, nejčastěji kvartálně nebo ročně, a výši/datum dividendy můžeme odhadnout dle předchozích tendendencí vyplácení, nebo je daná společnost oznámí s předstihem. Výše dividendy bývá pevně určenou částkou.
@@ -1429,10 +1430,9 @@ Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývaj
   Cílem této části práce je získat data o skutečných opcích z burzy Yahoo Finance, získat jejich ohodnocení skrze výše zmíněné modely a následně tyto vypočtené hodnoty porovnat s hodnotou opcí v realitě.
 
   Přesnost modelů se bude počítat ve dvou formách: absolutní a relativní. Absolutní přesnost se počítá jako "vypočtená cena - reálná cena", a zachytává reálný rozdíl v ceně. Tato forma je více senzitivní na rozdíly na drahých akciích, u kterých odchylka 5 \% může být větší než odchylka 300 \% u levných akcií.
-  Relativní přesnost budeme počítat jako symetrickou MAPE (Mean Absolute Percentage Error): \UV{$|2 \cdot (\text{vypočtená cena} - \text{reálná cena})| / |(\text{vypočtená cena} + \text{reálná cena})$|}. Tímto limitujeme chybu na uzavřený interval $<-1; 1>$, kde ideální stav se nachází v hodnotě $0$, kde se vypočtená cena a reálná cena rovnají. Toto ohodnocení je lepší pro porovnání výsledků mezi drahými a levnými akciemi.
+  Relativní přesnost budeme počítat jako symetrický MPE (Mean Percentage Error): \UV{$|2 \cdot (\text{vypočtená cena} - \text{reálná cena})| / |(\text{vypočtená cena} + \text{reálná cena})$|}. Tímto limitujeme chybu na uzavřený interval $<-1; 1>$, kde ideální stav se nachází v hodnotě $0$, kde se vypočtená cena a reálná cena rovnají. Toto ohodnocení je lepší pro porovnání výsledků mezi drahými a levnými akciemi.
 
-  Z odchylek od reálných hodnot můžeme vytvořit analýzu parametrů, a zjistit, které parametry a jak ovlivňují ceny opcí. 
-  Senzitivitu parametrů získáme pomocí regrese, specificky skrze model GLM, kde jako nezávislé proměnné vystupují parametr a datum sběru, a jako závislá proměnná vystupují odchylky v přesnosti. Budu zkoušet regresi na přesnosti absolutní i relativní.
+  Senzitivita parametrů byla získána pomocí regrese nad panelovými daty. Regresní model byl vytvořen nad smíšenými lineárními modely, implementovanými v R knihovně \texttt{lme4}. Byla zkoušena regrese na přesnosti absolutní i relativní. Z regresních parametrů můžeme vytvořit analýzu parametrů, a zjistit, které parametry a jak ovlivňují ceny opcí. 
 
   S pomocí těchto odchylek a informacích o senzitivitě na parametry získáme údaje o validitě jednotlivých modelů, které použijeme pro jejich srovnání. 
 
@@ -1441,12 +1441,12 @@ Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývaj
   \subsection{Sbíraná data}
 
   Sbíraná data pocházejí ze serveru Yahoo Finance (\url{https://finance.yahoo.com/}). Server byl vybrán kvůli možnosti bezplatného přístupu a jednoduchosti extrakce dat skrze knihovnu \texttt{yfinance}.
-  Opce na akcie na společnosti na Yahoo Finance jsou amerického typu. Z důvodu nedostupnosti dat o evropských opcích na akcie na společnosti, a to nejen na serveru Yahoo Finance, jsem se rozhodl tyto opce substituovat opcemi na akcie na indexy, jelikož opce na akcie na indexy jsou evropského typu, kvůli nutnosti cash-settlementu\footnote{Viz sekce \ref{sec:cash-settlement}}.
+  Opce na akcie na společnosti na Yahoo Finance jsou amerického typu. Z důvodu nedostupnosti dat o evropských opcích na akcie na společnosti jsem se rozhodl tyto opce substituovat opcemi na akcie na indexy, jelikož opce na akcie na indexy jsou evropského typu, kvůli nutnosti cash-settlementu\footnote{Viz sekce \ref{sec:cash-settlement}}.
 
   Pro praktickou část byly vybrány akcie z indexu S\&P500. Tento výběr byl zvolen z důvodu likvidity opčních kontraktů, stability společností a dostupnosti dat z veřejných zdrojů. Cílem bylo získat tituly pokrývající různé úrovně volatility a dividendové politiky.
- Historická volatilita byla spočtena z denních uzavíracích cen za poslední obchodní rok (252 pracovních dní) jako standardní odchylka logaritmických výnosů přepočtená na roční bázi. Akcie byly rozděleny do tří kategorií dle per annum volatility: nízká volatilita (\(\sigma \le 0{,}35\)), střední volatilita (\(0{,}35 < \sigma < 0{,}50\)) a vysoká volatilita (\(\sigma \ge 0{,}50\)). Dividendový status byl určen podle získaných historických dat. Pokud akcie na daný titul platila pravidelně dividendu v získaných datech na poslední rok, počítáme tento titul mezi tituly platící dividendu.
+ Historická volatilita byla spočtena z denních uzavíracích cen za poslední obchodní rok (252 pracovních dní) jako standardní odchylka logaritmických výnosů přepočtená na roční bázi. Akcie byly rozděleny do tří kategorií dle per annum volatility: nízká volatilita (\(\sigma \le 0{,}35 p.a.\)), střední volatilita (\(0{,}35 p.a. < \sigma < 0{,}50 p.a.\)) a vysoká volatilita (\(\sigma \ge 0{,}50 p.a.\)). Dividendový status byl určen podle získaných historických dat. Pokud akcie na daný titul platila pravidelně dividendu v získaných datech na poslední rok, počítáme tento titul mezi tituly platící dividendu.
 
- \begin{table}[h]
+ \begin{table}[h!]
    \centering
    \caption{Vybrané akcie pro americké opce}
    \label{tab:selected_stocks}
@@ -1475,11 +1475,11 @@ Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývaj
    \end{tabular}
  \end{table}
 
-Z tabulky \ref{tab:selected_stocks} je patrné, že akcie s nízkou volatilitou mají zpravidla vyšší dividendový výnos (JNJ, KO, PG), zatímco akcie s vysokou volatilitou dividendy nevyplácejí (TSLA, AMD). Hranice mezi nízkou a střední volatilitou je u akcií na společnost Amazon a Netflix velmi těsná (\(\sigma \approx 0{,}335\)), což je nutné zohlednit při interpretaci výsledků.
+Z tabulky \ref{tab:selected_stocks} je patrné, že akcie s nízkou volatilitou mají zpravidla vyšší dividendový výnos (JNJ, KO, PG), zatímco akcie s vysokou volatilitou dividendy nevyplácejí (TSLA, AMD). Hranice mezi nízkou a střední volatilitou je u akcií na společnost Amazon a Netflix velmi těsná (\(\sigma \approx 0{,}335 p.a.\)), což je nutné zohlednit při interpretaci výsledků.
 
-Evropské opce jsou zastoupeny opcemi na akciové indexy vybranými z těch, které Yahoo Finance nabízí. Indexy nevyplácejí dividendy, tedy \(q = 0\).
+Evropské opce jsou zastoupeny opcemi na akciové indexy vybranými z těch, které Yahoo Finance nabízí. Indexy nevyplácejí dividendy, tedy \(q = 0\). V regresi je nutno tento fakt reprezentovat interakcí dividendy s stylem ohodnocení opce.
 
-\begin{table}[h]
+\begin{table}[h!]
 \centering
 \caption{Vybrané indexy pro evropské opce}
 \label{tab:selected_indices}
@@ -1487,134 +1487,121 @@ Evropské opce jsou zastoupeny opcemi na akciové indexy vybranými z těch, kte
 \toprule
 \textbf{Ticker} & \textbf{Index} & \(\sigma\) & \textbf{Počet opcí} \\
 \midrule
-\^{}RUT & Russell 2000              & 0{,}220 & 17\,060 \\
-\^{}VIX & CBOE Volatility Index     & 1{,}313 & 4\,296 \\
-\^{}XDA & DAX                       & 0{,}093 & 35 \\
-\^{}XDB & DAX                       & 0{,}069 & 47 \\
-\^{}XDE & DAX                       & 0{,}074 & 92 \\
-\^{}XDN & DAX                       & 0{,}096 & 66 \\
+\^{}RUT & Russell 2000                      & 0{,}220 & 17\,060 \\
+\^{}VIX & CBOE Volatility Index             & 1{,}313 & 4\,296 \\
+\^{}XDA & Australian Dollar Currency Index  & 0{,}093 & 35 \\
+\^{}XDB & British Pound Currency Index      & 0{,}069 & 47 \\
+\^{}XDE & Euro Currency Index               & 0{,}074 & 92 \\
+\^{}XDN & Japanese Yen Currency Index       & 0{,}096 & 66 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-%TODO: Rozvést indexy - Jaké jsou, na co jsou, etc.
-
-Index CBOE Volatility Index (\^VIX) představuje speciální případ – jeho podkladovým aktivem je volatilita, nikoli cena. Tomu odpovídá i jeho historická volatilita \(\sigma \approx 1{,}3\), která je řádově vyšší než u ostatních indexů.
-%Výsledky pro \^{}VIX je třeba interpretovat s ohledem na tuto skutečnost, neboť standardní oceňovací předpoklady (lognormalita, konstantní volatilita) zde nemusí být splněny. % TODO: Proč?
-
-%TODO: Posunout níž - Německé indexové opce (\^{}XDA{}--\^{}XDN) mají v datasetu velmi omezený počet záznamů (35–92 opcí), což odráží nízkou likviditu těchto kontraktů na Yahoo Finance.
+Russell 2000 (\textasciicircum{}RUT) je index vytvořený nad 2000 nejmenšími firmami indexu Russell 3000, což je index vytvořený nad 3000 největšími americkými firmami podle tržní kapitalizace.
+Index CBOE Volatility Index (\textasciicircum{}VIX) je index implikované volatility odvozený z cen opcí na S\&P 500. Představuje speciální případ – jeho podkladovým aktivem je volatilita, nikoli cena. Tomu odpovídá i jeho historická volatilita \(\sigma \approx 1{,}3\), která je řádově vyšší než u ostatních indexů.
+Měnové indexy (XDA, XDB, XDE, XDN) jsou vázané na příslušnou měnu vůči americkému dolaru. Tyto indexy mají menší likividitu než předchozí indexy.
 
   \subsection{Postup sběru}
 
-  Sběr dat byl uskutečněn pomocí pythonovské knihovny \texttt{yfinance}. Yfinance je knihovna, která umožňuje queryování a následně stáhnutí dat z API endpointů serverů Yahoo Finance. Tyto endpointy nejsou veřejně popsané, ale jsou veřejně dostupné, a používá je stránka Yahoo Finance na získávání jejich dat pro opce.
+  Data jsem získal pomocí pythonovské knihovny \texttt{yfinance}. Jedná se o knihovnu, která umožňuje prohledání a stáhnutí dat z programovacího rozhraní serverů Yahoo Finance. Tato rozhraní nejsou veřejně popsané, ale jsou veřejně dostupné, a používá je stránka Yahoo Finance na získávání svých dat pro opce.
 
-  V rámci vývoje skriptu jsme ověřili, že všechny vybrané tituly jsou dostupné na Yahoo Finance.
-  
-  Pro stažení dat jsem napsal skript, který stáhne pro každý titul detaily vývoje akcie za poslední pracovní rok a všechny opční řetězce nabízené v den sběru dat.
+  Pro stažení dat jsem napsal skript, který stáhne pro každý titul detaily vývoje akcie za poslední obchodní rok a všechny opční řetězce nabízené v den sběru dat.
 
-  Pro každý ticker byly staženy následující údaje:
+  Pro každý titul byly staženy následující údaje:
   \begin{itemize}
     \item aktuální cena akcie \(S\) v den sběru,
-    \item kompletní opční řetězec -- všechna dostupná expirační data, strike ceny, typ (call/put), ceny (bid, ask, last), objem a open interest,
     \item historické denní uzavírací ceny za poslední rok (252 obchodních dní) pro výpočet historické volatility,
-    \item dividendová data pro určení spojitého dividendového výnosu \(q\).
+    \item dividendová data pro určení spojitého dividendového výnosu \(q\),
+    \item kompletní opční řetězec daného titulu.
+  \end{itemize}
+  Opčním řetězcem rozumíme soupis všech nabízených opcí pro daný titul. Skrze opční řetezce jsem získal pro každou opci:
+
+  \begin{itemize}
+    \item identifikátor opce (titul-datum expirace-typ-realizační cena),
+    \item realizační ceny,
+    \item datum expirace,
+    \item typ opce (call nebo put),
+    \item informace o cenách,
+    \item počet obchodovaných opcí za daný den,
+    \item počet celkově nabízených opcí.
   \end{itemize}
 
   Sběr proběhl ve čtyřech termínech: 26.~ledna, 27.~února, 27.~března a 26.~května 2026. Tato data nenesou žádný speciální význam; účelem bylo získat data s přibližným odstupem jednoho měsíce. Data z dubna se nepodařilo získat kvůli technickému výpadku.
 
-  Opakovaná měření umožňují zachytit vývoj tržních podmínek a otestovat citlivost modelů na změnu ceny podkladového aktiva a bezrizikové úrokové míry. Při dotazování na API byl dodržován odstup nejméně 0,5~s mezi požadavky na různé tickery a 1~s mezi jednotlivými expiracemi, aby nedošlo k zablokování ze strany serveru.
+  Opakovaná stahování umožňují zachytit vývoj tržních podmínek a otestovat citlivost modelů na změnu ceny podkladového aktiva a bezrizikové úrokové míry. Při dotazování na API byl dodržován odstup nejméně 0,5~s mezi požadavky na různé tickery a 1~s mezi jednotlivými expiracemi, aby nedošlo k zablokování ze strany serveru.
 
-  \subsection{Zpracování dat}
+  \subsection{Určení dalších parametrů pro ocenění opcí}
 
-  Ze stažených dat chybí následující parametry: Volatilita, dividednový výnos a bezriziková úroková míra.
+  K získaným datům bylo nutné stanovit další parametry: Volatilita, spojitá dividendová míra a bezriziková úroková míra.
 
-  Historická volatilita \(\sigma\) byla pro každou akcii spočtena z denních logaritmických výnosů
+  Historická volatilita \(\sigma\) byla pro každou akcii odvozena z denních logaritmických výnosů
   \[
     r_i = \ln\frac{S_i}{S_{i-1}},
   \]
-  kde \(S_i\) je uzavírací cena v den \(i\). Směrodatná odchylka těchto výnosů byla přepočtena na roční bázi:
+  kde \(S_i\) je uzavírací cena v den \(i\), a $S_{i-1}$ je uzavírací cena předchozí den. Směrodatná odchylka těchto výnosů byla přepočtena na roční bázi pomocí vztahu:
   \[
     \sigma = \text{std}(r_1,\dots,r_n) \cdot \sqrt{252}.
   \]
 
   \label{sec:hist_vol}
-  Pro spojitou dividendovou míru byl použit historický odhad z posledního roku. Pro každou dividendu \(d_i\) vyplacenou v čase \(t_i\) byl vypočten okamžitý výnos \(d_i / S\) a tyto výnosy byly zprůměrovány a přepočteny na spojitou roční míru.
+  Vyplácené dividendy v budoucnosti vznikají jako pokračování předchozího trendu vyplácení dividend z historických dat. Skript spočítá průměrnou prodlevu mezi vyplácenými dividendami a průměrnou výši této dividendy, a vyplácenou dividendu rozšíří do budoucnosti, dokud nenarazí na datum expirace. Následně je spočtena spojitá dividendová míra dle sekce \ref{sec:dividends}.
 
-  Bezriziková úroková míra \(r\) byla získána z výnosů amerických státních dluhopisů (U.S. Treasury), konkrétně z Daily Treasury Par Yield Curve.\footnote{Dostupné z \url{https://home.treasury.gov/resource-center/data-chart-center/interest-rates}} Pro splatnosti odpovídající jednotlivým expiracím opcí byla úroková míra dopočtena lineární interpolací mezi dvěma nejbližšími publikovanými výnosy.
+  Bezriziková úroková míra \(r\) byla získána z výnosové křivky amerických státních dluhopisů publikovaných Ministerstvem financí USA, konkrétně ze stránky \UV{Daily Treasury Par Yield Curve}.\footnote{Dostupné z \url{https://home.treasury.gov/resource-center/data-chart-center/interest-rates}} Pro splatnosti odpovídající jednotlivým expiracím opcí byla úroková míra aproximována lineární interpolací mezi dvěma nejbližšími publikovanými výnosy.
 
-\subsubsection{Sestavení datasetu}
+\subsection{Sestavení datasetu}
 
 Data prošla dvěma fázemi zpracování – nejprve v jazyce Python, poté v jazyce R.
 
 \bigskip
 \noindent\textbf{Fáze 1: Python (stažení a předzpracování)}
 
-Python skripty obstarávají komunikaci s API serveru Yahoo Finance a základní předzpracování dat. Všechny skripty jsou na sobě nezávislé a spouštějí se samostatně:
+Python skripty obstarávají komunikaci s API serveru Yahoo Finance a základní předzpracování dat. Všechny skripty jsou na sobě nezávislé a byly spouštěny samostatně:
 
 \begin{enumerate}
-  \item \texttt{price\_fetcher.py} stáhne pro všechny tickery historické denní uzavírací ceny a dividendy za poslední rok. Výstupem je soubor \texttt{stock\_prices\_YYYY-MM-DD.csv}.
-  \item \texttt{options\_fetcher\_final.py} stáhne kompletní opční řetězce pro všechny tickery. Ke každé opci ukládá strike cenu, typ (call/put), ceny (bid, ask, lastPrice), objem a open interest. Výstupem jsou soubory \texttt{american\_options\_YYYY-MM-DD.csv} a \texttt{european\_options\_YYYY-MM-DD.csv}.
-  \item \texttt{rate\_functioner\_complete.py} provádí kompletní předzpracování – načte raw opční data a ke každé opci dopočítá a přiřadí:
+  \item \texttt{price\_fetcher.py} stahuje pro všechny tickery historické denní uzavírací ceny a dividendy za poslední rok. Výstupem je soubor \texttt{stock\_prices\_YYYY-MM-DD.csv}.
+  \item \texttt{options\_fetcher\_final.py} stahuje kompletní opční řetězce pro všechny tickery. Ke každé opci ukládá strike cenu, typ (call/put), ceny (bid, ask, lastPrice), objem a open interest. Výstupem jsou soubory \texttt{american\_options\_YYYY-MM-DD.csv} a \texttt{european\_options\_YYYY-MM-DD.csv}.
+  \item \texttt{rate\_functioner\_complete.py} provádí kompletní předzpracování – načte opční data a ke každé opci dopočítá a přiřadí:
     \begin{itemize}
       \item bezrizikovou úrokovou míru \(r\) z výnosů U.S. Treasury (lineární interpolace podle splatnosti),
       \item aktuální cenu akcie \(S\) z historických cen,
-      \item historickou volatilitu \(\sigma\) z denních logaritmických výnosů,
-      \item spojitý dividendový výnos \(q\) z historických dividend.
+      \item odhad historické volatility \(\sigma\) z denních logaritmických výnosů,
+      \item odhad spojitého dividendového výnosu \(q\) z historických dividend.
     \end{itemize}
     Zároveň přejmenuje sloupce do konzistentní notace (např. \texttt{historical\_volatility} $\to$ \texttt{sigma}, \texttt{current\_stock\_price} $\to$ \texttt{S}). Výstupem jsou soubory \texttt{american\_options\_YYYY-MM-DD\_greeks.csv} a \texttt{european\_options\_YYYY-MM-DD\_greeks.csv}.
 \end{enumerate}
 
-Tato fáze se opakuje pro každý termín sběru dat (leden, únor, březen, květen). Výstupem je sada CSV souborů pro každé měření.
+Tato fáze se opakovala pro každý termín sběru dat (leden, únor, březen, květen). Výstupem je sada CSV souborů pro každé stahování.
 
 \bigskip
-\noindent\textbf{Fáze 2: R (sestavení a enrichování datasetu)}
+\noindent\textbf{Fáze 2: R (dopočítání času expirace, výpočet teoretických ohodnocení)}
 
-R skripty načtou výstupy z Python fáze a sestaví z nich jednotný dataset:
+R skript načte výstupy z Python fáze a vypočte ohodnocení pro získané opce:
 
 \begin{enumerate}
-  \item \texttt{data\_processing.rmd} načte pro každý termín sběru:
-    \begin{itemize}
-      \item stock prices (pro výpočet \(S_{\text{no dividend}}\)),
-      \item greeks data (obsahuje všechny potřebné parametry i tržní ceny).
-    \end{itemize}
-  \item Spočte čas do expirace \(T\) jako \(\text{dny mezi datem sběru a expirací} / 365\).
-  \item Vytvoří sloupec \texttt{S\_no\_dividend} (cena akcie navýšená o vyplacené dividendy za poslední rok) pro použití v modelech, které dividendy nezohledňují.
-  \item Vypočte poměr \(K/S\) (moneyness) pro snazší kategorizaci opcí.
-  \item Sjednotí data ze všech čtyř měření do jednoho datasetu a uloží jej jako \texttt{complete\_dataset.csv}.
+  \item \texttt{analysis.rmd} načítal pro každý termín sběru z CSV souborů z předchozí fáze, a následně je rozdělí do dataframů dle typů opcí. Pro každý CSV soubor se k opcím přidá jako parametr čas do expirace \(T\) jako \(\text{dny mezi datem sběru a expirací} / 365\).
+  \item Načetl všechny metody ohodnocovací metody.
+  \item Pro každý dataframe byly vytvořeny tři sloupce s vypočtenou hodnotou opce. Délka výpočtu pro všechny opce je uložena do proměnné.
+  \item Skript uložil upravené opce s odhady do souboru \texttt{calculated\_prices/<styl\_uplatnění>\_<typ\_opce>.csv}.
 \end{enumerate}
 
-Výsledný dataset obsahuje 168~996 opčních kontraktů na 12 amerických akcií a 6 evropských indexů. Čas do expirace \(T\) se pohybuje od 0 do 2{,}8~let a strike ceny \(K\) v rozmezí 0{,}50 až 5~000 jednotek.
+Výsledný dataset obsahuje 168~996 opčních kontraktů na 12 amerických akcií a 6 evropských indexů. 
 
 \bigskip
-\noindent\textbf{Poznámka k tvorbě skriptů:} Python skripty pro stažení a předzpracování dat byly vytvořeny za pomoci generativní umělé inteligence a následně ručně zkontrolovány a upraveny. Veškeré navazující výpočty a analýzy v jazyce R jsou napsány výhradně autorem práce. Všechny skripty jsou přiloženy k práci.
+\noindent\textbf{Poznámka k tvorbě skriptů:} Python skripty pro stažení a předzpracování dat byly vytvořeny za pomoci generativní umělé inteligence a následně ručně zkontrolovány a upraveny. 
 
   \section{Implementace oceňovacích metod}
 
   \subsection{Binomické stromy}
 
-  Zatímco implementace pro evropské opce se dá vyřešit pomocí jedné rovnice, implementovatelné v několika řádcích R, americké opce vyžaduje plné sestavení stromu, zpětný průchod a pořešení okrajových případů (nulový/velmi krátký čas do expirace, extrémní strike cena, etc.). Z tohoto důvodu místo ruční implementace byla v práci použita implentace Coxovo-Rossovo-Rubinsteinových stromů z knihovny \texttt{fOptions}. Tato knihovna je dostupná ke stažení na GitHubu \footnote{Odkaz: \url{https://github.com/cran/fOptions}}.
+  Zatímco implementace pro evropské opce se dá zapsat pomocí jedné rovnice implementovatelné v několika řádcích R, americké opce vyžaduje plné sestavení stromu, zpětný průchod a pořešení okrajových případů (nulový/velmi krátký čas do expirace, extrémní strike cena, apod.). Z tohoto důvodu místo ruční implementace byla v práci použita implentace Coxovo-Rossovo-Rubinsteinovo stromů z knihovny \texttt{fOptions}. Tato knihovna je dostupná ke stažení na GitHubu \footnote{Odkaz: \url{https://github.com/cran/fOptions}}.
 
-  Pro zhotovení modelu voláme funkci \texttt{CRRBinomialTreeOption}. Parametry opce následují pro $S$, $K$, $r$, $\sigma$ a $T$ standardní značení, nicméně mimo to máme parametry:
-  \begin{itemize}
-    \item \textbf{n}: Počet binomických kroků, %TODO: Period?
-      pro naše použití je 100 adekvátní počet. % TODO: Vysvětlení?
-    \item \textbf{b}: Náklady na držení. Dle sekce \ref{sec:cost_of_carry} nastaveno na $r - q$.
-    \item \textbf{TypeFlag}: Typ opce, psaný jako dvoupísmenná kombinace.
-      \begin{itemize}
-        \item \texttt{"ce"} -- evropská call opce,
-        \item \texttt{"pe"} -- evropská put opce,
-        \item \texttt{"ca"} -- americká call opce,
-        \item \texttt{"pa"} -- americká put opce.
-      \end{itemize}
-  \end{itemize}
-
-  Výsledná cena opce je vrácena jako S4 objekt; extrahována je pomocí slotu \texttt{@price}.
+  Pro výpočet hodnoty byl nastaven parametr $n$, zastupující počet binomických kroků, nastaven jako 100. Tato hodnota byla získána skrze manuální testování, a poskytuje dostatečnou rovnováhu mezi rychlostí a přesností.
 
   \subsection{Blackův-Scholesův model}
 
-  Vzhledem k jednoduchosti implementace pro evropské opce, a zdánlivé zvládnutelnosti implementace pro opce americké, byl Blackův-Scholesův model v této práci implementován ručně. K implementaci byly použity formulace zmíněny v sekci \ref{sec:black-scholes_theory}, tudíž formulace Blackova-Scholesova modelu s Mertonovo rozšířením dle \parencites[kapitola~15.1]{McDonald2013} a stejný model s Baroneho-Adesiho a Whaleyho aproximací dle \parencites[kapitola~3.1]{Haug2007} pro americké opce.
+  Vzhledem k jednoduchosti implementace pro evropské opce, a zdánlivé zvládnutelnosti implementace pro opce americké, byl Blackův-Scholesův model v této práci implementován mnou. K implementaci byly použity formulace zmíněny v sekci \ref{sec:black-scholes_theory}, tudíž formulace Blackova-Scholesova modelu s Mertonovo rozšířením dle postupu popsaného McDonaldem. \footnote{Detailováno ve zdroji \parencites[kapitola~15.1]{McDonald2013}.} a stejný model s Baroneho-Adesiho a Whaleyho aproximací dle postupu popsaného Haugem \footnote{Detailováno ve zdroji \parencites[kapitola~3.1]{Haug2007}.} pro americké opce. Pro implementaci byla umělá inteligence použita jen pro testování o opravy chyb/vyřešení hraničních případů.
 
-  Implementace pro evropské opce je v podstatě přesný přespis znění Blackova-Scholesova modelu s Mertonovo rozšířením, s pořešením okrajového případu, kde $T = 0$, pro který místo výpočtu vrátíme okamžitou výplatu z využití opce.
+  Implementace pro evropské opce je v podstatě přesný přepis znění Blackova-Scholesova modelu s Mertonovo rozšířením, s pořešením okrajového případu, kde $T = 0$, pro který místo výpočtu vrátíme okamžitou výplatu z využití opce.
 
   \subsubsection{Americké opce}
 
@@ -1622,14 +1609,13 @@ Výsledný dataset obsahuje 168~996 opčních kontraktů na 12 amerických akci�
 
   V primární funkci je pár větví, které zjednodušují výpočet:
   \begin{itemize}
-    \item Je-li $T = 0$, je den expirace, a hodnotu opce získáme jako výplatu z využití.
     \item Pro call opce, je-li $q = 0$, nemá smysl předčasně využívat opci, a chová se jako opce evropská. Můžeme vrátit hodnotu opce evropské. 
     \item Je-li $S$ větší než kritická hodnota aktiva, je výhodné opci využít předčasně. Opět hodnotu opce získáme jako výplatu z využití.
   \end{itemize}
 
   Pokud volání nespadá pod ani jednu z těchto větví, výpočet probíhá dle specifikace v sekci \ref{sec:bs_american}.
 
-  Pomocná funkce je použitá pro nalezení kritické ceny aktiva pro danou opci a používá specifickaci Newtonova-Raphsonova v sekci \ref{sec:bs_nr} s maximálním tolerovaným rozdílem $10^{-9}$. Vyšší tolerance zanedbatelně zvyšují přesnost na silný úkor přesnosti.
+  Pomocná funkce je použitá pro nalezení kritické ceny aktiva pro danou opci a používá specifickaci Newtonova-Raphsonova v sekci \ref{sec:bs_nr} s maximálním tolerovaným rozdílem $\alpha = 10^{-9}$. Vyšší tolerance zanedbatelně zvyšují přesnost na silný úkor přesnosti.
   Pomocná funkce pro prodejní opce volá ještě jednu pomocnou funkci na určení počátečního odhadu pro Newtonův-Raphsonův algoritmus. Toto bylo učiněno v rámci hledání chyby v implementaci pomocné funkce.
 
   \begin{table}[h]
@@ -1648,14 +1634,13 @@ Výsledný dataset obsahuje 168~996 opčních kontraktů na 12 amerických akci�
 
   \subsection{Monte Carlo}
 
-  Stejně jako Blackův-Scholesův model, na ohodnocení pomocí metody Monte Carlo nebyla použita externí knihovna. Při implementaci byla využita asistence generativní umělé inteligence, podpořená rigorózní kontrolou a testováním vytvořeného kódu.
+  Stejně jako Blackův-Scholesův model, na ohodnocení pomocí metody Monte Carlo nebyla použita externí knihovna. Při implementaci byla využita asistence generativní umělé inteligence.
 
-  Implementace pro daný typ opce (kupní a prodejní) je rozdělena na funkce: Pomocnou funkci, generující možné vývoje ceny akcie a primární funkci, vypočítávající hodnotu samotné funkce.
+  Implementace pro daný typ opce (call a put) je rozdělena na funkce: Pomocnou funkci, generující možné vývoje ceny akcie a primární funkci, vypočítávající hodnotu samotné funkce.
 
   Pomocná funkce pro evropské opce generuje pouze výsledné hodnoty, pro evropské opce není třeba znát cestu vývoje. Oproti tomu pro americké opce generujeme celé cesty, kvůli příležitosti předčasného ohodnocení.
-  K generování náhodných čisel pro vytvoření odhadu cen akcie používáme funkci R \texttt{rnorm}, která generuje normálně rozdělená náhodná čísla.
-  Pro všechny opce je použit jednotný počet simulací: 25 000. Tento počet simuací balancuje přesnost a čas na výpočet, který i při tomto počtu simulací je proti ostatním metodám znatelně delší.
-  Pro zvýšení přesnosti používáme metodu antitetických proměnných.
+  Pro všechny opce byl použit jednotný počet simulací: 25 000. Tento počet simulací balancuje přesnost a čas na výpočet, který i při tomto počtu simulací je proti ostatním metodám znatelně delší.
+  Pro zvýšení přesnosti byla použita metoda antitetických proměnných.
 
   Implementace pro evropské opce je opět prostá: Pokud se nacházíme v dnu expirace, hodnota se rovná výplatě z využití. V opačném případě vygenerujeme potenciální vývoje cen, vypočteme výplaty a zprůměrujeme.
 
@@ -1663,174 +1648,251 @@ Výsledný dataset obsahuje 168~996 opčních kontraktů na 12 amerických akci�
 
   Celkový výpočet probíhá paralelně na všech jádrech CPU, skrze knihovny \texttt{future} a \texttt{furrr}. Pro reprodukovatelnost seed pro danou počítanou opci na daném jádře je vždy 42.
 
-  \section{Ověření správnosti}
+  \subsection{Očistění dat}
 
-  Pro ověření správnosti modelu je nutno analyzovat rozdíly mezi vypočtenými odhady cen a reálnými cenami na trzích. 
-
-  Graf \ref{img:god_help_me} ukazuje odchylky odhadů z použitých metod od reálných cen opcí. Již na první pohled jde poznat, že něco je špatně.
-  Body ve všech podgrafech tvoří tlusté křivky, což značí nepřesnosti. % TODO: Lépe formulovat
-  Mimo to, všechny grafy mají velmi atypické křivky:
-
-  \begin{itemize}
-    \item Americká call: Dvě "větve", jedna skupina opcí následuje přímku ideální shody, jedna větev přiděluje opcím nulovou cenu, byť cena opce na trhu je nenulová.
-    \item Americká put: Dvě větve, jedna skupina opcí následuje přímu ideální shody, jedna větev dává opcím, které trh považuje za bezecenné vyšší cenu, a následně přibližně napodobuje směřování přímky ideální shody (tyto opce jsou přeceněny).
-    \item Evropská call: Opce jsou většinově přehodnocovány.
-    \item Evropská put: Opce jsou většinově podhodnocovány.
-  \end{itemize}
+  Tituly NFLX a NVDA vykazují silně atypické křivky pro call i pro put opce. Na bodových grafech \ref{fig:correctness_markets}, kde osa $x$ nese realizační ceny opcí ($K$) a osa $y$ poslední tržní cenu pro danou opci, pro oba typy opcí pro oba tituly vznikají dva clustery, zdánlivě napodobující křivky očekáváného hodnocení call/put opce pro příslušný typ, kde jeden první cluster je velmi menší a druhý cluster je v datasetu o dost rozestoupenější. Po manuální inspekci dat a porovnání s vypočtenými odhady hodnot jsem usoudil, že první cluster obsahuje korektní data, zatímco druhý cluster se jeví jako historická data pro jinou předchozí hodnotu akcie. Proto bude druhý cluster z používaných dat vyloučen.
 
   \begin{figure}[h]
     \centering
-    \scalebox{0.5}{\includegraphics{./figures/validation-scatter_all.pdf}}
-    \label{img:god_help_me}
-    \caption{Rozdíl mezi vypočtenými a reálnými hodnotami opcí}
+    \caption{Grafy verifikace správnosti vývoje tržních cen}
+    \label{fig:correctness_markets}
+    % TODO: Přidat
   \end{figure}
 
-  Poněvadž se všechny křivky pro stejné typy opcí shodují přes ohodnocovací metody, dá se teoretizovat, že chyby spočívají v datech. Pro potvrzení vykreslíme rozdíly mezi jednotlivými metodami. 
+  U titulu NFLX byly pro call opce vyloučeny pozice, u nichž byla teoretická cena vyšší než 400 a realizační cena vyšší než 266. Práh realizační ceny odpovídá poslední ceně, při níž je tržní cena nižší než 400 a zároveň $K < 800$. Pro put opce byly vyloučeny opce s realizací $K > 266$ a dále opce, které pro $K > 100$ vykazují tržní cenu $< 10$.
+  U akcií NVDA byly pro call opce obdobně vyloučeny pozice s tržní cenou $> 300$ a $K > 500$. Pro put opce byly vyloučeny opce, které pro $K > 300$ mají tržní cenu $< 100$, a opce s $K > 500$.
 
-  \begin{figure}[h]
-    \centering
-    \scalebox{0.5}{\includegraphics{./figures/method-agreement.pdf}}
-    \label{img:i_cannot_be_helped}
-    \caption{Odchylky odhadů pro jednotlivé metody}
-  \end{figure}
+  Pro zbytek datasetu jsem nenalezl žádný důkazy existence vadných dat.
 
-  Graf \ref{img:i_cannot_be_helped} ukazuje, že odchylky všech metod od sebe jsou miniskulní. V rámci tohoto můžeme s relativní jistotou říci, že chyba je v připravených datech. Kvůli přehodnocení evropských call opcí a podhodnocení evropských put opcí můžeme spekulovat, že problém je mezi proměnnými $r$, $q$ ,$\sigma$ a $T$. 
+  \section{Popis stáhnutých dat}
 
-  V rámci následné analýzy byl vykreslen graf \ref{img:title_errors} vypisující velikost chyby pro daný titul.
-
-  \begin{figure}[h]
-    \centering
-    \scalebox{0.5}{\includegraphics{./figures/error-by-ticker_all.pdf}}
-    \label{img:title_errors}
-    \caption{Průměrná chyba v rámci titulů}
-  \end{figure}
-
-  Zde můžeme vidět, že pro americké opce, tituly NVDA a NFLX mají znatelně větší chybu, než ostatní tituly, a podobně odhlehlá je míra chyb pro titul \^RUT. Toto naznačuje, že ohodnocení pro tyto opce je z nějakého důvodu chybové. Pro dosavadní účely práce tyto tituly vynecháme.
-
-  Vykreslíme-li graf \ref{img:god_help_me_2}, vidíme, že nyní shluky bodů vypadaj přirozeněji a napodobují mnohem víc přímku ideální shody. U amerických opcí nyní pozorujeme pouze jednu větev, a u evropských pozorujeme drastické snížení špatně hodnocených opcí. Nicméně, tímto jsme eliminovali podstatné množství zkoumaných opcí z opcí evropských. 
-
-  \begin{figure}[h]
-    \centering
-    \scalebox{0.6}{\includegraphics{./figures/validation-scatter.pdf}}
-    \label{img:god_help_me_2}
-    \caption{Rozdíl mezi vypočtenými a reálnými hodnotami opcí bez problematických titulů}
-  \end{figure}
-
-  Komentář k grafu \ref{img:god_help_me_2}:
-
-  \begin{itemize}
-    \item Americká call: Dobrá silueta, mírně podhodnocují.
-    \item Americká put: Dobrá silueta, přehodnocují
-    \item Evropská call: Hodnoty se silně rozchází, většinově přehodnocujeme.
-    \item Evropská put: Dobře napodobuje přímku ideální shody. Naznačuje nedostatek dat.
-  \end{itemize}
-
-  Použití všech titulů nám dává zkreslená data, použití stabilních nám dává nedostatek. Proto v následujících sekcích práce budeme pozorovat primárně stabilní data, a kde to je odpovídající, doplníme daty kompletními.
-
-  Tabulka~\ref{tab:error_summary} shrnuje základní metriky přesnosti jednotlivých modelů oproti tržním cenám. Jako metriky byly zvoleny střední absolutní chyba (MAE), odmocnina ze střední kvadratické chyby (RMSE), systematická odchylka (Bias) a medián relativní chyby (MRE).
+  Po pročištění dat mi pro použití v práci zůstalo 156401 opcí, z toho 134805 amerických a 21596 evropských. Tabulka \ref{tab:count_by_ticker} obsahuje počet stáhnutých opcí pro každý titul; první sekce obsahuje informace o amerických opcích, druhá sekce obsahuje informace o evropských opcích. Lze vidět, že po měnové fondy bylo staženo velmi málo opcí, což svědčí o nízké likviditě.
 
   \begin{table}[h]
     \centering
-    \caption{Souhrn chyb odhadů}
-    \label{tab:error_summary}
-    \begin{tabular}{lccccc}
+    \caption{Počty stažených opcí na titul}
+    \label{tab:count_by_ticker}
+    \begin{tabular}{lccc}
       \toprule
-      Kategorie & Metoda & MAE & RMSE & Bias & MRE \\
+      Titul & Cally & Puty & Celkem \\
       \midrule
-      American Call & BS  & 7,25 & 16,38 &  1,42 & 0,16 \\
-      American Call & CRR & 7,47 & 16,65 &  1,45 & 0,15 \\
-      American Call & MC  & 7,30 & 16,41 &  1,43 & 0,16 \\
-      \addlinespace
-      American Put  & BS  & 9,00 & 22,81 & $-$5,34 & 0,24 \\
-      American Put  & CRR & 9,17 & 23,06 & $-$5,44 & 0,23 \\
-      American Put  & MC  & 9,01 & 22,75 & $-$5,39 & 0,24 \\
-      \addlinespace
-      European Call & BS  & 1,36 & 2,32  & $-$0,85 & 0,61 \\
-      European Call & CRR & 1,36 & 2,32  & $-$0,85 & 0,61 \\
-      European Call & MC  & 1,36 & 2,32  & $-$0,86 & 0,60 \\
-      \addlinespace
-      European Put  & BS  & 2,47 & 3,05  & $-$1,78 & 0,42 \\
-      European Put  & CRR & 2,47 & 3,05  & $-$1,78 & 0,42 \\
-      European Put  & MC  & 2,47 & 3,05  & $-$1,78 & 0,42 \\
+      AAPL & 5374 & 4646 & 10020 \\
+      AMD & 6249 & 5592 & 11841 \\
+      AMZN & 4316 & 4005 & 8321 \\
+      GOOGL & 7671 & 6299 & 13970 \\
+      JNJ & 1791 & 1637 & 3428 \\
+      KO & 1394 & 1344 & 2738 \\
+      META & 11119 & 9131 & 20250 \\
+      MSFT & 6453 & 6000 & 12453 \\
+      NFLX & 8633 & 6887 & 15520 \\
+      NVDA & 6924 & 6327 & 13251 \\
+      PG & 1460 & 1410 & 2870 \\
+      TSLA & 10432 & 9711 & 20143 \\
+      \midrule
+      \textasciicircum{}RUT & 7804 & 9256 & 17060 \\
+      \textasciicircum{}VIX & 2519 & 1777 & 4296 \\
+      \textasciicircum{}XDA & 35 & 0 & 35 \\
+      \textasciicircum{}XDB & 1 & 46 & 47 \\
+      \textasciicircum{}XDE & 53 & 39 & 92 \\
+      \textasciicircum{}XDN & 55 & 11 & 66 \\
       \bottomrule
     \end{tabular}
   \end{table}
 
-  Z tabulky~\ref{tab:error_summary} vyplývá několik závěrů. Především, rozdíly mezi jednotlivými metodami (BS, CRR, MC) jsou v rámci každé kategorie zanedbatelné -- MAE se liší maximálně o desetiny dolaru. Toto potvrzuje vzájemnou konzistenci implementací -- pozorované odchylky od trhu nelze přičítat numerické chybě konkrétní metody. Dále se přesnost modelů výrazně liší mezi kategoriemi: zatímco u evropských opcí se MAE pohybuje okolo 1,4--2,5~USD, u amerických opcí přesahuje 7~USD. Tento rozdíl je očekávatelný -- tituly, na které sbíráme data mají jiné ceny podkladových aktiv. Konečně, směr systematické odchylky není jednotný: u amerických call opcí model v průměru podhodnocuje (Bias~1,42), zatímco u amerických put opcí naopak výrazně nadhodnocuje (Bias~$-$5,34). Obdobně jsou mírně nadhodnoceny i obě kategorie evropských opcí. Tato nesouměrnost napříč kategoriemi opět naznačuje, že zdroj chyb může souviset s odhadem vstupních parametrů, zejména volatility a dividendového výnosu.
+  \begin{table}[h]
+    \centering
+    \caption{Globální popisné statistiky}
+    \label{tab:descriptive_total}
+    \begin{tabular}{lrrrrrr}
+      \toprule
+      Parametr & Minimum & 1. kvartil & Medián & Průměr & 3. kvartil & Maximum \\
+      \midrule
+      Poměr $S/K$ & 0.08045 & 0.77523 & 1.02059 2.10704 & 1.43294 & 430.66 \\
+      $\sigma$ & 0.06288 & 0.26624 & 0.33893 & 0.39082 & 0.47135 & 1.3825 \\
+      $q$ & 0.0000 & 0.0000 & 0.0000 & 0.00242 & 0.002934 & 0.136007 \\
+      $r$ & 0.03381 & 0.03653 & 0.03742 & 0.03714 & 0.03764 & 0.0406 \\
+      $T$ & 0.00274 & 0.07123 & 0.39452 & 0.65388 & 0.89589 & 2.89041 \\
+      \bottomrule
+    \end{tabular}
+  \end{table}
 
-  Pro detailnější analýzu struktury odchylek byla vykreslena distribuce chyb (tržní cena minus modelová cena). Graf~\ref{img:error_distribution} zobrazuje histogramy pro jednotlivé kategorie a metody.
+  Z tabulky \ref{tab:descriptive_total} lze ověřit, zda dané proměnné nabývají smysluplných hodnot.
+
+  \begin{itemize}
+    \item{Poměr $S/K$ má 1. a 3. kvartil mezi hodnotami 0.7018 a 1.3688, což jsou zdravé hodnoty pro S/K poměr. Minima a maxima jsou silně extrémní; minimum je silně OTM opce a maximum je silně ITM opce. Průměr se silně liší od mediánu, právě kvůli existenci extrémů.}
+    \item{$\sigma$ má maximum 1.3825, patřící CBOE Volatility Indexu. Tabulky \ref{tab:descriptive_american_1}, \ref{tab:descriptive_american_2} a \ref{tab:descriptive_european} ukazují, že jediné hodnoty nad 1 patří právě tomuto indexu, o kterém jsme již dříve zmínili, že je specifickým případem. Minimum 0.06 patřící měnovým indexům je také speciální případ: Měny bývají velmi stabilní, což se odráží na nízké volatilitě měnových indexů. Zbytek hodnot můžeme odznačit za smysluplné.}
+    \item{Velká část opcí má krátké časy do expirace, tudíž akcie nikdy nezíská žádnou dividendu, a hodnota $q$ je 0. Maximum 13.6 \% vyplácené dividendy za rok je zarážející. Manuální inspekce ukázala, že všechny hodnoty vyplácené dividendy patří titulu Coca-Cola (KO) k opcím s krátkými expiracemi (< 3 týdny). Tímto se prudce změní vyplácená dividendová míra za rok. Tato hodnota by neměla být chybou, nicméně jako extrém s ní je nutno nakládat opatrně.}
+    \item{$r$ i $T$ nabývají pro všechny metriky zdravé a smysluplné hodnoty. $r$ se drží v hodnotách určených v souborech získaných pro jeho určení a $T$ je v rozmezí 1 dne a 3 let.}
+  \end{itemize}
+
+  \begin{table}[h!]
+    \centering
+    \caption{Popisné statistiky dle typu opce}
+    \label{tab:descriptive_type}
+    \begin{tabular}{lrrrr}
+      \toprule
+      Parametr & Americké cally & Americké puty & Evropské cally & Evropské puty \\
+      \midrule
+      Min. poměru $S/K$ & 0.3192 & 0.3192 & 0.0805 & 0.0805 \\
+      Medián poměru $S/K$ & 0.9586 & 1.0851 & 0.9736 & 1.0806 \\
+      Max. poměru $S/K$ & 430.6600 & 430.6600 & 3.0202 & 3.0202 \\
+      Min. $\sigma$ & 0.1561 & 0.1561 & 0.0629 & 0.0629 \\
+      Medián $\sigma$ & 0.3419 & 0.3454 & 0.2309 & 0.2309 \\
+      Max. $\sigma$ & 0.6353 & 0.6353 & 1.3825 & 1.3825 \\
+      Min. $q$ & 0.0000 & 0.0000 & 0.0000 & 0.0000 \\
+      Medián $q$ & 0.0000 & 0.0000 & 0.0000 & 0.0000 \\
+      Max. $q$ & 0.1360 & 0.1360 & 0.0000 & 0.0000 \\
+      Min. $r$ & 0.0338 & 0.0338 & 0.0339 & 0.0339 \\
+      Medián $r$ & 0.0374 & 0.0374 & 0.0375 & 0.0375 \\
+      Max. $r$ & 0.0406 & 0.0406 & 0.0406 & 0.0406 \\
+      Min. $T$ & 0.0027 & 0.0027 & 0.0027 & 0.0027 \\
+      Medián $T$ & 0.4822 & 0.4822 & 0.0986 & 0.0904 \\
+      Max. $T$ & 2.8904 & 2.8904 & 2.8904 & 2.8904 \\
+      \bottomrule
+    \end{tabular}
+  \end{table}
+
+  Tabulka \ref{tab:descriptive_type} rozšiřuje poznatky z tabulky \ref{tab:descriptive_total}.
+
+  \begin{itemize}
+    \item{Extrémy poměru $S/K$ nachází v amerických opcích. Minimum u evropských opcí je na podobné hladině jako minimum u opcí amerických, nicméně maximum u evropských opcí je mnohem blíže hodnotě 1.}
+    \item{$\sigma$ pro americké opce se pohybuje v očekávaných hodnotách, pro evropské opce extrémy byly již analyzovány.}
+    \item{$q$ pro evropské opce je 0, poněvadž index je cash-settled a tím pádem nemůže vyplácet dividendu.}
+    \item{$r$ a $T$ jsou v očekávaných hodnotách.}
+  \end{itemize}
+
+  \begin{table}[h!]
+    \centering
+    \caption{Popisné statistiky pro americké opce — 1. část}
+    \label{tab:descriptive_american_1}
+    \begin{tabular}{lrrrrrr}
+      \toprule
+      Parametr & AAPL & AMD & AMZN & GOOGL & JNJ & KO \\
+      \midrule
+      Min. poměru $S/K$ & 0.4510 & 0.3843 & 0.5609 & 0.4322 & 0.6509 & 0.6224 \\
+      Medián. poměru $S/K$ & 1.1275 & 1.1290 & 1.0343 & 1.0638 & 1.2230 & 1.0733 \\
+      Max. poměru $S/K$ & 61.7640 & 93.5020 & 3.5509 & 76.5940 & 3.2463 & 2.5071 \\
+      Min. $\sigma$ & 0.2211 & 0.5924 & 0.2967 & 0.2859 & 0.1641 & 0.1561 \\
+      Medián. $\sigma$ & 0.3139 & 0.6327 & 0.3454 & 0.3037 & 0.1903 & 0.1670 \\
+      Max. $\sigma$ & 0.3206 & 0.6353 & 0.3514 & 0.3216 & 0.1953 & 0.1781 \\
+      Min. $q$ & 0.0000 & 0.0000 & 0.0000 & 0.0000 & 0.0000 & 0.0000 \\
+      Medián. $q$ & 0.0035 & 0.0000 & 0.0000 & 0.0027 & 0.0194 & 0.0247 \\
+      Max. $q$ & 0.0210 & 0.0000 & 0.0000 & 0.0176 & 0.0666 & 0.1360 \\
+      Min. $r$ & 0.0338 & 0.0339 & 0.0338 & 0.0338 & 0.0339 & 0.0339 \\
+      Medián. $r$ & 0.0374 & 0.0374 & 0.0374 & 0.0374 & 0.0374 & 0.0375 \\
+      Max. $r$ & 0.0406 & 0.0406 & 0.0406 & 0.0406 & 0.0394 & 0.0394 \\
+      Min. $T$ & 0.0027 & 0.0027 & 0.0027 & 0.0027 & 0.0027 & 0.0027 \\
+      Medián. $T$ & 0.5589 & 0.4822 & 0.4740 & 0.5671 & 0.3945 & 0.2411 \\
+      Max. $T$ & 2.8904 & 2.8904 & 2.8904 & 2.8904 & 1.9890 & 1.9890 \\
+      \bottomrule
+    \end{tabular}
+  \end{table}
+
+  \begin{table}[h!]
+    \centering
+    \caption{Popisné statistiky pro americké opce — 2. část}
+    \label{tab:descriptive_american_2}
+    \begin{tabular}{lrrrrrr}
+      \toprule
+      Parametr & META & MSFT & NFLX & NVDA & PG & TSLA \\
+      \midrule
+      Min. poměru $S/K$ & 0.3650 & 0.4575 &      0.3192 & 0.4077       & 0.5478 & 0.3759 \\
+      Medián. poměru $S/K$ & 0.9453 & 0.9207 &   0.8888 & 1.1729       & 1.0246 & 0.9965 \\
+      Max. poměru $S/K$ & 131.7520 & 2.6626 &    186.6400 & 430.6600   & 2.3393 & 89.8120 \\
+      Min. $\sigma$ & 0.3479 & 0.2404 &          0.3266 & 0.3389       & 0.1789 & 0.4713 \\
+      Medián. $\sigma$ & 0.3917 & 0.2641 &       0.3384 & 0.4062       & 0.1895 & 0.5497 \\
+      Max. $\sigma$ & 0.3933 & 0.2662 &          0.3419 & 0.4874       & 0.1920 & 0.6219 \\
+      Min. $q$ & 0.0000 & 0.0000 &               0.0000 & 0.0000       & 0.0000 & 0.0000 \\
+      Medián. $q$ & 0.0035 & 0.0075 &            0.0000 & 0.0002       & 0.0177 & 0.0000 \\
+      Max. $q$ & 0.0139 & 0.0266 &               0.0000 & 0.0039       & 0.0775 & 0.0000 \\
+      Min. $r$ & 0.0338 & 0.0338 &               0.0338 & 0.0339       & 0.0339 & 0.0338 \\
+      Medián. $r$ & 0.0374 & 0.0374 &            0.0373 & 0.0373       & 0.0375 & 0.0374 \\
+      Max. $r$ & 0.0406 & 0.0406 &               0.0406 & 0.0406       & 0.0394 & 0.0406 \\
+      Min. $T$ & 0.0027 & 0.0027 &               0.0027 & 0.0027       & 0.0027 & 0.0027 \\
+      Medián. $T$ & 0.4822 & 0.4822 &            0.5699 & 0.4740       & 0.2301 & 0.3945 \\
+      Max. $T$ & 2.8904 & 2.8904 &               2.8904 & 2.8904       & 1.9890 & 2.8904 \\
+      \bottomrule
+    \end{tabular}
+  \end{table}
+
+  \begin{table}[h!]
+    \centering
+    \caption{Popisné statistiky pro tituly na evropské opce}
+    \label{tab:descriptive_european}
+    \begin{tabular}{lrrrrrr}
+      \toprule
+      Parametr & \textasciicircum{}RUT & \textasciicircum{}VIX & \textasciicircum{}XDA & \textasciicircum{}XDB & \textasciicircum{}XDE & \textasciicircum{}XDN \\
+      \midrule
+      Min. poměru $S/K$ & 0.5738 & 0.0805 & 0.9188 & 0.9527 & 0.9377 & 0.7851 \\
+      Medián poměru $S/K$ & 1.0434 & 0.6771 & 1.0294 & 1.0107 & 0.9915 & 0.9398 \\
+      Max. poměru $S/K$ & 3.0202 & 2.7440 & 1.3402 & 1.1370 & 1.0748 & 1.0195 \\
+      Min. $\sigma$ & 0.1926 & 1.1418 & 0.0810 & 0.0657 & 0.0629 & 0.0858 \\
+      Medián $\sigma$ & 0.2301 & 1.3628 & 0.0981 & 0.0691 & 0.0771 & 0.0998 \\
+      Max. $\sigma$ & 0.2311 & 1.3825 & 0.1017 & 0.0721 & 0.0777 & 0.1003 \\
+      Min. $q$ & 0.0000 & 0.0000 & 0.0000 & 0.0000 & 0.0000 & 0.0000 \\
+      Medián $q$ & 0.0000 & 0.0000 & 0.0000 & 0.0000 & 0.0000 & 0.0000 \\
+      Max. $q$ & 0.0000 & 0.0000 & 0.0000 & 0.0000 & 0.0000 & 0.0000 \\
+      Min. $r$ & 0.0339 & 0.0356 & 0.0353 & 0.0353 & 0.0353 & 0.0353 \\
+      Medián $r$ & 0.0375 & 0.0373 & 0.0375 & 0.0373 & 0.0373 & 0.0373 \\
+      Max. $r$ & 0.0406 & 0.0388 & 0.0381 & 0.0381 & 0.0380 & 0.0381 \\
+      Min. $T$ & 0.0027 & 0.0055 & 0.0603 & 0.0603 & 0.0603 & 0.0603 \\
+      Medián $T$ & 0.0904 & 0.2247 & 0.4822 & 0.3178 & 0.1479 & 0.1479 \\
+      Max. $T$ & 2.8904 & 0.6575 & 0.8959 & 0.8164 & 0.8082 & 0.8959 \\
+      \bottomrule
+    \end{tabular}
+  \end{table}
+
+  Tabulky \ref{tab:descriptive_american_1}, \ref{tab:descriptive_american_2} a \ref{tab:descriptive_european} poskytují lepší porozumění jednotlivých titulů.
+    Extrémní minima poměru $S/K$ ($S/K < 0.1$) se nacházejí v titulech \textasciicircum{}VIX, NVDA a NFLX. Extrémní maxima poměru $S/K$ ($S/K > 10$) se nacházejí v titulech AAPL, AMD, GOOGL, META, NFLX, NVDA a TSLA.
+    Zbytek informací již byl zmíněn v předchozích seznamech.
+
+  \section{Ověření integrity dat}
+
+  Pro ověření správnosti dat jsem vykreslil bodové grafy vypočtených hodnot proti očekávaným hodnotám. Pro všechny tituly byly vykresleny tři grafy, kde na ose $x$ je zobrazena modelem vypočtená hodnota, a na ose $y$ je zobrazena hodnota stažená s opcí. V grafu je ještě vykreslena přímka očekávaných hodnot určená funkcí $y = x$. Tímto můžeme ověřit správnost dat a výpočtů: Pokud by body napodobovaly přímku, víme, že model souhlasí s realitou. Očekává se, že body nebudou tvořit čistou přímku, a že mezi vypočtenými hodnotami a realitou bude určitý rozptyl. Tyto grafy jsou přiloženy jako grafy \ref{fig:correctness_a1}, \ref{fig:correctness_a2} a \ref{fig:correctness_e}.
+
+  Z důvodu velkého počtu vykreslených grafů limitujeme vložení grafů do této práce pouze na ohodnocení Blackovo-Scholesovo modelem, z důvodu dostatečné podobnosti ohodnocení všech tří modelů pro tento graf. 
+  Pro všechny kombinace dvou různých modelů jsem nechal vykreslit bodový graf, kde osa $x$ nese hodnoty vypočtené jedním modelem a osa $y$ nese hodnoty druhého modelu. Tento graf byl vykreslen pro oba typy opcí a styly využití.
+
+  \begin{figure}[h!]
+    \centering
+    \caption{Bodové grafy korelace modelů}
+    \label{fig:model_correlation}
+    % TODO: Přidat
+  \end{figure}
+
+  Na grafu \ref{fig:model_correlation} lze vidět, že vykreslené body zdánlivě dokonale napodobují přímku očekávaného vývoje. Pro ověření jsem spočetl Spearmanův korelační koeficient. Tabulka \ref{tab:spearman} ukazuje právě tyto hodnoty, které ukazují, že modely mají velmi pravděpodobně až pozitivní lineární vztah.
 
   \begin{figure}[h]
     \centering
-    \scalebox{0.5}{\includegraphics{./figures/error-distribution.pdf}}
-    \label{img:error_distribution}
-    \caption{Distribuce chyb (tržní cena -- modelová cena)}
+    \caption{Analýza podobnosti ohodnocení modelů}
+    \label{fig:model_similarity}
+    %TODO: Přidat
   \end{figure}
-
-  Z grafu~\ref{img:error_distribution} je patrné, že distribuce chyb se liší napříč kategoriemi. U amerických call opcí jsou chyby rozloženy přibližně symetricky kolem nuly s mírným podhodnocením (kladná odchylka). U amerických put opcí je distribuce posunuta do záporných hodnot, což odpovídá nadhodnocení modelem zjištěnému v tabulce~\ref{tab:error_summary}. U evropských opcí převažuje nadhodnocení u obou typů, výraznější u put opcí. Tloušťka ocasů distribuce je u všech kategorií srovnatelná; extrémní chyby jsou vzácné, což svědčí o tom, že model není systematicky selhávající, ale odchylky jsou způsobeny spíše individuálními odlehlými pozorováními.
-
-  Grafické znázornění průměrné absolutní chyby (MAE) v závislosti na moneyness a čase do expirace ukazuje graf~\ref{img:mae_heatmap}. Data byla rozdělena do tří režimů moneyness (OTM, ATM, ITM) a tří časových režimů (Short, Medium, Long).
 
   \begin{figure}[h]
     \centering
-    \scalebox{0.5}{\includegraphics{./figures/mae-heatmap.pdf}}
-    \label{img:mae_heatmap}
-    \caption{Průměrná absolutní chyba (MAE) dle moneyness a času do expirace}
+    \caption{Grafy kontroly správnosti - americké opce, první skupina}
+    \label{fig:correctness_a1}
+    % TODO: Přidat
   \end{figure}
-
-  Heatmapa ukazuje, že nejvyšší chyby se koncentrují u amerických put opcí v režimu OTM, kde MAE přesahuje 13~USD napříč všemi časovými horizonty. U amerických call opcí je chyba nejvyšší u ATM opcí se střední a dlouhou dobou do expirace. U evropských opcí se MAE pohybuje pod 5~USD ve všech režimech, přičemž nejvyšší je u call opcí v ITM režimu.
-
-  I po odstranění problematických titulů zůstávají rozdíly v přesnosti napříč jednotlivými tituly. Nejvyšší průměrnou chybu (napříč metodami) vykazují u amerických call opcí tituly META (MAE~11,4) a TSLA (MAE~10,0), u amerických put opcí META (MAE~17,0) a MSFT (MAE~16,1). U evropských opcí jsou chyby podstatně nižší -- nejvyšší MAE má \^{}VIX (1,4 pro call, 2,5 pro put). Koncentrace chyb v několika málo titulech naznačuje, že přesnost modelu je ovlivněna specifickými charakteristikami podkladového aktiva, jako je likvidita nebo struktura volatility, které nejsou vstupními parametry modelu zachyceny.
-
-  \section{Senzitivita opcí vůči volatilitě}
-
-  Pro posouzení vlivu volatility na cenu opce byl proveden syntetický test při fixních parametrech (\(S = 100\), \(T = 0{,}5\), \(r = 0{,}05\), \(q = 0{,}02\)) pro tři úrovně moneyness (OTM, ATM, ITM). Graf~\ref{img:volatility_sensitivity} zobrazuje závislost ceny opce na \(\sigma\) v rozsahu 0,1--0,8.
 
   \begin{figure}[h]
     \centering
-    \scalebox{0.5}{\includegraphics{./figures/volatility-sensitivity.pdf}}
-    \label{img:volatility_sensitivity}
-    \caption{Závislost ceny opce na volatilitě}
+    \caption{Grafy kontroly správnosti - americké opce, druhá skupina}
+    \label{fig:correctness_a2}
+    % TODO: Přidat
   \end{figure}
 
-  Křivky všech tří metod (BS, CRR, MC) se ve všech případech překrývají, což potvrzuje konzistenci implementací. S rostoucí volatilitou cena opce roste, přičemž nejstrmější nárůst je pozorován u ATM opcí.
-
-  Pro empirické ověření byla data rozdělena do deseti decilů podle hodnoty \(\sigma\) a pro každý decil vypočtena průměrná absolutní chyba (MAE). Graf~\ref{img:error_by_volatility} ukazuje vývoj MAE napříč decily volatility.
+  Tituly NFLX a NVDA jsou silně atypické, a analýze této skutečnosti se věnuje navazující podkapitola. Mimo to lze vidět, že existují jak tituly, kde implementované modely přeceňují, tak tituly, kde implementované modely podceňují, a to pro oba typy opcí. Toto naznačuje, že modelech není jednotná chyba, která by konzistentně podceňovala nebo přeceňovala.
 
   \begin{figure}[h]
     \centering
-    \scalebox{0.5}{\includegraphics{./figures/error-by-volatility.pdf}}
-    \label{img:error_by_volatility}
-    \caption{MAE dle decilu volatility}
+    \caption{Grafy kontroly správnosti - evropské opce}
+    \label{fig:correctness_e}
+    % TODO: Přidat
   \end{figure}
 
-  U evropských opcí MAE s rostoucí volatilitou přibližně lineárně roste, což odpovídá očekávání -- s vyšší volatilitou roste i cena opce, a tudíž i absolutní chyba. U amerických opcí je průběh méně pravidelný; výrazný nárůst je patrný kolem šestého decilu, což může souviset s koncentrací specifických typů opcí v této oblasti.
-
-  \section{Senzitivita opcí vůči času}
-
-  Pro posouzení vlivu času do expirace na cenu opce byl proveden syntetický test při fixních parametrech (\(S = 100\), \(\sigma = 0{,}3\), \(r = 0{,}05\), \(q = 0{,}02\)) pro tři úrovně moneyness (OTM, ATM, ITM). Graf~\ref{img:time_sensitivity} zobrazuje závislost ceny opce na \(T\) v rozsahu 0,01--3,0.
-
-  \begin{figure}[h]
-    \centering
-    \scalebox{0.5}{\includegraphics{./figures/time-sensitivity.pdf}}
-    \label{img:time_sensitivity}
-    \caption{Závislost ceny opce na čase do expirace}
-  \end{figure}
-
-  Všechny tři metody poskytují prakticky totožné výsledky. Cena opce s rostoucím časem do expirace roste, přičemž tvar křivky připomíná logaritmický růst -- nejprudší nárůst nastává v krátkých časech a s rostoucím \(T\) se tempo zpomaluje.
-
-  Pro empirické ověření byla data rozdělena do deseti decilů podle hodnoty \(T\) a pro každý decil vypočtena průměrná absolutní chyba. Graf~\ref{img:error_by_time} zobrazuje vývoj MAE napříč decily času do expirace.
-
-  \begin{figure}[h]
-    \centering
-    \scalebox{0.5}{\includegraphics{./figures/error-by-time.pdf}}
-    \label{img:error_by_time}
-    \caption{MAE dle decilu času do expirace}
-  \end{figure}
-
-  U amerických call opcí MAE s rostoucím časem převážně roste, u amerických put opcí je patrný nárůst do středních hodnot a následný pokles u dlouhých časů. U evropských opcí MAE roste do šestého decilu a poté klesá, což může být ovlivněno malým počtem pozorování v oblasti dlouhých expirací.
-
-  \section{Časová komplexita výpočtu opcí}
+  \textasciicircum{}VIX pro put opce ideálně imituje očekávaný vývoj. \textasciicircum{}VIX pro call opce ukazuje jak silné přeceňování, tak podceňování. \textasciicircum{}RUT pro call opce je podceňovaný a pro put opce přeceňovaný. U měnových fondů je malé množství dat, a nelze nic specifického inferovat.
 
   \chapter{Závěr}
 

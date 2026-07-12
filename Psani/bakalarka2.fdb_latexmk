@@ -1,12 +1,12 @@
 # Fdb version 4
-["biber bakalarka2"] 1783372887.41893 "bakalarka2.bcf" "bakalarka2.bbl" "bakalarka2" 1783604052.66865 0
-  "bakalarka2.bcf" 1783604051.66615 140236 aa3339bad86b33f0e6970445a95d84f1 "lualatex"
+["biber bakalarka2"] 1783372887.41893 "bakalarka2.bcf" "bakalarka2.bbl" "bakalarka2" 1783676332.92278 0
+  "bakalarka2.bcf" 1783676331.86501 140039 5a05058c6b30cb130a90a242e8531636 "lualatex"
   "thesis.bib" 1783206549.67259 4312 63673f899d3f79dc5fbea9fede28f879 ""
   (generated)
   "bakalarka2.bbl"
   "bakalarka2.blg"
   (rewritten before read)
-["lualatex"] 1783604040.98033 "bakalarka2.tex" "bakalarka2.pdf" "bakalarka2" 1783604052.66925 0
+["lualatex"] 1783676320.06339 "bakalarka2.tex" "bakalarka2.pdf" "bakalarka2" 1783676332.9234 0
   "/etc/texmf/tex/generic/config/language.dat" 1775415801 2774 23432d78ba890d76256b3f33c553a888 ""
   "/etc/texmf/tex/generic/config/language.dat.lua" 1775415801 1493 0cf75b944ee4f3579780f7adace81c20 ""
   "/home/matej/.texlive/texmf-var/luatex-cache/generic/fonts/hb/062c5352532e8e3f15b9c33cbb9c6500a94e4eeeddd357d6bbe30511b9050754.luc" 1776984476.74431 90645 b1917e77675a1cc34a4de609a9e251a7 ""
@@ -325,21 +325,11 @@
   "TikzStuff/strom_example_stock.tikz" 1783328368.16057 961 73b6326226ac9413c864307330bc171a ""
   "TikzStuff/strom_very_basic.tikz" 1783328729.08094 520 e7f52c5c3222e8d46129ed6acbb620a4 ""
   "appendix_a.tex" 1783157126.18006 2908 d4eff2dc0051f814053acf372071c885 ""
-  "bakalarka2.aux" 1783604051.63215 49884 cefbf1efc951d715b203f40b5c3022c0 "lualatex"
+  "bakalarka2.aux" 1783676331.83001 50014 454f441f2307e407e250249f70ee740d "lualatex"
   "bakalarka2.bbl" 1783372889.03401 48264 a1519b9b3bb892b8d5afaeb72b84c95a "biber bakalarka2"
-  "bakalarka2.run.xml" 1783604051.66854 2562 ecee5b41c9b2358c192a1a6fec1b1f47 "lualatex"
-  "bakalarka2.tex" 1783604027.93915 128622 b3dfe220e485d270ce3af7922444821d ""
-  "bakalarka2.toc" 1783604051.66854 6314 eeacba0765ba813d9ef939f2d25cd309 "lualatex"
-  "figures/error-by-ticker_all.pdf" 1782576104.06839 8357 027b5ff0ef6688f7cc01e2894d42e5dc ""
-  "figures/error-by-time.pdf" 1782580040.09629 14131 5027e202a6a029942b3faadb9eb39216 ""
-  "figures/error-by-volatility.pdf" 1782579873.56947 12505 1674250c4c9f4e7b1a49f799259d6076 ""
-  "figures/error-distribution.pdf" 1782579321.27821 10869 f924ccbe36859f5d9f7a458aa6632ea9 ""
-  "figures/mae-heatmap.pdf" 1782579400.04925 10869 2f41157dd0c007d867574a1dda31c3f6 ""
-  "figures/method-agreement.pdf" 1782582411.79035 10038347 8740b105a376757462876a85049807dd ""
-  "figures/time-sensitivity.pdf" 1782582357.15495 12283 ed8b1d255661b99a9cf64426bc367863 ""
-  "figures/validation-scatter.pdf" 1782590880.84654 11014801 070bc15ca571742b9457528753817cd6 ""
-  "figures/validation-scatter_all.pdf" 1783171427.44348 22150667 6f329394c09a517a56ed6c1fe64edca0 ""
-  "figures/volatility-sensitivity.pdf" 1782582299.62835 11475 14c2aecaca67f6293a173be0898929bd ""
+  "bakalarka2.run.xml" 1783676331.86765 2562 ecee5b41c9b2358c192a1a6fec1b1f47 "lualatex"
+  "bakalarka2.tex" 1783676312.67201 132486 2c3d14f566fd1fea1f5f39f7d3fd4773 ""
+  "bakalarka2.toc" 1783676331.86765 6226 7a519f6bc6e09443ac96eaaacca46506 "lualatex"
   "kitheses.cls" 1781721616.00964 2600 f1349da43554586dcacdd1794eac1ada ""
   (generated)
   "bakalarka2.aux"
