@@ -1,0 +1,488 @@
+---
+output:
+  pdf_document:
+    keep_tex: true
+  html_document:
+    toc: true
+---
+
+``` {r imports, include=FALSE}
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(knitr)
+#library(kableExtra)
+library(lme4)
+library(sjPlot)
+library(performance)
+library(car)
+library(lmtest)
+library(sandwich)
+library(clubSandwich)
+library(patchwork)
+```
+
+``` {r data-load, include=FALSE}
+load_prices <- function(path, am_eu, call_put) {
+  read_csv(path) %>%
+    mutate(am_eu = am_eu, call_put = call_put)
+}
+
+df_raw <- bind_rows(
+  load_prices("../calculated_prices/american_calls.csv", "american", "calls"),
+  load_prices("../calculated_prices/american_puts.csv", "american", "puts"),
+  load_prices("../calculated_prices/european_calls.csv", "european", "calls"),
+  load_prices("../calculated_prices/european_puts.csv", "european", "puts")
+) %>%
+  rename(true_price = option_price) %>%
+  mutate(
+    moneyness_regime = case_when(
+      call_put == "calls" & S / K < 0.95 ~ "OTM",
+      call_put == "calls" & S / K <= 1.05 ~ "ATM",
+      call_put == "calls" ~ "ITM",
+      call_put == "puts" & S / K < 0.95 ~ "ITM",
+      call_put == "puts" & S / K <= 1.05 ~ "ATM",
+      call_put == "puts" ~ "OTM"
+    ),
+    time_regime = case_when(
+      T <= 0.1 ~ "Short",
+      T <= 0.5 ~ "Medium",
+      TRUE ~ "Long"
+    )
+  ) %>%
+  mutate(pricing_error = (true_price - user_bs)/true_price) %>%
+  mutate(option_id = paste0(ticker,
+    format(expiration, "%y%m%d"),
+    substr(call_put, 1, 1),
+    K))
+
+df <- df_raw
+
+df$SK_ratio <- df$S / df$K
+```
+
+``` {r doctoring}
+df_doctored <- df %>%
+  filter((ticker != "NFLX" | call_put != "calls") | (K < 266 & true_price < 400)) %>%
+  filter((ticker != "NVDA" | call_put != "calls") | (K < 500 & true_price < 300)) %>%
+  filter((ticker != "NFLX" | call_put != "puts") | (K < 266 & (K < 100 | true_price > 10))) %>%
+  filter((ticker != "NVDA" | call_put != "puts") | (K < 500 & (K < 300 | true_price > 100)))
+
+df <- df_doctored
+```
+
+# Regresní analýza
+
+## Absolutní
+
+``` {r dataset}
+df_absolute <- df_doctored %>%
+  pivot_longer(cols = c(user_bs, user_crr, user_mc),
+               names_to = "model",
+               values_to = "model_price") %>%
+  #filter(model == "user_crr") %>%
+  mutate(pricing_error = true_price - model_price) %>%
+  filter(is.finite(pricing_error)) %>%
+  #filter(abs(pricing_error) <= 13) %>%
+  mutate(snapshot_date = as.Date(expiration) - round(T * 365)) %>%
+  mutate(snapshot_month = format(snapshot_date, "%m"))
+```
+
+``` {r data-prep-abs}
+df_absolute_temp <- df_absolute #%>% filter(am_eu == "american" & call_put == "calls")
+train_indexes <- sample(1:nrow(df_absolute_temp), size = 0.8 * nrow(df_absolute_temp))
+
+train_data_abs <- df_absolute_temp[train_indexes, ]
+test_data_abs <- df_absolute_temp[-train_indexes, ]
+```
+
+### Prostý model
+
+``` {r basic_model_abs}
+subset_args <- c(
+  "S",
+  "K",
+  "r",
+  "sigma",
+  "q",
+  "T",
+  #"am_eu",
+  "call_put",
+  #"model",
+  "ticker",
+  #"true_price",
+  #"model_price",
+  "snapshot_month"
+  )
+interactions <- c(
+  #"q:am_eu",
+  "S:K",
+  "sigma:T",
+  "r:q"
+  #"am_eu:call_put"
+)
+
+rhs <- paste(c(subset_args, interactions), collapse = " + ")
+formula <- as.formula(paste("pricing_error ~ ", rhs))
+#T_crr <- lm(pricing_error ~ T + as.factor(snapshot_month), data = train_data)
+regression_absolute <- lm(formula, data = train_data_abs)
+
+summary(regression_absolute)
+```
+
+### Předpoklady
+
+Kontrola normality dat:
+
+``` {r data-view}
+histogram_abs <- hist(df_absolute_temp$pricing_error, breaks = 100)
+
+histogram_abs
+dev.copy(pdf, "~/Praxe/bakalarka/figures/hist_absolute.pdf")
+dev.off()
+```
+
+Data jsou normálně rozložená s velmi silnými ohony a slabě negativním sklonem.
+
+Celková kontrola regresního modelu:
+
+``` {r bm_tests}
+par(mfrow = c(2, 2))
+plot(regression_absolute)
+dev.print(png, "~/Praxe/bakalarka/figures/basic_lm_plots.png", width = 7, height = 7, res = 300)
+par(mfrow = c(1, 1))
+```
+
+První graf ukazuje lineární funkci, ne konstantní funkci. Co to přesně znamená?
+QQ-plot (graf 2) potvrzuje přiměřeně vhodné rozdělení dat.
+Homoskedasticita silně porušena (graf 3).
+Cookovy vzdálenosti (graf 4) jsou ok.
+
+Druhá kontrola homoscedasticity:
+
+``` {r}
+bptest(regression_absolute)
+```
+
+Dle výsledků Breuschova-Paganova testu (p < 0.05) zamítáme null hypotézu → je přítomná heteroskedasticita.
+
+Použijeme robustní standardní chyby (HC3), které opravují heteroskedasticitu bez změny koeficientů:
+
+``` {r robust_hc3, eval=FALSE, include=FALSE}
+coeftest(regression_absolute, vcov = vcovHC(regression_absolute, type = "HC3"))
+```
+
+Kontrola autokorelace:
+
+``` {r}
+dwtest(regression_absolute)
+```
+
+Dle výsledku Durbinova-Watsonova testu je přítomná autokorelace. Opce ze stejného tickeru jsou navzájem závislé.
+
+Použijeme cluster-robust standardní chyby (cluster na ticker), které opravují heteroskedasticitu i autokorelací zároveň:
+
+``` {r robust_errors, eval=FALSE, include=FALSE}
+coeftest(regression_absolute, vcov = vcovCL(regression_absolute, cluster = ~ticker))
+```
+
+Koeficienty zůstávají stejné jako v OLS, ale standardní chyby jsou opravené pro oba problémy.
+
+Kontrola multikolinearity:
+
+```{r}
+vif(regression_absolute, type = "predictor")
+```
+
+Extrémní VIF výsledek pro `am_eu` a `call_put`. Silná multikolinearita. Každý ticker má pouze jeden typ opce, `am_eu` je s `ticker` redundatní.
+
+### LMER model
+
+``` {r repeated_measure_abs}
+subset_args <- c(
+  "S",
+  "K",
+  "r",
+  "sigma",
+  #"q",
+  "T",
+  #"am_eu",
+  "call_put"
+  #"model"
+  #"ticker",
+  #"true_price",
+  #"model_price"
+  #"option_id"
+)
+interactions <- c(
+  #"q:am_eu",
+  "S:K",
+  "sigma:T",
+  #"r:q",
+  #"am_eu:call_put",
+  "(1 | option_id)",
+  "(1 | ticker)"
+  #"(1 | snapshot_month)"
+)
+
+rhs <- paste(c(subset_args, interactions), collapse = " + ")
+formula <- as.formula(paste("pricing_error ~ ", rhs))
+
+rmr_absolute <- lmer(formula, data = train_data_abs)
+```
+
+Náhodný efekt `(1 | ticker)` již částečně absorbuje autokorelací mezi opcemi stejného podkladového aktiva.
+
+``` {r rmr_abs_summary}
+summary(rmr_absolute)
+```
+
+``` {r}
+r2(rmr_absolute)
+```
+
+``` {r rmr_abs_robust, eval=FALSE, include=FALSE}
+# Cluster-robust standardní chyby (CR2) – oprava heteroskedasticity
+coef_test(rmr_absolute, vcov = "CR2", cluster = train_data$ticker)
+```
+
+``` {r rmr_abs_bias}
+plot_model(rmr_absolute, type = "est", show.values = TRUE, value.offset = .4) +
+  theme_minimal() +
+  labs(title = "Systematic Biases in Option Pricing Models")
+
+dev.copy(pdf, "~/Praxe/bakalarka/figures/absolute_bias.pdf")
+dev.off()
+```
+
+``` {r rmr_abs_predict}
+train_data_abs$predicted_error <- predict(rmr_absolute)
+
+absolute_hexes <- ggplot(train_data_abs, aes(x = predicted_error, y = pricing_error)) +
+  geom_hex(bins = 70) +
+  scale_fill_viridis_c(option = "plasma") + # Cool modern color palette
+  geom_abline(slope = 1, intercept = 0, color = "white", linetype = "dashed", size = 1) +
+  theme_minimal() +
+  labs(
+    title = "Model Fit: Actual vs. Predicted Pricing Errors",
+    x = "Predicted Error (Regression Model)",
+    y = "Actual Error (Market - Option Model)",
+    fill = "Record Count"
+  )
+
+ggsave("~/Praxe/bakalarka/figures/absolute_hexes.pdf", absolute_hexes, width = 6, height = 4, device = cairo_pdf)
+
+absolute_hexes
+```
+
+## Relativní
+
+``` {r}
+df_relative <- df_doctored %>%
+  pivot_longer(cols = c(user_bs, user_crr, user_mc),
+               names_to = "model",
+               values_to = "model_price") %>%
+  #filter(model == "user_crr") %>%
+  mutate(pricing_error_test = (true_price - model_price) / true_price) %>%
+  mutate(pricing_error = 2 * (true_price - model_price) / (true_price + model_price)) %>%
+  filter(is.finite(pricing_error)) %>%
+  mutate(snapshot_date = as.Date(expiration) - round(T * 365)) %>%
+  mutate(snapshot_month = format(snapshot_date, "%m"))
+```
+
+``` {r eval=FALSE, include=FALSE}
+ggplot(df_relative, aes(x = K, y = pricing_error, color = ticker)) +
+  geom_point(alpha = 0.3, size = 0.5) +
+  # geom_smooth(method = "lm", se = FALSE, linewidth = 0.8) +
+  labs(x = "Moneyness (S/K)", y = "Pricing error (Market - BS)",
+       color = "Ticker") +
+  theme_minimal()
+```
+
+``` {r eval=FALSE, include=FALSE, eval=FALSE, include=FALSE}
+top_K <- df_relative %>%
+  # filter(true_price < 10 & K > 100 & K < 266) %>%
+  slice_max(pricing_error, n = 50) %>%
+  select(ticker, S, K, T, pricing_error, model_price, true_price)
+
+kable(top_K)
+```
+
+``` {r data-prep-rel}
+df_relative_temp <- df_relative #%>% filter(am_eu == "american" & call_put == "calls")
+train_indexes <- sample(1:nrow(df_relative_temp), size = 0.8 * nrow(df_relative_temp))
+
+train_data_rel <- df_relative_temp[train_indexes, ]
+test_data_rel <- df_relative_temp[-train_indexes, ]
+```
+
+``` {r}
+hist(df_relative_temp$pricing_error, breaks = 200)
+
+dev.copy(pdf, "~/Praxe/bakalarka/figures/hist_relative.pdf")
+dev.off()
+```
+
+Distribuce je bimodální: pík u 0 odpovídá přesnému ocenění, pík u 2 odpovídá opcím s odhadovanou cenou blízkou 0. Regresní model tuto strukturu zohledňuje.
+
+``` {r}
+hist(df_relative_temp$pricing_error_test, breaks = 100)
+```
+
+``` {r basic_model_rel}
+train_data_rel$T2 <- train_data_rel$T^2
+
+subset_args <- c(
+  "S",
+  "K",
+  #"r",
+  "sigma",
+  #"q",
+  "T",
+  "T2",
+  #"am_eu",
+  #"call_put",
+  #"model",
+  "ticker",
+  #"true_price",
+  #"model_price",
+  "snapshot_month"
+  )
+interactions <- c(
+  #"q:am_eu",
+  "S:K",
+  "sigma:T",
+  "r:q",
+  "am_eu:call_put"
+)
+
+rhs <- paste(c(subset_args, interactions), collapse = " + ")
+formula <- as.formula(paste("pricing_error ~ ", rhs))
+#T_crr <- lm(pricing_error ~ T + as.factor(snapshot_month), data = train_data)
+regression_relative <- lm(formula, data = train_data_rel)
+
+summary(regression_relative)
+```
+
+``` {r plot}
+par(mfrow = c(2, 2))
+plot(regression_relative)
+dev.print(png, "~/Praxe/bakalarka/figures/relative_basic.png", width = 7, height = 7, res = 300)
+par(mfrow = c(1, 1))
+```
+
+### Předpoklady
+
+Kontrola homoscedasticity:
+
+``` {r bptest_rel}
+bptest(regression_relative)
+```
+
+Dle výsledků Breuschova-Paganova testu (p < 0.05) zamítáme null hypotézu → je přítomná heteroskedasticita.
+
+Kontrola autokorelace:
+
+``` {r dwtest_rel}
+dwtest(regression_relative)
+```
+
+Dle výsledku Durbinova-Watsonova testu je přítomná autokorelace. Opce ze stejného tickeru jsou navzájem závislé.
+
+Použijeme cluster-robust standardní chyby (cluster na ticker), které opravují heteroskedasticitu i autokorelací zároveň:
+
+``` {r robust_errors_rel, eval=FALSE, include=FALSE}
+coeftest(regression_relative, vcov = vcovCL(regression_relative, cluster = ~ticker))
+```
+
+Kontrola multikolinearity:
+
+```{r vif_rel}
+vif(regression_relative, type = "predictor")
+```
+
+### LMER model
+
+``` {r repeated_measure_rel}
+subset_args <- c(
+  "S",
+  "K",
+  "r",
+  "sigma",
+  "q",
+  "T",
+  #"am_eu",
+  "call_put"
+  #"model"
+  #"ticker",
+  #"true_price",
+  #"model_price"
+  #"option_id"
+  )
+interactions <- c(
+  #"q:am_eu",
+  "S:K",
+  "sigma:T",
+  "r:q",
+  #"am_eu:call_put",
+  "(1 | option_id)",
+  "(1 | ticker)"
+  #"(1 | snapshot_month)"
+)
+
+rhs <- paste(c(subset_args, interactions), collapse = " + ")
+formula <- as.formula(paste("pricing_error ~ ", rhs))
+
+rmr_relative <- lmer(formula, data = train_data_rel)
+```
+
+``` {r reg-plot, eval=FALSE, include=FALSE}
+ggplot(df_relative_temp, aes(x = T, y = pricing_error, color = model)) +
+  geom_point(alpha = 0.15, size = 0.3) +
+  geom_smooth(method = "lm", se = FALSE, linewidth = 0.8) +
+  labs(x = "Strike price (K)", y = "Relative pricing error",
+       color = "Model") +
+  theme_minimal()
+```
+
+``` {r}
+summary(rmr_relative)
+```
+
+``` {r}
+r2(rmr_relative)
+```
+
+``` {r rmr_rel_robust, eval=FALSE, include=FALSE}
+# Cluster-robust standardní chyby (CR2) – oprava heteroskedasticity
+coef_test(rmr_relative, vcov = "CR2", cluster = train_data$ticker)
+```
+
+``` {r}
+plot_model(rmr_relative, type = "est", show.values = TRUE, value.offset = .4) +
+  theme_minimal() +
+  labs(title = "Systematic Biases in Option Pricing Models")
+
+dev.copy(pdf, "~/Praxe/bakalarka/figures/relative_bias.pdf")
+```
+
+``` {r rmr_rel_predict}
+train_data_rel$predicted_error <- predict(rmr_relative)
+
+relative_hexes <- ggplot(train_data_rel, aes(x = predicted_error, y = pricing_error)) +
+  geom_hex(bins = 70) +
+  scale_fill_viridis_c(option = "plasma") + # Cool modern color palette
+  geom_abline(slope = 1, intercept = 0, color = "white", linetype = "dashed", size = 1) +
+  theme_minimal() +
+  labs(
+    title = "Model Fit: Actual vs. Predicted Pricing Errors",
+    x = "Predicted Error (Regression Model)",
+    y = "Actual Error (Market - Option Model)",
+    fill = "Record Count"
+  )
+
+ggsave("~/Praxe/bakalarka/figures/relative_predict.pdf", relative_hexes, width = 6, height = 4, device = cairo_pdf)
+
+relative_hexes
+```
