@@ -148,9 +148,13 @@ Data jsou normálně rozložená s velmi silnými ohony a slabě negativním skl
 Celková kontrola regresního modelu:
 
 ``` {r bm_tests}
+png("~/Praxe/bakalarka/figures/basic_lm_plots.png", width = 6, height = 4, units = "in", res = 300)
 par(mfrow = c(2, 2))
 plot(regression_absolute)
-dev.print(png, "~/Praxe/bakalarka/figures/basic_lm_plots.png", width = 7, height = 7, res = 300)
+dev.off()
+
+par(mfrow = c(2, 2))
+plot(regression_absolute)
 par(mfrow = c(1, 1))
 ```
 
@@ -291,6 +295,14 @@ df_relative <- df_doctored %>%
   mutate(snapshot_month = format(snapshot_date, "%m"))
 ```
 
+``` {r relative_filter, eval=FALSE, include=FALSE}
+high_quant <- quantile(df_relative$pricing_error, 0.90)
+low_quant <- quantile(df_relative$pricing_error, 0.10)
+
+df_relative <- df_relative |>
+  filter(pricing_error < high_quant & pricing_error > low_quant)
+```
+
 ``` {r eval=FALSE, include=FALSE}
 ggplot(df_relative, aes(x = K, y = pricing_error, color = ticker)) +
   geom_point(alpha = 0.3, size = 0.5) +
@@ -366,9 +378,13 @@ summary(regression_relative)
 ```
 
 ``` {r plot}
+png("~/Praxe/bakalarka/figures/relative_basic.png", width = 6, height = 4, units = "in", res = 300)
 par(mfrow = c(2, 2))
 plot(regression_relative)
-dev.print(png, "~/Praxe/bakalarka/figures/relative_basic.png", width = 7, height = 7, res = 300)
+dev.off()
+
+par(mfrow = c(2, 2))
+plot(regression_relative)
 par(mfrow = c(1, 1))
 ```
 
@@ -424,7 +440,7 @@ interactions <- c(
   #"q:am_eu",
   "S:K",
   "sigma:T",
-  "r:q",
+  #"r:q",
   #"am_eu:call_put",
   "(1 | option_id)",
   "(1 | ticker)"
