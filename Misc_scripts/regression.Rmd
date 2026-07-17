@@ -275,7 +275,7 @@ absolute_hexes <- ggplot(train_data_abs, aes(x = predicted_error, y = pricing_er
     fill = "Record Count"
   )
 
-ggsave("~/Praxe/bakalarka/figures/absolute_hexes.pdf", absolute_hexes, width = 6, height = 4, device = cairo_pdf)
+ggsave("~/Praxe/bakalarka/figures/absolute_hexes.png", absolute_hexes, width = 6, height = 4)
 
 absolute_hexes
 ```
@@ -498,7 +498,7 @@ relative_hexes <- ggplot(train_data_rel, aes(x = predicted_error, y = pricing_er
     fill = "Record Count"
   )
 
-ggsave("~/Praxe/bakalarka/figures/relative_predict.pdf", relative_hexes, width = 6, height = 4, device = cairo_pdf)
+ggsave("~/Praxe/bakalarka/figures/relative_predict.png", relative_hexes, width = 6, height = 4)
 
 relative_hexes
 ```

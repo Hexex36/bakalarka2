@@ -301,8 +301,8 @@ scatter_eu
 ```
 
 ``` {r plot-save-scatters, include=FALSE}
-ggsave("~/Praxe/bakalarka/figures/american-scatter.pdf", plot = scatter_am, width = 6, height = 4, device = cairo_pdf)
-ggsave("~/Praxe/bakalarka/figures/european-scatter.pdf", plot = scatter_eu, width = 6, height = 4, device = cairo_pdf)
+ggsave("~/Praxe/bakalarka/figures/american-scatter.png", plot = scatter_am, width = 6, height = 4)
+ggsave("~/Praxe/bakalarka/figures/european-scatter.png", plot = scatter_eu, width = 6, height = 4)
 ```
 
 RUT podceňuje, VIX ideální, XDB a XDE podceňuje.
@@ -427,7 +427,7 @@ nvda_put_raw <- ggplot(df_moneyness, aes(x = K, y = true_price, color = ticker))
 ``` {r NFLX_NVDA_raw_out}
 composite_nflx_nvda <- (nflx_call_raw + nflx_put_raw) / (nvda_call_raw + nvda_put_raw)
 
-ggsave("~/Praxe/bakalarka/figures/NVDA_NFLX_raw.pdf", composite_nflx_nvda, width = 6, height = 4, device = cairo_pdf)
+ggsave("~/Praxe/bakalarka/figures/NVDA_NFLX_raw.png", composite_nflx_nvda, width = 6, height = 4)
 
 composite_nflx_nvda
 ```
@@ -527,7 +527,7 @@ correlations <- ggplot(df_pairs, aes(x = price_x, y = price_y)) +
   labs(x = NULL, y = NULL) +
   theme_minimal()
 
-ggsave("~/Praxe/bakalarka/figures/correlations.pdf", correlations, width = 6, height = 4, device = cairo_pdf)
+ggsave("~/Praxe/bakalarka/figures/correlations.png", correlations, width = 6, height = 4)
 
 correlations
 ```

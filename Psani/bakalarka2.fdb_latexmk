@@ -1,12 +1,12 @@
 # Fdb version 4
-["biber bakalarka2"] 1784149929.58682 "bakalarka2.bcf" "bakalarka2.bbl" "bakalarka2" 1784199127.19 0
-  "bakalarka2.bcf" 1784199126.52915 139911 86a805d8720c88e9f20d8581287df172 "lualatex"
-  "thesis.bib" 1783206549.67259 4312 63673f899d3f79dc5fbea9fede28f879 ""
+["biber bakalarka2"] 1784199760.08006 "bakalarka2.bcf" "bakalarka2.bbl" "bakalarka2" 1784199778.17983 0
+  "bakalarka2.bcf" 1784199777.53915 139911 86a805d8720c88e9f20d8581287df172 "lualatex"
+  "thesis.bib" 1784199758.48115 4244 1b3794c805ab48ddebed19b9b20b4cd0 ""
   (generated)
   "bakalarka2.bbl"
   "bakalarka2.blg"
   (rewritten before read)
-["lualatex"] 1784199119.24161 "bakalarka2.tex" "bakalarka2.pdf" "bakalarka2" 1784199127.19036 0
+["lualatex"] 1784199769.87505 "bakalarka2.tex" "bakalarka2.pdf" "bakalarka2" 1784199778.1802 0
   "/etc/texmf/tex/generic/config/language.dat" 1775415801 2774 23432d78ba890d76256b3f33c553a888 ""
   "/etc/texmf/tex/generic/config/language.dat.lua" 1775415801 1493 0cf75b944ee4f3579780f7adace81c20 ""
   "/home/matej/.texlive/texmf-var/luatex-cache/generic/fonts/hb/062c5352532e8e3f15b9c33cbb9c6500a94e4eeeddd357d6bbe30511b9050754.luc" 1776984476.74431 90645 b1917e77675a1cc34a4de609a9e251a7 ""
@@ -333,11 +333,11 @@
   "TikzStuff/strom_example_stock.tikz" 1783328368.16057 961 73b6326226ac9413c864307330bc171a ""
   "TikzStuff/strom_very_basic.tikz" 1783328729.08094 520 e7f52c5c3222e8d46129ed6acbb620a4 ""
   "appendix_a.tex" 1783157126.18006 2908 d4eff2dc0051f814053acf372071c885 ""
-  "bakalarka2.aux" 1784199126.50715 56373 a393c3e7d59120bf232ad493aace8dd8 "lualatex"
-  "bakalarka2.bbl" 1784149930.93306 48264 a1519b9b3bb892b8d5afaeb72b84c95a "biber bakalarka2"
-  "bakalarka2.run.xml" 1784199126.53034 2562 ecee5b41c9b2358c192a1a6fec1b1f47 "lualatex"
-  "bakalarka2.tex" 1784199118.46315 145381 27920e20a4a0740aa16f321585c5d96f ""
-  "bakalarka2.toc" 1784199126.53034 6472 ddd90e020e320a534ad4d80cdbf4e213 "lualatex"
+  "bakalarka2.aux" 1784199777.51415 56373 259e94872848cae7978304e36b27b36a "lualatex"
+  "bakalarka2.bbl" 1784199760.91115 47748 6a7b57f4970a93c7274330fb0296b9a1 "biber bakalarka2"
+  "bakalarka2.run.xml" 1784199777.54015 2562 ecee5b41c9b2358c192a1a6fec1b1f47 "lualatex"
+  "bakalarka2.tex" 1784199324.31515 145392 28739d1afa3c2fc5a5d9d2d2530bb0a0 ""
+  "bakalarka2.toc" 1784199777.54015 6472 ddd90e020e320a534ad4d80cdbf4e213 "lualatex"
   "kitheses.cls" 1781721616.00964 2600 f1349da43554586dcacdd1794eac1ada ""
   (generated)
   "bakalarka2.aux"
