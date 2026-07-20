@@ -432,7 +432,45 @@ ggsave("~/Praxe/bakalarka/figures/NVDA_NFLX_raw.png", composite_nflx_nvda, width
 composite_nflx_nvda
 ```
 
+``` {r NFLX-call-time}
+df_moneyness <- df_time %>% filter(ticker == "NFLX" & call_put == "calls")
 
+ggplot(df_moneyness, aes(x = K, y = T, color = ticker)) +
+  geom_point(alpha = 0.3, size = 0.5) +
+  labs(x = "K", y = "Cena opce",
+       color = "Ticker") +
+  theme_minimal()
+```
+
+``` {r NFLX-put-time}
+df_moneyness <- df_time %>% filter(ticker == "NFLX" & call_put == "puts")
+
+ggplot(df_moneyness, aes(x = K, y = T, color = ticker)) +
+  geom_point(alpha = 0.3, size = 0.5) +
+  labs(x = "K", y = "Cena opce",
+       color = "Ticker") +
+  theme_minimal()
+```
+
+``` {r NVDA-call-time}
+df_moneyness <- df_time %>% filter(ticker == "NVDA" & call_put == "calls")
+
+ggplot(df_moneyness, aes(x = K, y = T, color = ticker)) +
+  geom_point(alpha = 0.3, size = 0.5) +
+  labs(x = "K", y = "Cena opce",
+       color = "Ticker") +
+  theme_minimal()
+```
+
+``` {r NVDA-put-time}
+df_moneyness <- df_time %>% filter(ticker == "NVDA" & call_put == "puts")
+
+ggplot(df_moneyness, aes(x = K, y = T, color = ticker)) +
+  geom_point(alpha = 0.3, size = 0.5) +
+  labs(x = "K", y = "Cena opce",
+       color = "Ticker") +
+  theme_minimal()
+```
 Zatímco do určitých hodnot `K` je oceňování vcelku stabilní, od specifických hodnot u NFLX a NVDA dojede k velkému skoku nahoru. Hodnoty se srovánvají s našimi výpočty (tvoří zápornou logaritmickou křivku). Do určitých `K` data vypadají validní, ale nejsem si jistý že můžeme takhle nitpickovat.
 
 Pro NFLX bych pro call opce odstranil hodnoty, pro které je `true_price` větší než 400 a `K` větší než 266. Hodnoty `true_price` větší než 400 jsou nesmyslné a 266 pro `K` je poslední hodnota u které je `true_price` menší než 400 a má `K` menší než 800. Za 266 dochází ke skokovému zvýšení odhadované ceny, což u deep OTM opce nedává vůbec smysl. Pro put opce můžeme odstranit opce s `K` > 266 a opce které pro `K` > 100 mají `true_price` < 10.

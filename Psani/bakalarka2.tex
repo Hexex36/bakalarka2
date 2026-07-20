@@ -724,32 +724,32 @@ Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývaj
   Začneme určením míry růstu a poklesu ceny akcie:
 
   \begin{gather*}
-    u = e^{0.3 \sqrt{1}} = e^{0.3} \dot{=} 1.34, \\
-    d = e^{-0.3 \sqrt{1}} = e^{-0.3} \dot{=} 0.71.
+    u = e^{0.3 \sqrt{1}} = e^{0.3} \ \dot{=}\  1.34, \\
+    d = e^{-0.3 \sqrt{1}} = e^{-0.3} \ \dot{=}\  0.71.
   \end{gather*}
 
   Pokračujeme konstrukcí stromu. Hodnotu opce ve vrcholu $V_{1, 1}$ vypočítáme jako:
 
   \begin{equation*}
-    S_{1, 1} = S_0 e^{rt} u = 100 e^{0.08 + 0.3} \dot{=} 146.23 \text{Kč},
+    S_{1, 1} = S_0 e^{rt} u = 100 e^{0.08 + 0.3} \ \dot{=}\  146.23 \text{Kč},
   \end{equation*}
 
   a hodnotu ve vrcholu $V_{1, 0}$ získáme jako:
 
   \begin{equation*}
-    S_{1, 0} = S_0 e^{rt} d = 100 e^{0.08 - 0.3} \dot{=} 80.25 \text{Kč}.
+    S_{1, 0} = S_0 e^{rt} d = 100 e^{0.08 - 0.3} \ \dot{=}\  80.25 \text{Kč}.
   \end{equation*}
 
   Hodnotu ve vrcholu $V_{2, 2}$ získáme z hodnoty ve vrcholu $V_{1, 1}$:
   \begin{equation*}
-    S_{2, 2} = S_{1, 1} e^{rt} u = 146.23 e^{0.08 + 0.3} \dot{=} 213.83 \text{Kč}.
+    S_{2, 2} = S_{1, 1} e^{rt} u = 146.23 e^{0.08 + 0.3} \ \dot{=}\  213.83 \text{Kč}.
   \end{equation*}
 
   Při výpočtu zbytku hodnot se postupuje dle stejného postupu:
 
   \begin{gather*}
-    S_{2, 1} = S_{1, 1} e^{rt} d = 146.23 e^{0.08 - 0.3} \dot{=} 117.35 \text{Kč}, \\
-    S_{2, 0} = S_{1, 0} e^{rt} d = 80.25 e^{0.08 - 0.3} \dot{=} 64.40 \text{Kč}.
+    S_{2, 1} = S_{1, 1} e^{rt} d = 146.23 e^{0.08 - 0.3} \ \dot{=}\  117.35 \text{Kč}, \\
+    S_{2, 0} = S_{1, 0} e^{rt} d = 80.25 e^{0.08 - 0.3} \ \dot{=}\  64.40 \text{Kč}.
   \end{gather*}
 
   \begin{figure*}[h]
@@ -773,15 +773,15 @@ Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývaj
   Pro další vrcholy získáme hodnotu pomocí rizikově neutrální pravděpodobnosti:
 
   \begin{equation*}
-    p = \frac{1 - d}{u - d} = \frac{1 - 0.71}{1.34 - 0.71} \dot{=} 0.43
+    p = \frac{1 - d}{u - d} = \frac{1 - 0.71}{1.34 - 0.71} \ \dot{=}\  0.43
   \end{equation*}
 
   Doplníme do rovnice \ref{eq:binom_rn_out}:
 
   \begin{gather*}
-    C_{1, 1} = e^{-rt} \bigl(p C_{2, 2} + (1 - p) C_{2, 1} \bigr) = e^{-0.08} (0.43 \cdot 113.83 + 0.57 \cdot 7.35) \dot{=} 52.66 \text{Kč}, \\
-    C_{1, 0} = e^{-rt} \bigl(p C_{2, 1} + (1 - p) C_{2, 0} \bigr) = e^{-0.08} (0.43 \cdot 7.35 + 0.57 \cdot 0) \dot{=} 3.13 \text{Kč}, \\
-    C_{0, 0} = e^{-rt} \bigl(p C_{1, 1} + (1 - p) C_{1, 0} \bigr) = e^{-0.08} (0.43 \cdot 52.66 + 0.57 \cdot 3.13) \dot{=} 24.21 \text{Kč}. \\
+    C_{1, 1} = e^{-rt} \bigl(p C_{2, 2} + (1 - p) C_{2, 1} \bigr) = e^{-0.08} (0.43 \cdot 113.83 + 0.57 \cdot 7.35) \ \dot{=}\  52.66 \text{Kč}, \\
+    C_{1, 0} = e^{-rt} \bigl(p C_{2, 1} + (1 - p) C_{2, 0} \bigr) = e^{-0.08} (0.43 \cdot 7.35 + 0.57 \cdot 0) \ \dot{=}\  3.13 \text{Kč}, \\
+    C_{0, 0} = e^{-rt} \bigl(p C_{1, 1} + (1 - p) C_{1, 0} \bigr) = e^{-0.08} (0.43 \cdot 52.66 + 0.57 \cdot 3.13) \ \dot{=}\  24.21 \text{Kč}. \\
   \end{gather*}
 
   Vypočtená cena opční prémie je $24.21$ Kč.
@@ -812,10 +812,10 @@ Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývaj
  Replikační princip říká, že lze sestavit portfolio z podkladového aktiva a bezrizikové obligace, které má stejnou výplatu jako opce. Replikační princip nyní využijeme k důkazu jednoznačné určitelnosti ceny opce. Postup formulujeme pro call opce, pro put opce lze stejný postup odvodit zaměněním symbolu $C$ za symbol $P$.
 
  Definujeme si dvě portfolia:
-  \begin{description}
-    \item[Opční portfolio] skládající se z jedné call opce o hodnotě $C$.
-    \item[Syntetické portfolio] skládající se z $\Delta$ podílů akcie, na které se vztahují příslušné call opce, a z investice do bezrizikového aktiva o hodnotě $\beta$. Akcie vyplácí spojitou dividendu míry $q$, která se reinvestuje do akcie.
-  \end{description}
+  \begin{itemize}
+    \item \textbf{Opční portfolio} skládající se z jedné call opce o hodnotě $C$.
+    \item \textbf{Syntetické portfolio} skládající se z $\Delta$ podílů akcie, na které se vztahují příslušné call opce, a z investice do bezrizikového aktiva o hodnotě $\beta$. Akcie vyplácí spojitou dividendu míry $q$, která se reinvestuje do akcie.
+  \end{itemize}
 
   Parametry $\Delta$ a $\beta$ nastavíme tak, aby se výplaty obou portfólií rovnaly. V časovém momentu $h$ se výplata syntetického portfolia rovná:
 
@@ -1079,7 +1079,7 @@ Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývaj
   Newtonův-Raphsonův algoritmus je odvozen z Taylorova polynomu prvního řádu:
 
   \begin{equation}
-    f(x + \delta) \approx f(x) + f'(x) \delta
+    f(x + \delta) = f(x) + f'(x) \delta
   \end{equation}
 
   kde $x$ je střed rozvoje Taylorova polynomu a $\delta$ je přírůstek.
@@ -1095,7 +1095,7 @@ Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývaj
   Na základě těchto předpokladů můžeme říci, že:
 
   \begin{equation}
-    f(x + \delta) = 0 \implies \delta \approx - \frac{f(x)}{f'(x)}.
+    f(x + \delta) = 0 \implies \delta = - \frac{f(x)}{f'(x)}.
   \end{equation}
 
   Tento vztah nám říká, o jakou hodnotu $\delta$ musíme aktuální odhad $x$ posunout, abychom se přiblížili ke kořeni, což přímo vede k definici iteračního schématu v rovnici \eqref{eq:iteration}.
@@ -1106,8 +1106,8 @@ Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývaj
 
   \begin{align}
     \label{rootedness}
-    f(x + \epsilon) &= f(x) + \epsilon f'(x) \\
-    f'(x + \epsilon) &= f'(x) + \epsilon f''(x) 
+    f(x + \epsilon) &\approx f(x) + \epsilon f'(x) \\
+    f'(x + \epsilon) &\approx f'(x) + \epsilon f''(x) 
   \end{align}
 
   Nechť $\epsilon_i = |x - x_i|$, kde $x$ je hledaná hodnota a $x_i$ je $i$-tý odhad hledané hodnoty. Dle Newtonova-Raphsonovy formule platí:
@@ -1116,7 +1116,7 @@ Opce, které by při okamžitém uplatnění měly kladnou výplatu, se nazývaj
     \epsilon_{i+1} = \epsilon_i - \frac{f(x_i)}{f'(x_i)}
   \end{equation}
 
-  Když se odhad $x_i$ liší od kořene $x$ o $\epsilon$, můžeme využít formulaci rovnice \ref{rootedness} a vyjádřit funkci $f$ a její derivaci pomocí $\epsilon_i$ a derivací v kořenu. Výsledkem vznikne rekurentní vztah:
+  Když se odhad $x_i$ liší od kořene $x$ o $\epsilon$, můžeme využít formulaci rovnice \eqref{rootedness} a vyjádřit funkci $f$ a její derivaci pomocí $\epsilon_i$ a derivací v kořenu. Výsledkem vznikne rekurentní vztah:
   \begin{equation}
     \epsilon_{i+1} = - \epsilon^2_i \frac{f''(x)}{2 f'(x)}
   \end{equation}
@@ -1658,7 +1658,7 @@ Výsledný dataset obsahuje 168~996 opčních kontraktů na 12 amerických akci�
     \centering
     \caption{Grafy verifikace správnosti tržních cen surových dat pro NFLX a NVDA}
     \label{fig:correctness_markets}
-    \includegraphics{~/Praxe/bakalarka/figures/NVDA_NFLX_raw.pdf}
+    \includegraphics{~/Praxe/bakalarka/figures/NVDA_NFLX_raw.png}
   \end{figure}
 
   U titulu NFLX byly pro call opce vyloučeny pozice, u nichž byla teoretická cena vyšší než 400 a realizační cena vyšší než 266. Práh realizační ceny odpovídá poslední ceně, při níž je tržní cena nižší než 400 a zároveň $K < 800$. Pro put opce byly vyloučeny opce s realizací $K > 266$ a dále opce, které pro $K > 100$ vykazují tržní cenu $< 10$.
@@ -1859,7 +1859,7 @@ Výsledný dataset obsahuje 168~996 opčních kontraktů na 12 amerických akci�
     \centering
     \caption{Bodové grafy korelace modelů}
     \label{fig:model_correlation}
-    \includegraphics{~/Praxe/bakalarka/figures/correlations.pdf}
+    \includegraphics{~/Praxe/bakalarka/figures/correlations.png}
   \end{figure}
 
   Na grafu \ref{fig:model_correlation} lze vidět, že vykreslené body zdánlivě dokonale napodobují přímku očekávaného vývoje. Pro ověření jsem spočetl Spearmanův korelační koeficient. Tabulka \ref{tab:spearman} ukazuje právě tyto hodnoty, které ukazují, že modely mají velmi pravděpodobně až pozitivní lineární vztah.
@@ -1884,7 +1884,7 @@ Výsledný dataset obsahuje 168~996 opčních kontraktů na 12 amerických akci�
     \centering
     \caption{Grafy kontroly správnosti - americké opce}
     \label{fig:correctness_a}
-    \includegraphics{~/Praxe/bakalarka/figures/american-scatter.pdf}
+    \includegraphics{~/Praxe/bakalarka/figures/american-scatter.png}
   \end{figure}
 
   Z grafu \ref{fig:correctness_a} lze vidět, že existují jak tituly, kde implementované modely přeceňují, tak tituly, kde implementované modely podceňují, a to pro oba typy opcí. Toto naznačuje, že modelech není jednotná chyba, která by konzistentně podceňovala nebo přeceňovala.
@@ -1893,7 +1893,7 @@ Výsledný dataset obsahuje 168~996 opčních kontraktů na 12 amerických akci�
     \centering
     \caption{Grafy kontroly správnosti - evropské opce}
     \label{fig:correctness_e}
-    \includegraphics{~/Praxe/bakalarka/figures/european-scatter.pdf}
+    \includegraphics{~/Praxe/bakalarka/figures/european-scatter.png}
   \end{figure}
 
   Z grafu \ref{fig:correctness_e} lze vyčíst, že \textasciicircum{}VIX pro put opce ideálně imituje očekávaný vývoj. \textasciicircum{}VIX pro call opce ukazuje jak silné přeceňování, tak podceňování. \textasciicircum{}RUT pro call opce je podceňovaný a pro put opce přeceňovaný. U měnových fondů je malé množství dat, a nelze nic specifického inferovat.
@@ -1966,14 +1966,14 @@ Výsledný dataset obsahuje 168~996 opčních kontraktů na 12 amerických akci�
     \centering
     \caption{Rozdělení dat pro absolutní rozdíl ohodnocení}
     \label{fig:dist_absolute}
-    \includegraphics{~/Praxe/bakalarka/figures/hist_absolute.pdf}
+    \includegraphics{~/Praxe/bakalarka/figures/hist_absolute.png}
   \end{figure}
 
   \begin{figure}[h!]
     \centering
     \caption{Rozdělení dat pro absolutní rozdíl ohodnocení}
     \label{fig:dist_relative}
-    \includegraphics{~/Praxe/bakalarka/figures/hist_relative.pdf}
+    \includegraphics{~/Praxe/bakalarka/figures/hist_relative.png}
   \end{figure}
 
   Jako druhou vrstvu ověření předpokladů jsem použil statistické testy.

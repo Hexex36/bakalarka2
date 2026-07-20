@@ -136,11 +136,11 @@ summary(regression_absolute)
 Kontrola normality dat:
 
 ``` {r data-view}
+png("~/Praxe/bakalarka/figures/hist_absolute.png", width = 6, height = 4, units = "in", res = 300)
 histogram_abs <- hist(df_absolute_temp$pricing_error, breaks = 100)
+dev.off()
 
 histogram_abs
-dev.copy(pdf, "~/Praxe/bakalarka/figures/hist_absolute.pdf")
-dev.off()
 ```
 
 Data jsou normálně rozložená s velmi silnými ohony a slabě negativním sklonem.
@@ -201,7 +201,88 @@ vif(regression_absolute, type = "predictor")
 
 Extrémní VIF výsledek pro `am_eu` a `call_put`. Silná multikolinearita. Každý ticker má pouze jeden typ opce, `am_eu` je s `ticker` redundatní.
 
-### LMER model
+### LMER model - základní
+
+``` {r repeated_measure_abs_base}
+subset_args <- c(
+  "S",
+  "K",
+  "r",
+  "sigma",
+  "q",
+  "T",
+  "am_eu",
+  "call_put",
+  "model",
+  "ticker"
+  #"true_price",
+  #"model_price"
+  #"option_id"
+)
+interactions <- c(
+  "q:am_eu",
+  "S:K",
+  "sigma:T",
+  "r:q",
+  "am_eu:call_put",
+  "(1 | option_id)",
+  "(1 | ticker)"
+  #"(1 | snapshot_month)"
+)
+
+rhs <- paste(c(subset_args, interactions), collapse = " + ")
+formula <- as.formula(paste("pricing_error ~ ", rhs))
+
+rmr_absolute <- lmer(formula, data = train_data_abs)
+```
+
+Náhodný efekt `(1 | ticker)` již částečně absorbuje autokorelací mezi opcemi stejného podkladového aktiva.
+
+``` {r rmr_abs_summary_base}
+summary(rmr_absolute)
+```
+
+``` {r r-two_absolute_base}
+r2(rmr_absolute)
+```
+
+``` {r rmr_abs_robust_base, eval=FALSE, include=FALSE}
+# Cluster-robust standardní chyby (CR2) – oprava heteroskedasticity
+coef_test(rmr_absolute, vcov = "CR2", cluster = train_data$ticker)
+```
+
+``` {r rmr_abs_base_bias}
+absolute_bias_plot <- plot_model(rmr_absolute, type = "est", show.values = TRUE, value.offset = .4) +
+  theme_minimal() +
+  labs(title = "Systematic Biases in Option Pricing Models")
+
+#ggsave("~/Praxe/bakalarka/figures/absolute_bias.png", absolute_bias_plot, width = 6, height = 4)
+
+absolute_bias_plot
+```
+
+``` {r rmr_abs_base_predict}
+train_data_abs$predicted_error <- predict(rmr_absolute)
+
+absolute_hexes <- ggplot(train_data_abs, aes(x = predicted_error, y = pricing_error)) +
+  geom_hex(bins = 70) +
+  scale_fill_viridis_c(option = "plasma") + # Cool modern color palette
+  geom_abline(slope = 1, intercept = 0, color = "white", linetype = "dashed", size = 1) +
+  theme_minimal() +
+  labs(
+    title = "Model Fit: Actual vs. Predicted Pricing Errors",
+    x = "Predicted Error (Regression Model)",
+    y = "Actual Error (Market - Option Model)",
+    fill = "Record Count"
+  )
+
+#ggsave("~/Praxe/bakalarka/figures/absolute_hexes.png", absolute_hexes, width = 6, height = 4)
+
+absolute_hexes
+```
+
+
+### LMER model - optimalizovaný na mezní R2
 
 ``` {r repeated_measure_abs}
 subset_args <- c(
@@ -252,12 +333,13 @@ coef_test(rmr_absolute, vcov = "CR2", cluster = train_data$ticker)
 ```
 
 ``` {r rmr_abs_bias}
-plot_model(rmr_absolute, type = "est", show.values = TRUE, value.offset = .4) +
+absolute_bias_plot <- plot_model(rmr_absolute, type = "est", show.values = TRUE, value.offset = .4) +
   theme_minimal() +
   labs(title = "Systematic Biases in Option Pricing Models")
 
-dev.copy(pdf, "~/Praxe/bakalarka/figures/absolute_bias.pdf")
-dev.off()
+ggsave("~/Praxe/bakalarka/figures/absolute_bias.png", absolute_bias_plot, width = 6, height = 4)
+
+absolute_bias_plot
 ```
 
 ``` {r rmr_abs_predict}
@@ -330,10 +412,11 @@ test_data_rel <- df_relative_temp[-train_indexes, ]
 ```
 
 ``` {r}
+png("~/Praxe/bakalarka/figures/hist_relative.png", width = 6, height = 4, units = "in", res = 300)
 hist(df_relative_temp$pricing_error, breaks = 200)
-
-dev.copy(pdf, "~/Praxe/bakalarka/figures/hist_relative.pdf")
 dev.off()
+
+hist(df_relative_temp$pricing_error, breaks = 200)
 ```
 
 Distribuce je bimodální: pík u 0 odpovídá přesnému ocenění, pík u 2 odpovídá opcím s odhadovanou cenou blízkou 0. Regresní model tuto strukturu zohledňuje.
@@ -418,7 +501,89 @@ Kontrola multikolinearity:
 vif(regression_relative, type = "predictor")
 ```
 
-### LMER model
+### LMER model - základní
+
+``` {r repeated_measure_rel_base}
+subset_args <- c(
+  "S",
+  "K",
+  "r",
+  "sigma",
+  "q",
+  "T",
+  "am_eu",
+  "call_put",
+  "model",
+  "ticker"
+  #"true_price",
+  #"model_price"
+  #"option_id"
+  )
+interactions <- c(
+  "q:am_eu",
+  "S:K",
+  "sigma:T",
+  "r:q",
+  "am_eu:call_put",
+  "(1 | option_id)",
+  "(1 | ticker)"
+  #"(1 | snapshot_month)"
+)
+
+rhs <- paste(c(subset_args, interactions), collapse = " + ")
+formula <- as.formula(paste("pricing_error ~ ", rhs))
+
+rmr_relative <- lmer(formula, data = train_data_rel)
+```
+
+``` {r reg-plot-base, eval=FALSE, include=FALSE}
+ggplot(df_relative_temp, aes(x = T, y = pricing_error, color = model)) +
+  geom_point(alpha = 0.15, size = 0.3) +
+  geom_smooth(method = "lm", se = FALSE, linewidth = 0.8) +
+  labs(x = "Strike price (K)", y = "Relative pricing error",
+       color = "Model") +
+  theme_minimal()
+```
+
+``` {r}
+summary(rmr_relative)
+```
+
+``` {r}
+r2(rmr_relative)
+```
+
+``` {r}
+relative_bias_plot <- plot_model(rmr_relative, type = "est", show.values = TRUE, value.offset = .4) +
+  theme_minimal() +
+  labs(title = "Systematic Biases in Option Pricing Models")
+
+#ggsave("~/Praxe/bakalarka/figures/relative_bias.png", relative_bias_plot, width = 6, height = 4)
+
+relative_bias_plot
+```
+
+``` {r rmr_rel_base_predict}
+train_data_rel$predicted_error <- predict(rmr_relative)
+
+relative_hexes <- ggplot(train_data_rel, aes(x = predicted_error, y = pricing_error)) +
+  geom_hex(bins = 70) +
+  scale_fill_viridis_c(option = "plasma") + # Cool modern color palette
+  geom_abline(slope = 1, intercept = 0, color = "white", linetype = "dashed", size = 1) +
+  theme_minimal() +
+  labs(
+    title = "Model Fit: Actual vs. Predicted Pricing Errors",
+    x = "Predicted Error (Regression Model)",
+    y = "Actual Error (Market - Option Model)",
+    fill = "Record Count"
+  )
+
+#ggsave("~/Praxe/bakalarka/figures/relative_predict.png", relative_hexes, width = 6, height = 4)
+
+relative_hexes
+```
+
+### LMER model - optimalizovaný na R2
 
 ``` {r repeated_measure_rel}
 subset_args <- c(
@@ -442,9 +607,9 @@ interactions <- c(
   "sigma:T",
   #"r:q",
   #"am_eu:call_put",
-  "(1 | option_id)",
-  "(1 | ticker)"
-  #"(1 | snapshot_month)"
+  #"(1 | option_id)",
+  "(1 | ticker)",
+  "(1 | snapshot_month)"
 )
 
 rhs <- paste(c(subset_args, interactions), collapse = " + ")
@@ -476,11 +641,13 @@ coef_test(rmr_relative, vcov = "CR2", cluster = train_data$ticker)
 ```
 
 ``` {r}
-plot_model(rmr_relative, type = "est", show.values = TRUE, value.offset = .4) +
+relative_bias_plot <- plot_model(rmr_relative, type = "est", show.values = TRUE, value.offset = .4) +
   theme_minimal() +
   labs(title = "Systematic Biases in Option Pricing Models")
 
-dev.copy(pdf, "~/Praxe/bakalarka/figures/relative_bias.pdf")
+ggsave("~/Praxe/bakalarka/figures/relative_bias.png", relative_bias_plot, width = 6, height = 4)
+
+relative_bias_plot
 ```
 
 ``` {r rmr_rel_predict}
