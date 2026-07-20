@@ -51,6 +51,7 @@ df_raw <- bind_rows(
       TRUE ~ "Long"
     )
   ) %>%
+  mutate(moneyness = S/K) %>%
   mutate(pricing_error = (true_price - user_bs)/true_price) %>%
   mutate(option_id = paste0(ticker,
     format(expiration, "%y%m%d"),
@@ -102,6 +103,7 @@ test_data_abs <- df_absolute_temp[-train_indexes, ]
 ``` {r basic_model_abs}
 subset_args <- c(
   "S",
+  "moneyness"
   "K",
   "r",
   "sigma",
@@ -111,16 +113,10 @@ subset_args <- c(
   "call_put",
   #"model",
   "ticker",
-  #"true_price",
-  #"model_price",
   "snapshot_month"
   )
 interactions <- c(
   #"q:am_eu",
-  "S:K",
-  "sigma:T",
-  "r:q"
-  #"am_eu:call_put"
 )
 
 rhs <- paste(c(subset_args, interactions), collapse = " + ")
@@ -206,6 +202,7 @@ Extrémní VIF výsledek pro `am_eu` a `call_put`. Silná multikolinearita. Kaž
 ``` {r repeated_measure_abs_base}
 subset_args <- c(
   "S",
+  "moneyness",
   "K",
   "r",
   "sigma",
@@ -215,19 +212,12 @@ subset_args <- c(
   "call_put",
   "model",
   "ticker"
-  #"true_price",
-  #"model_price"
-  #"option_id"
 )
 interactions <- c(
   "q:am_eu",
-  "S:K",
-  "sigma:T",
-  "r:q",
-  "am_eu:call_put",
-  "(1 | option_id)",
-  "(1 | ticker)"
-  #"(1 | snapshot_month)"
+  #"(1 | option_id)",
+  "(1 | ticker)",
+  "(1 | snapshot_month)"
 )
 
 rhs <- paste(c(subset_args, interactions), collapse = " + ")
@@ -287,6 +277,7 @@ absolute_hexes
 ``` {r repeated_measure_abs}
 subset_args <- c(
   "S",
+  "moneyness",
   "K",
   "r",
   "sigma",
@@ -296,19 +287,12 @@ subset_args <- c(
   "call_put"
   #"model"
   #"ticker",
-  #"true_price",
-  #"model_price"
-  #"option_id"
 )
 interactions <- c(
-  #"q:am_eu",
-  "S:K",
-  "sigma:T",
-  #"r:q",
-  #"am_eu:call_put",
-  "(1 | option_id)",
+  "q:am_eu",
+  #"(1 | option_id)",
   "(1 | ticker)"
-  #"(1 | snapshot_month)"
+  "(1 | snapshot_month)",
 )
 
 rhs <- paste(c(subset_args, interactions), collapse = " + ")
@@ -440,16 +424,10 @@ subset_args <- c(
   #"call_put",
   #"model",
   "ticker",
-  #"true_price",
-  #"model_price",
   "snapshot_month"
   )
 interactions <- c(
   #"q:am_eu",
-  "S:K",
-  "sigma:T",
-  "r:q",
-  "am_eu:call_put"
 )
 
 rhs <- paste(c(subset_args, interactions), collapse = " + ")
@@ -506,6 +484,7 @@ vif(regression_relative, type = "predictor")
 ``` {r repeated_measure_rel_base}
 subset_args <- c(
   "S",
+  "moneyness"
   "K",
   "r",
   "sigma",
@@ -515,19 +494,12 @@ subset_args <- c(
   "call_put",
   "model",
   "ticker"
-  #"true_price",
-  #"model_price"
-  #"option_id"
   )
 interactions <- c(
   "q:am_eu",
-  "S:K",
-  "sigma:T",
-  "r:q",
-  "am_eu:call_put",
-  "(1 | option_id)",
-  "(1 | ticker)"
-  #"(1 | snapshot_month)"
+  #"(1 | option_id)",
+  "(1 | ticker)",
+  "(1 | snapshot_month)"
 )
 
 rhs <- paste(c(subset_args, interactions), collapse = " + ")
@@ -597,16 +569,9 @@ subset_args <- c(
   "call_put"
   #"model"
   #"ticker",
-  #"true_price",
-  #"model_price"
-  #"option_id"
   )
 interactions <- c(
   #"q:am_eu",
-  "S:K",
-  "sigma:T",
-  #"r:q",
-  #"am_eu:call_put",
   #"(1 | option_id)",
   "(1 | ticker)",
   "(1 | snapshot_month)"

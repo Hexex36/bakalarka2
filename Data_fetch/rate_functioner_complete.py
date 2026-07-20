@@ -2,7 +2,7 @@ import os
 
 import pandas as pd
 import numpy as np
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Dict, Optional
 
 COLUMN_MAPPING = {
@@ -238,59 +238,66 @@ class RateFuncer:
     ) -> pd.DataFrame:
         """
         Add stock price, volatility, and dividend yield data to options DataFrame.
-        
+
         Args:
             options_df: DataFrame with options data
             stock_calculator: StockPriceVolatilityCalculator instance
             target_date: Date to get stock price as of (YYYY-MM-DD)
-            
+
         Returns:
             Enhanced DataFrame with stock price, volatility, and dividend columns
         """
         # Get unique tickers from options
         option_tickers = options_df["Ticker"].unique()
-        
+
         # Create mapping of ticker to stock data
         stock_data_map = {}
         for ticker in option_tickers:
-            stock_data_map[ticker] = stock_calculator.process_ticker_data(ticker, target_date)
-        
+            stock_data_map[ticker] = stock_calculator.process_ticker_data(
+                ticker, target_date
+            )
+
         # Add current price column
         options_df["current_stock_price"] = options_df["Ticker"].map(
             lambda x: stock_data_map.get(x, {}).get("current_price")
         )
-        
+
         # Add volatility column
         options_df["historical_volatility"] = options_df["Ticker"].map(
             lambda x: stock_data_map.get(x, {}).get("volatility")
         )
-        
-        # Compute dividend yield per option row (depends on expiration, rate, stock price)
-        options_df["dividend_yield"] = options_df.apply(
-            lambda row: stock_calculator.calculate_q_for_option(
-                ticker=row["Ticker"],
-                expiration_date=row["Expiration"],
-                risk_free_rate=row["treasury_rate"],
-                stock_price=row["current_stock_price"],
-                target_date=target_date,
-            ),
-            axis=1,
+
+        # Compute dividend yield per ticker
+        dividend_yield_map = {
+            ticker: stock_calculator.calculate_dividend_yield(ticker)
+            for ticker in option_tickers
+        }
+        options_df["dividend_yield"] = options_df["Ticker"].map(
+            lambda x: dividend_yield_map.get(x, 0.0)
         )
 
         return options_df
 
 
 class StockPriceVolatilityCalculator:
-    def __init__(self, stock_prices_file: str):
+    def __init__(
+        self, stock_prices_file: str, historical_rs_file: str = "historical_rs.csv"
+    ):
         """
-        Initialize with stock prices data.
+        Initialize with stock prices data and historical risk-free rates.
 
         Args:
             stock_prices_file: Path to CSV with stock price data
+            historical_rs_file: Path to CSV with historical 1-year risk-free rates
         """
         self.stock_data = pd.read_csv(stock_prices_file)
         self.stock_data["Date"] = pd.to_datetime(self.stock_data["Date"], utc=True)
         self.tickers = self.stock_data["Ticker"].unique()
+
+        self.historical_rs = pd.read_csv(historical_rs_file)
+        self.historical_rs["date"] = pd.to_datetime(
+            self.historical_rs["date"], utc=True
+        )
 
     def get_current_stock_price(
         self, ticker: str, target_date: str = "2026-02-27"
@@ -367,157 +374,73 @@ class StockPriceVolatilityCalculator:
             annualized_vol = daily_vol * np.sqrt(252)  # 252 trading days per year
 
             return float(annualized_vol)
- 
+
         except Exception as e:
             print(f"Error calculating volatility for {ticker}: {e}")
             return None
- 
-    def _analyze_dividend_pattern(self, ticker: str) -> Optional[Dict]:
+
+    def _lookup_historical_r(self, date: pd.Timestamp) -> Optional[float]:
         """
-        Analyze historical dividends to determine average amount and frequency.
+        Look up the historical 1-year risk-free rate for a given date.
 
-        Returns dict with avg_dividend, avg_gap_days, last_div_date,
-        or None if no dividends found.
-        """
-        ticker_mask = self.stock_data["Ticker"] == ticker
-        ticker_data = self.stock_data[ticker_mask].copy()
-        ticker_data = ticker_data.sort_values(by="Date")
-
-        # Filter dividend events
-        div_events = ticker_data[ticker_data["Dividends"] > 0]
-
-        if len(div_events) == 0:
-            return None
-
-        avg_dividend = float(div_events["Dividends"].mean())
-        last_div_date = div_events["Date"].iloc[-1].normalize()
-
-        if len(div_events) >= 2:
-            gaps = div_events["Date"].diff().dt.days.dropna()
-            avg_gap_days = float(gaps.mean())
-        else:
-            avg_gap_days = None
-
-        return {
-            "avg_dividend": avg_dividend,
-            "avg_gap_days": avg_gap_days,
-            "last_div_date": last_div_date,
-        }
-
-    def calculate_q_for_option(
-        self,
-        ticker: str,
-        expiration_date: str,
-        risk_free_rate: float,
-        stock_price: float,
-        target_date: str,
-    ) -> float:
-        """
-        Calculate continuous dividend yield q for a specific option
-        using forward-looking projected dividends.
-
-        q = -ln(1 - D/S) / T
-
-        where D = sum of PV of expected dividends before expiration.
-        """
-        if not hasattr(self, "_pattern_cache"):
-            self._pattern_cache = {}
-        if ticker not in self._pattern_cache:
-            self._pattern_cache[ticker] = self._analyze_dividend_pattern(ticker)
-        pattern = self._pattern_cache[ticker]
-        if pattern is None:
-            return 0.0
-
-        target_dt = pd.to_datetime(target_date, utc=True).normalize()
-        exp_dt = pd.to_datetime(expiration_date, utc=True).normalize()
-
-        T_years = (exp_dt - target_dt).days / 365.25
-        if T_years <= 0:
-            return 0.0
-
-        avg_gap = pattern["avg_gap_days"]
-        if avg_gap is None or avg_gap <= 0:
-            return 0.0
-
-        avg_div = pattern["avg_dividend"]
-        if avg_div <= 0:
-            return 0.0
-
-        r = risk_free_rate if risk_free_rate is not None else 0.0
-
-        # Project forward from last dividend date
-        div_date = pattern["last_div_date"]
-
-        # Move to first dividend after target_date
-        while div_date <= target_dt:
-            div_date += timedelta(days=avg_gap)
-
-        # Sum PV of all dividends before expiration
-        D = 0.0
-        while div_date <= exp_dt:
-            t_i = (div_date - target_dt).days / 365.25
-            D += avg_div * np.exp(-r * t_i)
-            div_date += timedelta(days=avg_gap)
-
-        if D <= 0 or D >= stock_price:
-            return 0.0
-
-        q = -np.log(1 - D / stock_price) / T_years
-        return float(q)
-
-    def calculate_dividend_yield(self, ticker: str, lookback_days: int = 252) -> Optional[float]:
-        """
-        Calculate continuous dividend yield from historical dividend payments.
-        
         Args:
-            ticker: Stock ticker symbol
-            lookback_days: Number of trading days to use for calculation
-            
+            date: Date to look up
+
         Returns:
-            Continuous dividend yield as decimal or None if not found
+            Risk-free rate as decimal (e.g., 0.0413 for 4.13%) or None
+        """
+        date_normalized = date.normalize()
+        match = self.historical_rs[self.historical_rs["date"] == date_normalized]
+        if len(match) == 0:
+            return None
+        return float(match["value"].iloc[0]) / 100.0
+
+    def calculate_dividend_yield(
+        self, ticker: str, lookback_days: int = 252
+    ) -> Optional[float]:
+        """
+        Calculate continuous dividend yield from historical dividend payments,
+        discounting each dividend by the risk-free rate to the base date.
+
+        q = -ln(1 - D/S)
+
+        where D = sum of discounted historical dividends.
         """
         try:
             ticker_mask = self.stock_data["Ticker"] == ticker
             ticker_data = self.stock_data[ticker_mask].copy()
             ticker_data = ticker_data.sort_values(by="Date")
-            
+
             if len(ticker_data) < 2:
                 return None
-                
-            # Use the last lookback_days of data
+
             if len(ticker_data) > lookback_days:
                 ticker_data = ticker_data.tail(lookback_days)
-                
-            # Calculate total dividends paid in period
-            total_dividends = ticker_data["Dividends"].sum()
-            
-            if total_dividends <= 0:
+
+            base_date = ticker_data["Date"].iloc[0]
+            r = self._lookup_historical_r(base_date)
+            if r is None:
                 return 0.0
-            
-            # Calculate the actual time span in years for annualization
-            date_range = (ticker_data["Date"].max() - ticker_data["Date"].min()).days
-            years_span = date_range / 365.25
-            
-            if years_span <= 0:
-                return None
-            
-            # Annualize the dividends
-            annual_dividends = total_dividends / years_span
-            
-            # Use the most recent stock price (not average)
-            current_price = ticker_data["Close"].iloc[-1]
-            
-            if current_price <= 0:
-                return None
-                
-            # Calculate discrete dividend yield
-            discrete_yield = annual_dividends / current_price
-            
-            # Convert to continuous dividend yield: δ = ln(1 + q)
-            continuous_yield = np.log(1 + discrete_yield)
-            
-            return float(continuous_yield)
-            
+
+            div_events = ticker_data[ticker_data["Dividends"] > 0]
+            if len(div_events) == 0:
+                return 0.0
+
+            first_price = ticker_data["Close"].iloc[0]
+            if first_price <= 0:
+                return 0.0
+
+            D = 0.0
+            for _, row in div_events.iterrows():
+                t_i = (row["Date"] - base_date).days / 365.25
+                D += row["Dividends"] * np.exp(-r * t_i)
+
+            if D <= 0 or D >= first_price:
+                return 0.0
+
+            q = -np.log(1 - D / first_price)
+            return float(q)
+
         except Exception as e:
             print(f"Error calculating dividend yield for {ticker}: {e}")
             return None
@@ -526,20 +449,19 @@ class StockPriceVolatilityCalculator:
         self, ticker: str, target_date: str = "2026-02-27"
     ) -> Dict[str, Optional[float]]:
         """
-        Get current price, volatility, and dividend yield for a ticker.
-        
+        Get current price and volatility for a ticker.
+
         Args:
             ticker: Stock ticker symbol
             target_date: Date to get price as of (YYYY-MM-DD)
-            
+
         Returns:
-            Dictionary with current_price, volatility, and dividend_yield
+            Dictionary with current_price and volatility
         """
         current_price = self.get_current_stock_price(ticker, target_date)
         volatility = self.calculate_historical_volatility(ticker)
-        dividend_yield = self.calculate_dividend_yield(ticker)
-        
-        return {"current_price": current_price, "volatility": volatility, "dividend_yield": dividend_yield}
+
+        return {"current_price": current_price, "volatility": volatility}
 
 
 class EnhancedOptionsProcessor:
@@ -560,10 +482,10 @@ class EnhancedOptionsProcessor:
     def process_options_file(self, options_file_path: str) -> pd.DataFrame:
         """
         Process options file and add both treasury rates and stock data.
-        
+
         Args:
             options_file_path: Path to the options CSV file
-            
+
         Returns:
             Enhanced DataFrame with rates, stock prices, volatility, and dividend yield
         """
@@ -571,7 +493,9 @@ class EnhancedOptionsProcessor:
         df = self.rate_funcer.process_options_file(options_file_path)
 
         # Add stock data
-        df = self.rate_funcer.add_stock_data_to_options(df, self.stock_calculator, self.target_date)
+        df = self.rate_funcer.add_stock_data_to_options(
+            df, self.stock_calculator, self.target_date
+        )
 
         # Rename columns to Greek notation
         df = df.rename(columns=COLUMN_MAPPING)
@@ -580,8 +504,6 @@ class EnhancedOptionsProcessor:
 
 
 if __name__ == "__main__":
-    import glob
-
     months = [
         {
             "rates_file": "rates_2026_01_26.txt",
@@ -630,11 +552,18 @@ if __name__ == "__main__":
 
             options_df = processor.process_options_file(input_file)
             options_df.to_csv(output_file, index=False)
-            print(f"  Processed {len(options_df)} {option_type} options -> {output_file}")
+            print(
+                f"  Processed {len(options_df)} {option_type} options -> {output_file}"
+            )
 
             sample_cols = [
-                "ticker", "expiration", "K", "r",
-                "S", "sigma", "q",
+                "ticker",
+                "expiration",
+                "K",
+                "r",
+                "S",
+                "sigma",
+                "q",
             ]
-            print(f"  Sample:")
+            print("  Sample:")
             print(options_df[sample_cols].head(3).to_string(index=False))
