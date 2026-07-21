@@ -1,4 +1,14 @@
-Black-Scholes completed in: 23.61 seconds
-CRR Binomial Tree completed in: 234.93 seconds
-Monte Carlo completed in: 9298.95 seconds
+          Method   Option_Type   Time_s
+1  Black-Scholes American Call    5.095
+2  Black-Scholes  American Put   10.383
+3  Black-Scholes European Call    0.003
+4  Black-Scholes  European Put    0.003
+5   CRR Binomial American Call   91.444
+6   CRR Binomial  American Put   81.467
+7   CRR Binomial European Call    3.099
+8   CRR Binomial  European Put    4.102
+9    Monte Carlo American Call 4704.821
+10   Monte Carlo  American Put 4230.727
+11   Monte Carlo European Call    3.120
+12   Monte Carlo  European Put    3.978
 

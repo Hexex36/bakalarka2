@@ -433,9 +433,9 @@ composite_nflx_nvda
 ```
 
 ``` {r NFLX-call-time}
-df_moneyness <- df_time %>% filter(ticker == "NFLX" & call_put == "calls")
+df_moneyness <- df_raw %>% filter(ticker == "NFLX" & call_put == "calls")
 
-ggplot(df_moneyness, aes(x = K, y = T, color = ticker)) +
+ggplot(df_moneyness, aes(x = T, y = true_price, color = ticker)) +
   geom_point(alpha = 0.3, size = 0.5) +
   labs(x = "K", y = "Cena opce",
        color = "Ticker") +
@@ -443,9 +443,9 @@ ggplot(df_moneyness, aes(x = K, y = T, color = ticker)) +
 ```
 
 ``` {r NFLX-put-time}
-df_moneyness <- df_time %>% filter(ticker == "NFLX" & call_put == "puts")
+df_moneyness <- df_raw %>% filter(ticker == "NFLX" & call_put == "puts")
 
-ggplot(df_moneyness, aes(x = K, y = T, color = ticker)) +
+ggplot(df_moneyness, aes(x = T, y = true_price, color = ticker)) +
   geom_point(alpha = 0.3, size = 0.5) +
   labs(x = "K", y = "Cena opce",
        color = "Ticker") +
@@ -453,9 +453,9 @@ ggplot(df_moneyness, aes(x = K, y = T, color = ticker)) +
 ```
 
 ``` {r NVDA-call-time}
-df_moneyness <- df_time %>% filter(ticker == "NVDA" & call_put == "calls")
+df_moneyness <- df_raw %>% filter(ticker == "NVDA" & call_put == "calls")
 
-ggplot(df_moneyness, aes(x = K, y = T, color = ticker)) +
+ggplot(df_moneyness, aes(x = T, y = true_price, color = ticker)) +
   geom_point(alpha = 0.3, size = 0.5) +
   labs(x = "K", y = "Cena opce",
        color = "Ticker") +
@@ -463,9 +463,9 @@ ggplot(df_moneyness, aes(x = K, y = T, color = ticker)) +
 ```
 
 ``` {r NVDA-put-time}
-df_moneyness <- df_time %>% filter(ticker == "NVDA" & call_put == "puts")
+df_moneyness <- df_raw %>% filter(ticker == "NVDA" & call_put == "puts")
 
-ggplot(df_moneyness, aes(x = K, y = T, color = ticker)) +
+ggplot(df_moneyness, aes(x = T, y = true_price, color = ticker)) +
   geom_point(alpha = 0.3, size = 0.5) +
   labs(x = "K", y = "Cena opce",
        color = "Ticker") +
@@ -544,6 +544,39 @@ df %>%
   facet_wrap(~ticker, nrow = 3, ncol = 2, scales = "free") +
   labs(x = "Black-Scholes price", y = "Market price") +
   theme_minimal()
+```
+
+``` {r}
+df_more <- df_doctored |>
+  mutate(pricing_error = (user_bs - true_price)/S) #|>
+  #filter(am_eu == "european" & ticker != "^RUT")
+```
+
+``` {r}
+query_res <- df_more |> slice_max(pricing_error, n = 50) |> select(ticker, S, K, am_eu, call_put, true_price, sigma, q, T, user_bs, SK_ratio)
+print(query_res, n = 50)
+```
+
+``` {r}
+ggplot(df_more, aes(x = K, y = pricing_error, color = ticker)) +
+  geom_point(alpha = 0.5)
+```
+
+``` {r}
+df_more |>
+  group_by(ticker) |>
+  summarise(
+    min    = min(pricing_error, na.rm = TRUE),
+    q1     = quantile(pricing_error, 0.25, na.rm = TRUE),
+    median = median(pricing_error, na.rm = TRUE),
+    q3     = quantile(pricing_error, 0.75, na.rm = TRUE),
+    max    = max(pricing_error, na.rm = TRUE)
+  )
+```
+
+``` {r}
+nrow(df_more |> filter(ticker != "^RUT"))
+nrow(df_more |> filter(ticker == "^RUT"))
 ```
 
 # Korelace metod ocenění

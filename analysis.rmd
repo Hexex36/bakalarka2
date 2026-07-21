@@ -465,75 +465,106 @@ mc_american_put <- function(S, K, T, sigma, r, q = 0) {
 ``` {r population}
 library(furrr)
 
-# Black-Scholes (vectorized - fast)
-t_bs <- system.time({
+# --- Black-Scholes (vectorized) ---
+cat("Black-Scholes: starting...\n")
+
+t_am_call_bs <- system.time({
   usa_call_chains <- usa_call_chains %>%
     mutate(user_bs = v_bs_american_call(S, K, r, sigma, T, q))
-  
+})
+cat("  BS American Call done:", round(t_am_call_bs["elapsed"], 2), "s\n")
+
+t_am_put_bs <- system.time({
   usa_put_chains <- usa_put_chains %>%
     mutate(user_bs = v_bs_american_put(S, K, r, sigma, T, q))
-  
+})
+cat("  BS American Put done:", round(t_am_put_bs["elapsed"], 2), "s\n")
+
+t_eu_call_bs <- system.time({
   euro_call_chains <- euro_call_chains %>%
     mutate(user_bs = bs_european_call(S, K, r, sigma, T, q))
-  
+})
+cat("  BS European Call done:", round(t_eu_call_bs["elapsed"], 2), "s\n")
+
+t_eu_put_bs <- system.time({
   euro_put_chains <- euro_put_chains %>%
     mutate(user_bs = bs_european_put(S, K, r, sigma, T, q))
 })
+cat("  BS European Put done:", round(t_eu_put_bs["elapsed"], 2), "s\n")
 
-cat("Black-Scholes completed in:", round(t_bs["elapsed"], 2), "seconds\n")
+# --- CRR Binomial Tree ---
+cat("CRR Binomial Tree: starting...\n")
 
-# CRR Binomial Tree (parallelized across options)
-t_crr <- system.time({
+t_am_call_crr <- system.time({
   usa_call_chains <- usa_call_chains %>%
     mutate(user_crr = future_map_dbl(
       row_number(),
       ~ if (T[.x] <= 0) max(S[.x] - K[.x], 0) else CRRBinomialTreeOption(TypeFlag = "ca", S = S[.x], X = K[.x], Time = T[.x], r = r[.x], b = r[.x] - q[.x], sigma = sigma[.x], n = 100)@price
     ))
-  
+})
+cat("  CRR American Call done:", round(t_am_call_crr["elapsed"], 2), "s\n")
+
+t_am_put_crr <- system.time({
   usa_put_chains <- usa_put_chains %>%
     mutate(user_crr = future_map_dbl(
       row_number(),
       ~ if (T[.x] <= 0) max(K[.x] - S[.x], 0) else CRRBinomialTreeOption(TypeFlag = "pa", S = S[.x], X = K[.x], Time = T[.x], r = r[.x], b = r[.x] - q[.x], sigma = sigma[.x], n = 100)@price
     ))
-  
+})
+cat("  CRR American Put done:", round(t_am_put_crr["elapsed"], 2), "s\n")
+
+t_eu_call_crr <- system.time({
   euro_call_chains <- euro_call_chains %>%
     mutate(user_crr = future_map_dbl(
       row_number(),
       ~ if (T[.x] <= 0) max(S[.x] - K[.x], 0) else CRRBinomialTreeOption(TypeFlag = "ce", S = S[.x], X = K[.x], Time = T[.x], r = r[.x], b = r[.x] - q[.x], sigma = sigma[.x], n = 100)@price
     ))
-  
+})
+cat("  CRR European Call done:", round(t_eu_call_crr["elapsed"], 2), "s\n")
+
+t_eu_put_crr <- system.time({
   euro_put_chains <- euro_put_chains %>%
     mutate(user_crr = future_map_dbl(
       row_number(),
       ~ if (T[.x] <= 0) max(K[.x] - S[.x], 0) else CRRBinomialTreeOption(TypeFlag = "pe", S = S[.x], X = K[.x], Time = T[.x], r = r[.x], b = r[.x] - q[.x], sigma = sigma[.x], n = 100)@price
     ))
 })
+cat("  CRR European Put done:", round(t_eu_put_crr["elapsed"], 2), "s\n")
 
-cat("CRR Binomial Tree completed in:", round(t_crr["elapsed"], 2), "seconds\n")
+# --- Monte Carlo (25k simulations) ---
+cat("Monte Carlo: starting...\n")
 
-# Monte Carlo (parallelized across options, 25k simulations)
-t_mc <- system.time({
+t_am_call_mc <- system.time({
   usa_call_chains <- usa_call_chains %>%
     mutate(user_mc = future_map_dbl(
       row_number(),
       ~ mc_american_call(S[.x], K[.x], T[.x], sigma[.x], r[.x], q[.x]),
       .options = furrr_options(seed = TRUE)
     ))
-  
+})
+cat("  MC American Call done:", round(t_am_call_mc["elapsed"], 2), "s\n")
+
+t_am_put_mc <- system.time({
   usa_put_chains <- usa_put_chains %>%
     mutate(user_mc = future_map_dbl(
       row_number(),
       ~ mc_american_put(S[.x], K[.x], T[.x], sigma[.x], r[.x], q[.x]),
       .options = furrr_options(seed = TRUE)
     ))
-  
+})
+cat("  MC American Put done:", round(t_am_put_mc["elapsed"], 2), "s\n")
+
+t_eu_call_mc <- system.time({
   euro_call_chains <- euro_call_chains %>%
     mutate(user_mc = future_map_dbl(
       row_number(),
       ~ mc_european_call(S[.x], K[.x], T[.x], sigma[.x], r[.x], q[.x]),
       .options = furrr_options(seed = TRUE)
     ))
-  
+})
+cat("  MC European Call done:", round(t_eu_call_mc["elapsed"], 2), "s\n")
+
+t_eu_put_mc <- system.time({
   euro_put_chains <- euro_put_chains %>%
     mutate(user_mc = future_map_dbl(
       row_number(),
@@ -541,31 +572,40 @@ t_mc <- system.time({
       .options = furrr_options(seed = TRUE)
     ))
 })
+cat("  MC European Put done:", round(t_eu_put_mc["elapsed"], 2), "s\n")
 
-cat("Monte Carlo completed in:", round(t_mc["elapsed"], 2), "seconds\n")
-```
-
-```{r timing-summary}
-n_call_options <- nrow(usa_call_chains)
-n_put_options <- nrow(usa_put_chains)
-n_total <- n_call_options + n_put_options
-
-timing_summary <- data.frame(
-  Method = c("Black-Scholes (American)", "CRR Binomial (n=100)", "Monte Carlo (25k sims)"),
-  Total_Time_s = c(t_bs["elapsed"], t_crr["elapsed"], t_mc["elapsed"]),
-  Avg_Time_Per_Option_s = c(
-    t_bs["elapsed"] / n_total,
-    t_crr["elapsed"] / n_total,
-    t_mc["elapsed"] / n_total
-  ),
-  Options_Per_Second = c(
-    n_total / t_bs["elapsed"],
-    n_total / t_crr["elapsed"],
-    n_total / t_mc["elapsed"]
+# --- Composite timing data frame ---
+timing_times <- data.frame(
+  Method = rep(c("Black-Scholes", "CRR Binomial", "Monte Carlo"), each = 4),
+  Option_Type = rep(c("American Call", "American Put", "European Call", "European Put"), times = 3),
+  Time_s = c(
+    t_am_call_bs["elapsed"], t_am_put_bs["elapsed"], t_eu_call_bs["elapsed"], t_eu_put_bs["elapsed"],
+    t_am_call_crr["elapsed"], t_am_put_crr["elapsed"], t_eu_call_crr["elapsed"], t_eu_put_crr["elapsed"],
+    t_am_call_mc["elapsed"], t_am_put_mc["elapsed"], t_eu_call_mc["elapsed"], t_eu_put_mc["elapsed"]
   )
 )
 
-knitr::kable(timing_summary, digits = 4, caption = "Computation Time Comparison")
+cat("\nAll pricing complete.\n")
+print(timing_times)
+```
+
+```{r timing-summary}
+timing_summary <- timing_times %>%
+  group_by(Method) %>%
+  summarise(
+    Total_Time_s = sum(Time_s),
+    .groups = "drop"
+  )
+
+n_total <- nrow(usa_call_chains) + nrow(usa_put_chains) + nrow(euro_call_chains) + nrow(euro_put_chains)
+
+timing_summary <- timing_summary %>%
+  mutate(
+    Avg_Time_Per_Option_s = Total_Time_s / n_total,
+    Options_Per_Second = n_total / Total_Time_s
+  )
+
+knitr::kable(timing_summary, digits = 4, caption = "Computation Time Comparison (total across all option types)")
 ```
 
 ```{r save-results}
@@ -581,252 +621,6 @@ cat("  american_calls.csv:", nrow(usa_call_chains), "rows\n")
 cat("  american_puts.csv:", nrow(usa_put_chains), "rows\n")
 cat("  european_calls.csv:", nrow(euro_call_chains), "rows\n")
 cat("  european_puts.csv:", nrow(euro_put_chains), "rows\n")
-```
-
-# Benchmark on 100 Options per Variant
-
-```{r benchmark-100}
-set.seed(42)
-
-# Sample 100 options from each variant
-sample_size <- 100
-bench_am_call <- usa_call_chains[sample(nrow(usa_call_chains), sample_size), ]
-bench_am_put <- usa_put_chains[sample(nrow(usa_put_chains), sample_size), ]
-bench_eu_call <- euro_call_chains[sample(nrow(euro_call_chains), sample_size), ]
-bench_eu_put <- euro_put_chains[sample(nrow(euro_put_chains), sample_size), ]
-
-cat("Benchmark sample sizes:\n")
-cat("  American Calls:", nrow(bench_am_call), "\n")
-cat("  American Puts:", nrow(bench_am_put), "\n")
-cat("  European Calls:", nrow(bench_eu_call), "\n")
-cat("  European Puts:", nrow(bench_eu_put), "\n\n")
-
-# American Calls
-cat("=== American Call Options (100 options) ===\n")
-
-t_bs_am_call <- system.time({
-  bench_am_call <- bench_am_call %>%
-    mutate(user_bs = v_bs_american_call(S, K, r, sigma, T, q))
-})
-cat("  Black-Scholes:", round(t_bs_am_call["elapsed"], 4), "s\n")
-
-t_crr_am_call <- system.time({
-  bench_am_call <- bench_am_call %>%
-    mutate(user_crr = future_map_dbl(
-      row_number(),
-      ~ CRRBinomialTreeOption(TypeFlag = "ca", S = S[.x], X = K[.x], Time = T[.x], r = r[.x], b = r[.x], sigma = sigma[.x], n = 100)@price
-    ))
-})
-cat("  CRR Binomial:", round(t_crr_am_call["elapsed"], 4), "s\n")
-
-t_mc_am_call <- system.time({
-  bench_am_call <- bench_am_call %>%
-    mutate(user_mc = future_map_dbl(
-      row_number(),
-      ~ mc_american_call(S[.x], K[.x], T[.x], sigma[.x], r[.x], q[.x]),
-      .options = furrr_options(seed = TRUE)
-    ))
-})
-cat("  Monte Carlo:", round(t_mc_am_call["elapsed"], 4), "s\n\n")
-
-# American Puts
-cat("=== American Put Options (100 options) ===\n")
-
-t_bs_am_put <- system.time({
-  bench_am_put <- bench_am_put %>%
-    mutate(user_bs = v_bs_american_put(S, K, r, sigma, T, q))
-})
-cat("  Black-Scholes:", round(t_bs_am_put["elapsed"], 4), "s\n")
-
-t_crr_am_put <- system.time({
-  bench_am_put <- bench_am_put %>%
-    mutate(user_crr = future_map_dbl(
-      row_number(),
-      ~ CRRBinomialTreeOption(TypeFlag = "pa", S = S[.x], X = K[.x], Time = T[.x], r = r[.x], b = r[.x], sigma = sigma[.x], n = 100)@price
-    ))
-})
-cat("  CRR Binomial:", round(t_crr_am_put["elapsed"], 4), "s\n")
-
-t_mc_am_put <- system.time({
-  bench_am_put <- bench_am_put %>%
-    mutate(user_mc = future_map_dbl(
-      row_number(),
-      ~ mc_american_put(S[.x], K[.x], T[.x], sigma[.x], r[.x], q[.x]),
-      .options = furrr_options(seed = TRUE)
-    ))
-})
-cat("  Monte Carlo:", round(t_mc_am_put["elapsed"], 4), "s\n\n")
-
-# European Calls
-cat("=== European Call Options (100 options) ===\n")
-
-t_bs_eu_call <- system.time({
-  bench_eu_call <- bench_eu_call %>%
-    mutate(user_bs = bs_european_call(S, K, r, sigma, T))
-})
-cat("  Black-Scholes:", round(t_bs_eu_call["elapsed"], 4), "s\n")
-
-t_crr_eu_call <- system.time({
-  bench_eu_call <- bench_eu_call %>%
-    mutate(user_crr = future_map_dbl(
-      row_number(),
-      ~ CRRBinomialTreeOption(TypeFlag = "ce", S = S[.x], X = K[.x], Time = T[.x], r = r[.x], b = r[.x], sigma = sigma[.x], n = 100)@price
-    ))
-})
-cat("  CRR Binomial:", round(t_crr_eu_call["elapsed"], 4), "s\n")
-
-t_mc_eu_call <- system.time({
-  bench_eu_call <- bench_eu_call %>%
-    mutate(user_mc = future_map_dbl(
-      row_number(),
-      ~ mc_european_call(S[.x], K[.x], T[.x], sigma[.x], r[.x], q[.x]),
-      .options = furrr_options(seed = TRUE)
-    ))
-})
-cat("  Monte Carlo:", round(t_mc_eu_call["elapsed"], 4), "s\n\n")
-
-# European Puts
-cat("=== European Put Options (100 options) ===\n")
-
-t_bs_eu_put <- system.time({
-  bench_eu_put <- bench_eu_put %>%
-    mutate(user_bs = bs_european_put(S, K, r, sigma, T))
-})
-cat("  Black-Scholes:", round(t_bs_eu_put["elapsed"], 4), "s\n")
-
-t_crr_eu_put <- system.time({
-  bench_eu_put <- bench_eu_put %>%
-    mutate(user_crr = future_map_dbl(
-      row_number(),
-      ~ CRRBinomialTreeOption(TypeFlag = "pe", S = S[.x], X = K[.x], Time = T[.x], r = r[.x], b = r[.x], sigma = sigma[.x], n = 100)@price
-    ))
-})
-cat("  CRR Binomial:", round(t_crr_eu_put["elapsed"], 4), "s\n")
-
-t_mc_eu_put <- system.time({
-  bench_eu_put <- bench_eu_put %>%
-    mutate(user_mc = future_map_dbl(
-      row_number(),
-      ~ mc_european_put(S[.x], K[.x], T[.x], sigma[.x], r[.x], q[.x]),
-      .options = furrr_options(seed = TRUE)
-    ))
-})
-cat("  Monte Carlo:", round(t_mc_eu_put["elapsed"], 4), "s\n")
-```
-
-```{r benchmark-100-summary}
-benchmark_100 <- data.frame(
-  Variant = rep(c("American Call", "American Put", "European Call", "European Put"), each = 3),
-  Method = rep(c("Black-Scholes", "CRR Binomial (n=100)", "Monte Carlo (25k sims)"), times = 4),
-  Total_Time_s = c(
-    t_bs_am_call["elapsed"], t_crr_am_call["elapsed"], t_mc_am_call["elapsed"],
-    t_bs_am_put["elapsed"], t_crr_am_put["elapsed"], t_mc_am_put["elapsed"],
-    t_bs_eu_call["elapsed"], t_crr_eu_call["elapsed"], t_mc_eu_call["elapsed"],
-    t_bs_eu_put["elapsed"], t_crr_eu_put["elapsed"], t_mc_eu_put["elapsed"]
-  ),
-  Avg_Time_Per_Option_s = c(
-    t_bs_am_call["elapsed"] / sample_size, t_crr_am_call["elapsed"] / sample_size, t_mc_am_call["elapsed"] / sample_size,
-    t_bs_am_put["elapsed"] / sample_size, t_crr_am_put["elapsed"] / sample_size, t_mc_am_put["elapsed"] / sample_size,
-    t_bs_eu_call["elapsed"] / sample_size, t_crr_eu_call["elapsed"] / sample_size, t_mc_eu_call["elapsed"] / sample_size,
-    t_bs_eu_put["elapsed"] / sample_size, t_crr_eu_put["elapsed"] / sample_size, t_mc_eu_put["elapsed"] / sample_size
-  ),
-  Options_Per_Second = c(
-    sample_size / t_bs_am_call["elapsed"], sample_size / t_crr_am_call["elapsed"], sample_size / t_mc_am_call["elapsed"],
-    sample_size / t_bs_am_put["elapsed"], sample_size / t_crr_am_put["elapsed"], sample_size / t_mc_am_put["elapsed"],
-    sample_size / t_bs_eu_call["elapsed"], sample_size / t_crr_eu_call["elapsed"], sample_size / t_mc_eu_call["elapsed"],
-    sample_size / t_bs_eu_put["elapsed"], sample_size / t_crr_eu_put["elapsed"], sample_size / t_mc_eu_put["elapsed"]
-  )
-)
-
-knitr::kable(benchmark_100, digits = 4, caption = "Benchmark: 100 Options per Variant")
-```
-
-```{r validation-plot}
-library(ggplot2)
-library(tidyr)
-
-# Reshape to long format for easier plotting
-plot_data <- usa_call_chains %>%
-  select(option_price, user_bs, user_crr) %>%
-  pivot_longer(
-    cols = c(user_bs, user_crr),
-    names_to = "method",
-    values_to = "calculated_price"
-  )
-
-# Scatter plot with 45-degree reference line
-ggplot(plot_data, aes(x = option_price, y = calculated_price, color = method)) +
-  geom_point() +
-  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray50") +
-  facet_wrap(~method) +
-  labs(
-    x = "Actual Market Price",
-    y = "Calculated Price",
-    title = "Model Prices vs Market Prices"
-  ) +
-  coord_equal() +
-  theme_minimal()
-```
-
-```{r contour-plot}
-# Prepare data for contour plot
-contour_data <- usa_call_chains %>%
-  ungroup() %>%
-  mutate(moneyness = S / K) %>%
-  select(moneyness, T, option_price, user_bs, user_crr) %>%
-  pivot_longer(
-    cols = c(user_bs, user_crr),
-    names_to = "method",
-    values_to = "calculated_price"
-  ) %>%
-  mutate(pricing_error = option_price - calculated_price)
-
-# Contour plot: Moneyness (S/K) vs Time to Expiration (T)
-# Contours show pricing error (actual - calculated)
-#newplot()
-ggplot(contour_data, aes(x = moneyness, y = T, z = pricing_error)) +
-  geom_contour_filled(aes(fill = after_stat(level)), bins = 20) +
-  facet_wrap(~method, nrow = 2) +
-  scale_fill_viridis_d(name = "Pricing Error\n(Market - Model)") +
-  labs(
-    x = "Moneyness (S/K)",
-    y = "Time to Expiration (T)",
-    title = "Pricing Error Contour Plot - TSLA Call Options",
-    subtitle = "Blue = Model overprices, Red = Model underprices"
-  ) +
-  theme_minimal() +
-  theme(legend.position = "right")
-#saveplot()
-```
-
-``` {r output}
-write_csv(usa_call_chains, "././calculated_prices.csv")
-```
-
-# Analysis of Calculated Prices
-
-## Method Comparison by Regime
-
-```{r method-comparison-regime}
-
-```
-
-## Volatility Sensitivity Curves
-
-```{r volatility-sensitivity}
-
-```
-
-## Time Decay Analysis
-
-```{r time-decay-analysis}
-
-```
-
-## Method Agreement Scatter
-
-```{r method-agreement-scatter}
-
 ```
 
 

@@ -1,0 +1,184 @@
+---
+output:
+  pdf_document:
+    keep_tex: true
+  html_document:
+    toc: true
+---
+
+``` {r libraries}
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(knitr)
+library(kableExtra)
+```
+
+``` {r data-load, include=FALSE}
+load_prices <- function(path, am_eu, call_put) {
+  read_csv(path) %>%
+    mutate(am_eu = am_eu, call_put = call_put)
+}
+
+df_raw <- bind_rows(
+  load_prices("../calculated_prices/american_calls.csv", "american", "calls"),
+  load_prices("../calculated_prices/american_puts.csv", "american", "puts"),
+  load_prices("../calculated_prices/european_calls.csv", "european", "calls"),
+  load_prices("../calculated_prices/european_puts.csv", "european", "puts")
+) %>%
+  rename(true_price = option_price) %>%
+  mutate(
+    moneyness_regime = case_when(
+      call_put == "calls" & S / K < 0.95 ~ "OTM",
+      call_put == "calls" & S / K <= 1.05 ~ "ATM",
+      call_put == "calls" ~ "ITM",
+      call_put == "puts" & S / K < 0.95 ~ "ITM",
+      call_put == "puts" & S / K <= 1.05 ~ "ATM",
+      call_put == "puts" ~ "OTM"
+    ),
+    time_regime = case_when(
+      T <= 0.1 ~ "Short",
+      T <= 0.5 ~ "Medium",
+      TRUE ~ "Long"
+    )
+  ) %>%
+  mutate(pricing_error = (true_price - user_bs)/true_price) %>%
+  mutate(option_id = paste0(ticker,
+    format(expiration, "%y%m%d"),
+    substr(call_put, 1, 1),
+    K))
+
+df <- df_raw
+
+df$SK_ratio <- df$S / df$K
+```
+
+``` {r doctoring}
+df_doctored <- df %>%
+  filter((ticker != "NFLX" | call_put != "calls") | (K < 266 & true_price < 400)) %>%
+  filter((ticker != "NVDA" | call_put != "calls") | (K < 500 & true_price < 300)) %>%
+  filter((ticker != "NFLX" | call_put != "puts") | (K < 266 & (K < 100 | true_price > 10))) %>%
+  filter((ticker != "NVDA" | call_put != "puts") | (K < 500 & (K < 300 | true_price > 100)))
+
+df <- df_doctored
+```
+
+# Analýza chyb
+
+## Absolutní
+
+``` {r}
+df_more <- df_doctored |>
+  mutate(pricing_error = user_bs - true_price) #|>
+  #filter(am_eu == "european" & ticker != "^RUT")
+```
+
+``` {r}
+ggplot(
+  df_more |> filter(am_eu == "american"),
+  aes(x = K, y = pricing_error, color = ticker)
+) +
+  geom_point(alpha = 0.5) +
+  labs(x = "Cena opce v realitě", y = "Odchylka od reality")
+```
+
+``` {r}
+ggplot(
+  df_more |> filter(am_eu != "american"),
+  aes(x = K, y = pricing_error, color = ticker)
+) +
+  geom_point(alpha = 0.5) +
+  labs(x = "Cena opce v realitě", y = "Odchylka od reality")
+```
+
+Lze vidět, že velké extrémy jsou tvořeny primárně titulem `^RUT`. Pro americké opce nicméně také existují velké chyby.
+
+``` {r}
+df_more |>
+  group_by(ticker) |>
+  summarise(
+    min    = min(pricing_error, na.rm = TRUE),
+    q1     = quantile(pricing_error, 0.25, na.rm = TRUE),
+    median = median(pricing_error, na.rm = TRUE),
+    q3     = quantile(pricing_error, 0.75, na.rm = TRUE),
+    max    = max(pricing_error, na.rm = TRUE)
+  )
+```
+
+Maximální pozitivní odchylka (odhad větší než realita) se u amerických opcí pohybuje kolem 50, zatímco u evropskcýh kolem 5. Pozitivní odchylku vyšší než 100 pozorujeme u AAPL, AMD, GOOGL, META, MSFT, TSLA, a u ^RUT, kde je rozdíl větší než 900.
+
+Maximální negativní odchylky (odhad menší než realita) se u amerických opcí pohybuje kolem -50 až -60 a u evropských opcí se tyto hodnoty vyskytují kolem -6. Hodnoty větší než 100 se nacházejí u AAPL, AMD, GOOGL, META, MSFT a TSLA, a u ^RUT, který je opět odchýlen o necelých 1000 USD.   
+
+``` {r}
+ggplot(
+  df_more |> filter(ticker == "^RUT"),
+  aes(x = K, y = pricing_error, color = call_put)
+) +
+  geom_point(alpha = 0.5) +
+  labs(x = "Realizační cena", y = "Odchylka od reality")
+```
+
+V grafu lze vidět, že pro call opce s vyšším `K` se nepřesnost zmenšuje, a pro put opce se naopak s rostoucím `K` zvětšuje. Toto je konzistentní s rostoucí nepřesností pro vyšší hodnoty opce.
+
+``` {r}
+ggplot(
+  df_more |> filter(ticker == "^RUT"),
+  aes(x = true_price, y = pricing_error, color = call_put)
+) +
+  geom_point(alpha = 0.5) +
+  labs(x = "Cena opce v realitě", y = "Odchylka od reality")
+```
+
+``` {r}
+ggplot(
+  df_more |> filter(ticker == "^RUT"),
+  aes(x = user_bs, y = pricing_error, color = call_put)
+) +
+  geom_point(alpha = 0.5) +
+  labs(x = "Cena opce odhadnutá modelem", y = "Odchylka od reality")
+```
+
+Nepřesnost evidentně roste pro put opce u vyšší pravé ceny opce, u call opce stejný závěr jistě udělat nelze. Stejně tak lze vidět evidentní růst nepřesnosti při větší ceně odhadu pro call opce, ale pro put opce toto říct nelze, možná by se dal i tvrdit opak.
+
+Pravděpodobně by bylo na místě vyřadit titul `^RUT`, nicméně, tento titul obsahuje většinu opcí.
+
+``` {r}
+nrow(df_more |> filter(ticker != "^RUT"))
+nrow(df_more |> filter(ticker == "^RUT"))
+```
+
+Alternativě by se asi daly vyloučit opce s odchylkou 200+, nicméně to mi přijde jako moc velké přizpůsobování si dat svým potřebám.
+
+## Relativní
+
+``` {r}
+df_more <- df_doctored |>
+  mutate(pricing_error = (user_bs - true_price)/S) #|>
+  #filter(am_eu == "european" & ticker != "^RUT")
+```
+
+``` {r}
+ggplot(df_more, aes(x = K, y = pricing_error, color = ticker)) +
+  geom_point(alpha = 0.5)
+```
+
+``` {r}
+df_more |>
+  group_by(ticker) |>
+  summarise(
+    min    = min(pricing_error, na.rm = TRUE),
+    q1     = quantile(pricing_error, 0.25, na.rm = TRUE),
+    median = median(pricing_error, na.rm = TRUE),
+    q3     = quantile(pricing_error, 0.75, na.rm = TRUE),
+    max    = max(pricing_error, na.rm = TRUE)
+  )
+```
+
+Co se týče relativní chyby, `^RUT` nevypadá tak špatně, má lepší odchylky než `^VIX` ve stejné kategorii. 
+
+``` {r}
+nrow(df_more |> filter(ticker != "^RUT"))
+nrow(df_more |> filter(ticker == "^RUT"))
+```
+

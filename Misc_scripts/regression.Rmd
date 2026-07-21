@@ -103,7 +103,7 @@ test_data_abs <- df_absolute_temp[-train_indexes, ]
 ``` {r basic_model_abs}
 subset_args <- c(
   "S",
-  "moneyness"
+  "moneyness",
   "K",
   "r",
   "sigma",
@@ -271,81 +271,6 @@ absolute_hexes <- ggplot(train_data_abs, aes(x = predicted_error, y = pricing_er
 absolute_hexes
 ```
 
-
-### LMER model - optimalizovaný na mezní R2
-
-``` {r repeated_measure_abs}
-subset_args <- c(
-  "S",
-  "moneyness",
-  "K",
-  "r",
-  "sigma",
-  #"q",
-  "T",
-  #"am_eu",
-  "call_put"
-  #"model"
-  #"ticker",
-)
-interactions <- c(
-  "q:am_eu",
-  #"(1 | option_id)",
-  "(1 | ticker)"
-  "(1 | snapshot_month)",
-)
-
-rhs <- paste(c(subset_args, interactions), collapse = " + ")
-formula <- as.formula(paste("pricing_error ~ ", rhs))
-
-rmr_absolute <- lmer(formula, data = train_data_abs)
-```
-
-Náhodný efekt `(1 | ticker)` již částečně absorbuje autokorelací mezi opcemi stejného podkladového aktiva.
-
-``` {r rmr_abs_summary}
-summary(rmr_absolute)
-```
-
-``` {r}
-r2(rmr_absolute)
-```
-
-``` {r rmr_abs_robust, eval=FALSE, include=FALSE}
-# Cluster-robust standardní chyby (CR2) – oprava heteroskedasticity
-coef_test(rmr_absolute, vcov = "CR2", cluster = train_data$ticker)
-```
-
-``` {r rmr_abs_bias}
-absolute_bias_plot <- plot_model(rmr_absolute, type = "est", show.values = TRUE, value.offset = .4) +
-  theme_minimal() +
-  labs(title = "Systematic Biases in Option Pricing Models")
-
-ggsave("~/Praxe/bakalarka/figures/absolute_bias.png", absolute_bias_plot, width = 6, height = 4)
-
-absolute_bias_plot
-```
-
-``` {r rmr_abs_predict}
-train_data_abs$predicted_error <- predict(rmr_absolute)
-
-absolute_hexes <- ggplot(train_data_abs, aes(x = predicted_error, y = pricing_error)) +
-  geom_hex(bins = 70) +
-  scale_fill_viridis_c(option = "plasma") + # Cool modern color palette
-  geom_abline(slope = 1, intercept = 0, color = "white", linetype = "dashed", size = 1) +
-  theme_minimal() +
-  labs(
-    title = "Model Fit: Actual vs. Predicted Pricing Errors",
-    x = "Predicted Error (Regression Model)",
-    y = "Actual Error (Market - Option Model)",
-    fill = "Record Count"
-  )
-
-ggsave("~/Praxe/bakalarka/figures/absolute_hexes.png", absolute_hexes, width = 6, height = 4)
-
-absolute_hexes
-```
-
 ## Relativní
 
 ``` {r}
@@ -355,7 +280,8 @@ df_relative <- df_doctored %>%
                values_to = "model_price") %>%
   #filter(model == "user_crr") %>%
   mutate(pricing_error_test = (true_price - model_price) / true_price) %>%
-  mutate(pricing_error = 2 * (true_price - model_price) / (true_price + model_price)) %>%
+  #mutate(pricing_error = 2 * (true_price - model_price) / (true_price + model_price)) %>%
+  mutate(pricing_error = (true_price - model_price) / S) %>%
   filter(is.finite(pricing_error)) %>%
   mutate(snapshot_date = as.Date(expiration) - round(T * 365)) %>%
   mutate(snapshot_month = format(snapshot_date, "%m"))
@@ -484,7 +410,7 @@ vif(regression_relative, type = "predictor")
 ``` {r repeated_measure_rel_base}
 subset_args <- c(
   "S",
-  "moneyness"
+  "moneyness",
   "K",
   "r",
   "sigma",
@@ -555,82 +481,3 @@ relative_hexes <- ggplot(train_data_rel, aes(x = predicted_error, y = pricing_er
 relative_hexes
 ```
 
-### LMER model - optimalizovaný na R2
-
-``` {r repeated_measure_rel}
-subset_args <- c(
-  "S",
-  "K",
-  "r",
-  "sigma",
-  "q",
-  "T",
-  #"am_eu",
-  "call_put"
-  #"model"
-  #"ticker",
-  )
-interactions <- c(
-  #"q:am_eu",
-  #"(1 | option_id)",
-  "(1 | ticker)",
-  "(1 | snapshot_month)"
-)
-
-rhs <- paste(c(subset_args, interactions), collapse = " + ")
-formula <- as.formula(paste("pricing_error ~ ", rhs))
-
-rmr_relative <- lmer(formula, data = train_data_rel)
-```
-
-``` {r reg-plot, eval=FALSE, include=FALSE}
-ggplot(df_relative_temp, aes(x = T, y = pricing_error, color = model)) +
-  geom_point(alpha = 0.15, size = 0.3) +
-  geom_smooth(method = "lm", se = FALSE, linewidth = 0.8) +
-  labs(x = "Strike price (K)", y = "Relative pricing error",
-       color = "Model") +
-  theme_minimal()
-```
-
-``` {r}
-summary(rmr_relative)
-```
-
-``` {r}
-r2(rmr_relative)
-```
-
-``` {r rmr_rel_robust, eval=FALSE, include=FALSE}
-# Cluster-robust standardní chyby (CR2) – oprava heteroskedasticity
-coef_test(rmr_relative, vcov = "CR2", cluster = train_data$ticker)
-```
-
-``` {r}
-relative_bias_plot <- plot_model(rmr_relative, type = "est", show.values = TRUE, value.offset = .4) +
-  theme_minimal() +
-  labs(title = "Systematic Biases in Option Pricing Models")
-
-ggsave("~/Praxe/bakalarka/figures/relative_bias.png", relative_bias_plot, width = 6, height = 4)
-
-relative_bias_plot
-```
-
-``` {r rmr_rel_predict}
-train_data_rel$predicted_error <- predict(rmr_relative)
-
-relative_hexes <- ggplot(train_data_rel, aes(x = predicted_error, y = pricing_error)) +
-  geom_hex(bins = 70) +
-  scale_fill_viridis_c(option = "plasma") + # Cool modern color palette
-  geom_abline(slope = 1, intercept = 0, color = "white", linetype = "dashed", size = 1) +
-  theme_minimal() +
-  labs(
-    title = "Model Fit: Actual vs. Predicted Pricing Errors",
-    x = "Predicted Error (Regression Model)",
-    y = "Actual Error (Market - Option Model)",
-    fill = "Record Count"
-  )
-
-ggsave("~/Praxe/bakalarka/figures/relative_predict.png", relative_hexes, width = 6, height = 4)
-
-relative_hexes
-```
