@@ -1,0 +1,876 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\documentclass[
+]{article}
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
+% Set default figure placement to htbp
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={Regresní analýza},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Regresní analýza}
+\author{}
+\date{\vspace{-2.5em}}
+
+\begin{document}
+\maketitle
+
+\section{Základní data}\label{zuxe1kladnuxed-data}
+
+\emph{Základními daty myslím data s opravami v předchozích iteracích
+analýzy, čili oprava dat u titulů NFLX a NVDA.}
+
+\pandocbounded{\includegraphics[keepaspectratio]{regression2_files/regression2_files/figure-latex/histogram-basic-1.png}}
+
+Histogram počtu opcí s danými odchylkami od reality na ověření
+normálního rozdělení.
+
+\subsection{LMER model - základní}\label{lmer-model---zuxe1kladnuxed}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{subset\_args }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}
+  \StringTok{"S"}\NormalTok{,}
+  \StringTok{"moneyness"}\NormalTok{,}
+  \StringTok{"K"}\NormalTok{,}
+  \StringTok{"r"}\NormalTok{,}
+  \StringTok{"sigma"}\NormalTok{,}
+  \StringTok{"q"}\NormalTok{,}
+  \StringTok{"T"}\NormalTok{,}
+  \StringTok{"am\_eu"}\NormalTok{,}
+  \StringTok{"call\_put"}\NormalTok{,}
+  \StringTok{"model"}\NormalTok{,}
+  \StringTok{"ticker"}
+\NormalTok{)}
+\NormalTok{interactions }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}
+  \StringTok{"q:am\_eu"}\NormalTok{,}
+  \StringTok{"(1 | ticker)"}\NormalTok{,}
+  \StringTok{"(1 | snapshot\_month)"}
+\NormalTok{)}
+
+\NormalTok{rhs }\OtherTok{\textless{}{-}} \FunctionTok{paste}\NormalTok{(}\FunctionTok{c}\NormalTok{(subset\_args, interactions), }\AttributeTok{collapse =} \StringTok{" + "}\NormalTok{)}
+\NormalTok{formula }\OtherTok{\textless{}{-}} \FunctionTok{as.formula}\NormalTok{(}\FunctionTok{paste}\NormalTok{(}\StringTok{"pricing\_error \textasciitilde{} "}\NormalTok{, rhs))}
+
+\NormalTok{rmr\_relative }\OtherTok{\textless{}{-}} \FunctionTok{lmer}\NormalTok{(formula, }\AttributeTok{data =}\NormalTok{ train\_data\_rel)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## fixed-effect model matrix is rank deficient so dropping 2 columns / coefficients
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{summary}\NormalTok{(rmr\_relative)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Linear mixed model fit by REML ['lmerMod']
+## Formula: pricing_error ~ S + moneyness + K + r + sigma + q + T + am_eu +  
+##     call_put + model + ticker + q:am_eu + (1 | ticker) + (1 |  
+##     snapshot_month)
+##    Data: train_data_rel
+## 
+## REML criterion at convergence: -1128760
+## 
+## Scaled residuals: 
+##      Min       1Q   Median       3Q      Max 
+## -11.7599  -0.1024   0.1051   0.2849  10.6498 
+## 
+## Random effects:
+##  Groups         Name        Variance  Std.Dev. 
+##  ticker         (Intercept) 1.385e-04 0.0117694
+##  snapshot_month (Intercept) 6.298e-07 0.0007936
+##  Residual                   2.892e-03 0.0537730
+## Number of obs: 375362, groups:  ticker, 18; snapshot_month, 4
+## 
+## Fixed effects:
+##                 Estimate Std. Error t value
+## (Intercept)   -7.265e-02  1.235e-02  -5.884
+## S              1.479e-05  1.826e-06   8.099
+## moneyness     -4.186e-06  1.085e-05  -0.386
+## K             -2.254e-05  4.054e-07 -55.592
+## r              2.813e+00  8.569e-02  32.832
+## sigma         -5.614e-02  3.325e-03 -16.885
+## q             -1.288e+00  1.548e-01  -8.319
+## T              4.332e-03  1.264e-04  34.276
+## am_eueuropean  2.667e-03  1.724e-02   0.155
+## call_putputs  -1.661e-02  1.785e-04 -93.033
+## modeluser_crr -4.514e-05  2.151e-04  -0.210
+## modeluser_mc   1.689e-04  2.150e-04   0.786
+## ticker^VIX    -1.931e-02  1.791e-02  -1.078
+## ticker^XDA    -4.662e-02  1.832e-02  -2.544
+## ticker^XDB     8.185e-04  1.799e-02   0.046
+## ticker^XDE    -2.002e-02  1.764e-02  -1.135
+## ticker^XDN    -1.786e-02  1.783e-02  -1.002
+## tickerAAPL    -6.936e-03  1.669e-02  -0.416
+## tickerAMD      2.331e-03  1.665e-02   0.140
+## tickerAMZN    -3.285e-03  1.667e-02  -0.197
+## tickerGOOGL    7.275e-03  1.668e-02   0.436
+## tickerJNJ      2.443e-02  1.750e-02   1.396
+## tickerKO       2.489e-02  1.735e-02   1.434
+## tickerMETA     2.757e-04  1.667e-02   0.017
+## tickerMSFT    -7.633e-04  1.673e-02  -0.046
+## tickerNFLX    -1.719e-02  1.667e-02  -1.031
+## tickerNVDA     3.969e-03  1.666e-02   0.238
+## tickerPG       2.428e-02  1.722e-02   1.410
+\end{verbatim}
+
+\begin{verbatim}
+## 
+## Correlation matrix not shown by default, as p = 28 > 12.
+## Use print(x, correlation=TRUE)  or
+##     vcov(x)        if you need it
+\end{verbatim}
+
+\begin{verbatim}
+## fit warnings:
+## fixed-effect model matrix is rank deficient so dropping 2 columns / coefficients
+## Some predictor variables are on very different scales: consider rescaling. 
+## You may also use (g)lmerControl(autoscale = TRUE) to improve numerical stability.
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{r2}\NormalTok{(rmr\_relative)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: Can't compute random effect variances. Some variance components equal
+##   zero. Your model may suffer from singularity (see `?lme4::isSingular`
+##   and `?performance::check_singularity`).
+##   Decrease the `tolerance` level to force the calculation of random effect
+##   variances, or impose priors on your random effects parameters (using
+##   packages like `brms` or `glmmTMB`).
+\end{verbatim}
+
+\begin{verbatim}
+## Random effect variances not available. Returned R2 does not account for random effects.
+\end{verbatim}
+
+\begin{verbatim}
+## # R2 for Mixed Models
+## 
+##   Conditional R2: NA
+##      Marginal R2: 0.078
+\end{verbatim}
+
+Model je singulární. Toto je způsobeno:
+
+\begin{itemize}
+\tightlist
+\item
+  přítomností parametru \texttt{moneyness} (\(S/K\)) a parametrů \(S\) a
+  \(K\),
+\item
+  přítomností parametru \texttt{ticker} ve fixních efektech a náhodných
+  efektech.
+\end{itemize}
+
+Toto by neměl být problém pro model jako takový, ale znemožňuje to
+vypočítat podmíněné \(R^2\).
+
+\pandocbounded{\includegraphics[keepaspectratio]{regression2_files/regression2_files/figure-latex/unnamed-chunk-4-1.png}}
+
+Poměr \(S/K\), styl využití opce, použitý model a tituly jsou
+statisticky nevýznamné. Ostatní parametry jsou stasticky významné.
+
+\pandocbounded{\includegraphics[keepaspectratio]{regression2_files/regression2_files/figure-latex/rmr_rel_base_predict-1.png}}
+
+Samostatné clustery v levé části grafu jsou tvořeny opcemi na titul
+\^{}VIX.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{anova}\NormalTok{(rmr\_relative)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Analysis of Variance Table
+##           npar  Sum Sq Mean Sq   F value
+## S            1  0.0088  0.0088    3.0507
+## moneyness    1  0.3009  0.3009  104.0737
+## K            1  4.8301  4.8301 1670.4253
+## r            1  2.2843  2.2843  789.9817
+## sigma        1  0.9104  0.9104  314.8502
+## q            1  0.1754  0.1754   60.6659
+## T            1  3.2291  3.2291 1116.7489
+## am_eu        1  0.0218  0.0218    7.5559
+## call_put     1 25.0151 25.0151 8651.1409
+## model        2  0.0032  0.0016    0.5521
+## ticker      16  0.0579  0.0036    1.2521
+\end{verbatim}
+
+Vypsaná ANOVA na ověření významnosti dle F-hodnoty. ANOVA tvrdí, že
+model a tituly jsou statisticky nevýznamné, nicméně dle výstupu \(S\) by
+mělo být méně statisticky významné než \(S/K\) (a dokonce i méně
+významné než styl využití opce).
+
+\section{Vymazání odlehlých
+hodnot}\label{vymazuxe1nuxed-odlehluxfdch-hodnot}
+
+\subsection{Data před vymazáním}\label{data-pux159ed-vymazuxe1nuxedm}
+
+\begin{longtable}[]{@{}lrrrrr@{}}
+\toprule\noalign{}
+ticker & min & q1 & median & q3 & max \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+AAPL & -0.3736948 & -0.0076819 & 0.0001582 & 0.0041181 & 0.3390972 \\
+AMD & -0.6154212 & -0.0108625 & 0.0002307 & 0.0083084 & 0.2967886 \\
+AMZN & -0.2262697 & 0.0000482 & 0.0032476 & 0.0112189 & 0.2182972 \\
+GOOGL & -0.6033086 & 0.0004958 & 0.0073598 & 0.0213935 & 0.2831292 \\
+JNJ & -0.3712162 & 0.0003286 & 0.0033480 & 0.0113573 & 0.2850425 \\
+KO & -0.1759941 & 0.0001339 & 0.0021996 & 0.0081062 & 0.1745342 \\
+META & -0.4407167 & -0.0031416 & 0.0004436 & 0.0056293 & 0.4305316 \\
+MSFT & -0.4926360 & 0.0002480 & 0.0052297 & 0.0168145 & 0.3386330 \\
+NFLX & -0.5742996 & 0.0003203 & 0.0041034 & 0.0151274 & 0.5724573 \\
+NVDA & -0.2339406 & 0.0000464 & 0.0023440 & 0.0145293 & 0.2200344 \\
+PG & -0.1799607 & 0.0001332 & 0.0023467 & 0.0092283 & 0.1678837 \\
+TSLA & -0.4674946 & -0.0212378 & -0.0009543 & 0.0021988 & 0.3323695 \\
+\^{}RUT & -0.3326264 & -0.0013374 & 0.0008961 & 0.0054200 & 0.3470238 \\
+\^{}VIX & -0.5460372 & -0.1351076 & -0.0254084 & 0.0117656 &
+0.3853825 \\
+\^{}XDA & -0.0802413 & -0.0301906 & -0.0093713 & 0.0043543 &
+0.0209063 \\
+\^{}XDB & -0.0057359 & 0.0080747 & 0.0158229 & 0.0237110 & 0.0483671 \\
+\^{}XDE & -0.0387247 & -0.0016271 & 0.0028949 & 0.0103129 & 0.0327996 \\
+\^{}XDN & -0.0369220 & 0.0022448 & 0.0072318 & 0.0177864 & 0.0623513 \\
+\end{longtable}
+
+\pandocbounded{\includegraphics[keepaspectratio]{regression2_files/regression2_files/figure-latex/strip_plot_pre-1.png}}
+
+\subsection{Proces vymazání}\label{proces-vymazuxe1nuxed}
+
+Data se odstraňují tak, aby chyba ocenění byla \textless{} 0.15 a aby
+strip plot ukazoval pouze přihlehlé hodnoty pro každý titul, za účelem
+vyřazení extrémů. Pro každý titul byla data omezena na hodnoty mezi 4\%
+a 96\% kvantilem, mimo tituly:
+
+\begin{itemize}
+\tightlist
+\item
+  Měnové indexy (\^{}XD\_), které neomezujeme, jelikož jsou již
+  korektní,
+\item
+  NFLX, pro který je omezení 8\% a 96\%, z důvodu velkého počtu
+  extrémních negativních hodnot.
+\item
+  JNJ a PG, pro které je omezení 6\% a 96\%, ze stejného důvodu.
+\end{itemize}
+
+Titul \^{}VIX byl odstraněn kvůli zkreslení modelu kvůli vytváření
+samostatných clusterů s extrémy.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sort\_mask }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(dataset) \{}
+
+  \CommentTok{\# Výchozí hodnoty {-} aplikováno na normální titul}
+\NormalTok{  default\_lower }\OtherTok{\textless{}{-}} \FloatTok{0.04}
+\NormalTok{  default\_higher }\OtherTok{\textless{}{-}} \FloatTok{0.97}
+
+  \CommentTok{\# Tituly, u kterých je nutno hodnoty omezit více}
+\NormalTok{  quantiles }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{(}
+    \AttributeTok{NFLX =} \FunctionTok{c}\NormalTok{(}\FloatTok{0.08}\NormalTok{, default\_higher),}
+    \AttributeTok{JNJ =} \FunctionTok{c}\NormalTok{(}\FloatTok{0.08}\NormalTok{, default\_higher),}
+    \AttributeTok{PG =} \FunctionTok{c}\NormalTok{(}\FloatTok{0.06}\NormalTok{, default\_higher),}
+    \AttributeTok{MSFT =} \FunctionTok{c}\NormalTok{(}\FloatTok{0.05}\NormalTok{, default\_higher),}
+    \AttributeTok{KO =} \FunctionTok{c}\NormalTok{(}\FloatTok{0.05}\NormalTok{, default\_higher)}
+\NormalTok{  )}
+
+  \CommentTok{\# Tituly, které nebudeme takto filtrovat}
+\NormalTok{  banned }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"\^{}XDN"}\NormalTok{, }\StringTok{"\^{}XDB"}\NormalTok{, }\StringTok{"\^{}XDA"}\NormalTok{, }\StringTok{"\^{}XDE"}\NormalTok{)}
+\NormalTok{  tickers }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\FunctionTok{unique}\NormalTok{(dataset}\SpecialCharTok{$}\NormalTok{ticker))}
+\NormalTok{  tickers }\OtherTok{\textless{}{-}} \FunctionTok{setdiff}\NormalTok{(tickers, banned)}
+
+  \CommentTok{\# Základní maska}
+  \CommentTok{\# {-} Ze začátku předpokládáme že všechny opce jsou ok a chceme je ve výsledku}
+\NormalTok{  mask }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\ConstantTok{TRUE}\NormalTok{, }\FunctionTok{nrow}\NormalTok{(dataset))}
+
+  \ControlFlowTok{for}\NormalTok{ (cur\_ticker }\ControlFlowTok{in}\NormalTok{ tickers) \{}
+    \CommentTok{\# Získáváme pouze hodnoty pro daný ticker}
+\NormalTok{    ticker\_diff }\OtherTok{\textless{}{-}}\NormalTok{ dataset }\SpecialCharTok{|\textgreater{}} \FunctionTok{filter}\NormalTok{(ticker }\SpecialCharTok{==}\NormalTok{ cur\_ticker)}
+
+    \CommentTok{\# Výběr kvantilů pro omezení hodnot}
+    \ControlFlowTok{if}\NormalTok{ (cur\_ticker }\SpecialCharTok{\%in\%} \FunctionTok{names}\NormalTok{(quantiles)) \{}
+      \CommentTok{\#cat(paste(cur\_ticker, "found in quantiles\textbackslash{}n"))}
+\NormalTok{      quants }\OtherTok{\textless{}{-}}\NormalTok{ quantiles[[cur\_ticker]]}
+\NormalTok{      low\_q\_const }\OtherTok{\textless{}{-}}\NormalTok{ quants[}\DecValTok{1}\NormalTok{]}
+\NormalTok{      high\_q\_const }\OtherTok{\textless{}{-}}\NormalTok{ quants[}\DecValTok{2}\NormalTok{]}
+\NormalTok{    \} }\ControlFlowTok{else}\NormalTok{ \{}
+      \CommentTok{\#cat(paste(cur\_ticker, "not found in quantiles\textbackslash{}n"))}
+\NormalTok{      low\_q\_const }\OtherTok{\textless{}{-}}\NormalTok{ default\_lower}
+\NormalTok{      high\_q\_const }\OtherTok{\textless{}{-}}\NormalTok{ default\_higher}
+\NormalTok{    \}}
+
+    \CommentTok{\# Zjištění hodnot v těchto kvantilech}
+\NormalTok{    low\_q }\OtherTok{\textless{}{-}} \FunctionTok{quantile}\NormalTok{(ticker\_diff}\SpecialCharTok{$}\NormalTok{pricing\_error, low\_q\_const)}
+\NormalTok{    high\_q }\OtherTok{\textless{}{-}} \FunctionTok{quantile}\NormalTok{(ticker\_diff}\SpecialCharTok{$}\NormalTok{pricing\_error, high\_q\_const)}
+
+    \CommentTok{\# Upravení masky}
+    \CommentTok{\# {-} Řádek se buď vztahuje k jinému titulu, nebo je v korektních hodnotách...}
+    \CommentTok{\#   ...jinak je vynechán}
+\NormalTok{    mask }\OtherTok{\textless{}{-}}\NormalTok{ mask }\SpecialCharTok{\&}
+\NormalTok{      ((dataset}\SpecialCharTok{$}\NormalTok{pricing\_error }\SpecialCharTok{\textgreater{}}\NormalTok{ low\_q }\SpecialCharTok{|}\NormalTok{ dataset}\SpecialCharTok{$}\NormalTok{ticker }\SpecialCharTok{!=}\NormalTok{ cur\_ticker) }\SpecialCharTok{\&}
+\NormalTok{      (dataset}\SpecialCharTok{$}\NormalTok{pricing\_error }\SpecialCharTok{\textless{}}\NormalTok{ high\_q }\SpecialCharTok{|}\NormalTok{ dataset}\SpecialCharTok{$}\NormalTok{ticker }\SpecialCharTok{!=}\NormalTok{ cur\_ticker))}
+\NormalTok{  \}}
+
+\NormalTok{  dataset[mask, ]}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{Data po vymazání}\label{data-po-vymazuxe1nuxed}
+
+\pandocbounded{\includegraphics[keepaspectratio]{regression2_files/regression2_files/figure-latex/strip_plot_post-1.png}}
+
+\begin{longtable}[]{@{}lrrrrr@{}}
+\toprule\noalign{}
+ticker & min & q1 & median & q3 & max \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+AAPL & -0.0566254 & -0.0058287 & 0.0001619 & 0.0037798 & 0.0445029 \\
+AMD & -0.1073010 & -0.0087902 & 0.0002527 & 0.0076089 & 0.0641908 \\
+AMZN & -0.0263148 & 0.0001126 & 0.0033769 & 0.0107601 & 0.0353304 \\
+GOOGL & -0.0482544 & 0.0007555 & 0.0076008 & 0.0204167 & 0.0787005 \\
+JNJ & -0.0225740 & 0.0006401 & 0.0038711 & 0.0112073 & 0.0361114 \\
+KO & -0.0322779 & 0.0002744 & 0.0023604 & 0.0075394 & 0.0450329 \\
+META & -0.1035577 & -0.0021861 & 0.0004803 & 0.0051593 & 0.0876315 \\
+MSFT & -0.1025861 & 0.0004634 & 0.0055254 & 0.0162379 & 0.0472561 \\
+NFLX & -0.0832146 & 0.0007093 & 0.0047921 & 0.0149353 & 0.0817078 \\
+NVDA & -0.0338313 & 0.0000541 & 0.0024598 & 0.0133732 & 0.0587572 \\
+PG & -0.0266188 & 0.0003330 & 0.0025790 & 0.0088838 & 0.0510724 \\
+TSLA & -0.0709814 & -0.0190257 & -0.0007676 & 0.0018732 & 0.0680727 \\
+\^{}RUT & -0.0631446 & -0.0006373 & 0.0009368 & 0.0050719 & 0.0265446 \\
+\^{}XDA & -0.0802413 & -0.0301906 & -0.0093713 & 0.0043543 &
+0.0209063 \\
+\^{}XDB & -0.0057359 & 0.0080747 & 0.0158229 & 0.0237110 & 0.0483671 \\
+\^{}XDE & -0.0387247 & -0.0016271 & 0.0028949 & 0.0103129 & 0.0327996 \\
+\^{}XDN & -0.0369220 & 0.0022448 & 0.0072318 & 0.0177864 & 0.0623513 \\
+\end{longtable}
+
+\pandocbounded{\includegraphics[keepaspectratio]{regression2_files/regression2_files/figure-latex/histogram-doctored-1.png}}
+
+\subsection{LMER model - základní}\label{lmer-model---zuxe1kladnuxed-1}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{subset\_args }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}
+  \StringTok{"S"}\NormalTok{,}
+  \StringTok{"moneyness"}\NormalTok{,}
+  \StringTok{"K"}\NormalTok{,}
+  \StringTok{"r"}\NormalTok{,}
+  \StringTok{"sigma"}\NormalTok{,}
+  \StringTok{"q"}\NormalTok{,}
+  \StringTok{"T"}\NormalTok{,}
+  \StringTok{"am\_eu"}\NormalTok{,}
+  \StringTok{"call\_put"}\NormalTok{,}
+  \StringTok{"model"}\NormalTok{,}
+  \StringTok{"ticker"}
+\NormalTok{  )}
+\NormalTok{interactions }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}
+  \StringTok{"q:am\_eu"}\NormalTok{,}
+  \StringTok{"(1 | ticker)"}\NormalTok{,}
+  \StringTok{"(1 | snapshot\_month)"}
+\NormalTok{)}
+
+\NormalTok{rhs }\OtherTok{\textless{}{-}} \FunctionTok{paste}\NormalTok{(}\FunctionTok{c}\NormalTok{(subset\_args, interactions), }\AttributeTok{collapse =} \StringTok{" + "}\NormalTok{)}
+\NormalTok{formula }\OtherTok{\textless{}{-}} \FunctionTok{as.formula}\NormalTok{(}\FunctionTok{paste}\NormalTok{(}\StringTok{"pricing\_error \textasciitilde{} "}\NormalTok{, rhs))}
+
+\NormalTok{rmr\_relative }\OtherTok{\textless{}{-}} \FunctionTok{lmer}\NormalTok{(formula, }\AttributeTok{data =}\NormalTok{ train\_data\_rel)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## fixed-effect model matrix is rank deficient so dropping 2 columns / coefficients
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{summary}\NormalTok{(rmr\_relative)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Linear mixed model fit by REML ['lmerMod']
+## Formula: pricing_error ~ S + moneyness + K + r + sigma + q + T + am_eu +  
+##     call_put + model + ticker + q:am_eu + (1 | ticker) + (1 |  
+##     snapshot_month)
+##    Data: train_data_rel
+## 
+## REML criterion at convergence: -1788573
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -6.9705 -0.3289  0.0572  0.4277  5.5928 
+## 
+## Random effects:
+##  Groups         Name        Variance  Std.Dev.
+##  ticker         (Intercept) 4.792e-05 0.006923
+##  snapshot_month (Intercept) 6.100e-07 0.000781
+##  Residual                   2.906e-04 0.017047
+## Number of obs: 337180, groups:  ticker, 17; snapshot_month, 4
+## 
+## Fixed effects:
+##                 Estimate Std. Error t value
+## (Intercept)   -2.875e-02  7.054e-03  -4.075
+## S              1.131e-05  6.136e-07  18.441
+## moneyness     -4.579e-05  3.624e-06 -12.634
+## K             -7.610e-06  1.411e-07 -53.927
+## r              1.726e+00  2.888e-02  59.769
+## sigma         -7.960e-02  1.271e-03 -62.635
+## q             -4.625e-01  5.101e-02  -9.065
+## T              3.747e-03  4.202e-05  89.191
+## am_eueuropean -2.782e-02  9.909e-03  -2.808
+## call_putputs  -3.102e-03  6.124e-05 -50.655
+## modeluser_crr  2.225e-05  7.194e-05   0.309
+## modeluser_mc   2.251e-05  7.190e-05   0.313
+## ticker^XDA    -1.792e-02  1.008e-02  -1.777
+## ticker^XDB     1.465e-02  1.003e-02   1.461
+## ticker^XDE     1.279e-03  9.976e-03   0.128
+## ticker^XDN     8.883e-03  1.001e-02   0.887
+## tickerAAPL    -1.430e-02  9.799e-03  -1.459
+## tickerAMD      9.425e-03  9.792e-03   0.963
+## tickerAMZN    -4.984e-03  9.795e-03  -0.509
+## tickerGOOGL    4.081e-04  9.799e-03   0.042
+## tickerJNJ      3.819e-07  9.952e-03   0.000
+## tickerKO      -4.653e-03  9.924e-03  -0.469
+## tickerMETA    -7.751e-03  9.796e-03  -0.791
+## tickerMSFT    -7.185e-03  9.807e-03  -0.733
+## tickerNFLX    -2.254e-03  9.796e-03  -0.230
+## tickerNVDA     2.990e-03  9.793e-03   0.305
+## tickerPG      -3.612e-03  9.900e-03  -0.365
+\end{verbatim}
+
+\begin{verbatim}
+## 
+## Correlation matrix not shown by default, as p = 27 > 12.
+## Use print(x, correlation=TRUE)  or
+##     vcov(x)        if you need it
+\end{verbatim}
+
+\begin{verbatim}
+## fit warnings:
+## fixed-effect model matrix is rank deficient so dropping 2 columns / coefficients
+## Some predictor variables are on very different scales: consider rescaling. 
+## You may also use (g)lmerControl(autoscale = TRUE) to improve numerical stability.
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{r2}\NormalTok{(rmr\_relative)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: Can't compute random effect variances. Some variance components equal
+##   zero. Your model may suffer from singularity (see `?lme4::isSingular`
+##   and `?performance::check_singularity`).
+##   Decrease the `tolerance` level to force the calculation of random effect
+##   variances, or impose priors on your random effects parameters (using
+##   packages like `brms` or `glmmTMB`).
+\end{verbatim}
+
+\begin{verbatim}
+## Random effect variances not available. Returned R2 does not account for random effects.
+\end{verbatim}
+
+\begin{verbatim}
+## # R2 for Mixed Models
+## 
+##   Conditional R2: NA
+##      Marginal R2: 0.164
+\end{verbatim}
+
+\pandocbounded{\includegraphics[keepaspectratio]{regression2_files/regression2_files/figure-latex/unnamed-chunk-9-1.png}}
+
+Modely a tituly jsou statisicky nevýznamné, ostatní jsou statisticky
+silně významné. Některé tituly jsou stasticiky slabě významné. Dle ANOVY
+potvrdíme zda je proměnná jako celek významná. Tituly jsou stále
+statisticky nevýznamné. Potenciální důvody mohou být
+parametry/skutečnosti mimo stahovaná data nebo vliv fixního efektu a
+náhodného efektu titulu na model.
+
+\pandocbounded{\includegraphics[keepaspectratio]{regression2_files/regression2_files/figure-latex/rmr_post_base_predict-1.png}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{anova}\NormalTok{(rmr\_relative)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Analysis of Variance Table
+##           npar  Sum Sq Mean Sq   F value
+## S            1 0.00057 0.00057    1.9626
+## moneyness    1 0.00224 0.00224    7.7191
+## K            1 0.50306 0.50306 1731.2109
+## r            1 0.62103 0.62103 2137.1654
+## sigma        1 1.08763 1.08763 3742.8993
+## q            1 0.02453 0.02453   84.4279
+## T            1 2.26014 2.26014 7777.8999
+## am_eu        1 0.01170 0.01170   40.2648
+## call_put     1 0.74524 0.74524 2564.6394
+## model        2 0.00004 0.00002    0.0646
+## ticker      15 0.00585 0.00039    1.3414
+\end{verbatim}
+
+ANOVA opět potvrzuje nevýznamnost modelu a titulu, nicméně \(S\) je
+silně nevýznamné. U ostatních proměnných je potrvrzena významnost.
+
+\section{Odstranění dle boxplotu}\label{odstranux11bnuxed-dle-boxplotu}
+
+Experimentálně, zkusil jsem i odstranit outliery dle boxplotu (nechat
+pouze 1. - 3. kvartil).
+
+\pandocbounded{\includegraphics[keepaspectratio]{regression2_files/regression2_files/figure-latex/box-basic-1.png}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sort\_mask }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(dataset) \{}
+
+  \CommentTok{\# Výchozí hodnoty {-} aplikováno na normální titul}
+\NormalTok{  low\_q\_const }\OtherTok{\textless{}{-}} \FloatTok{0.25}
+\NormalTok{  high\_q\_const }\OtherTok{\textless{}{-}} \FloatTok{0.75}
+
+\NormalTok{  tickers }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\FunctionTok{unique}\NormalTok{(dataset}\SpecialCharTok{$}\NormalTok{ticker))}
+
+  \CommentTok{\# Základní maska}
+  \CommentTok{\# {-} Ze začátku předpokládáme že všechny opce jsou ok a chceme je ve výsledku}
+\NormalTok{  mask }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\ConstantTok{TRUE}\NormalTok{, }\FunctionTok{nrow}\NormalTok{(dataset))}
+
+  \ControlFlowTok{for}\NormalTok{ (cur\_ticker }\ControlFlowTok{in}\NormalTok{ tickers) \{}
+    \CommentTok{\# Získáváme pouze hodnoty pro daný ticker}
+\NormalTok{    ticker\_diff }\OtherTok{\textless{}{-}}\NormalTok{ dataset }\SpecialCharTok{|\textgreater{}} \FunctionTok{filter}\NormalTok{(ticker }\SpecialCharTok{==}\NormalTok{ cur\_ticker)}
+
+    \CommentTok{\# Zjištění hodnot v těchto kvantilech}
+\NormalTok{    low\_q }\OtherTok{\textless{}{-}} \FunctionTok{quantile}\NormalTok{(ticker\_diff}\SpecialCharTok{$}\NormalTok{pricing\_error, low\_q\_const)}
+\NormalTok{    high\_q }\OtherTok{\textless{}{-}} \FunctionTok{quantile}\NormalTok{(ticker\_diff}\SpecialCharTok{$}\NormalTok{pricing\_error, high\_q\_const)}
+
+    \CommentTok{\# Upravení masky}
+    \CommentTok{\# {-} Řádek se buď vztahuje k jinému titulu, nebo je v korektních hodnotách...}
+    \CommentTok{\#   ...jinak je vynechán}
+\NormalTok{    mask }\OtherTok{\textless{}{-}}\NormalTok{ mask }\SpecialCharTok{\&}
+\NormalTok{      ((dataset}\SpecialCharTok{$}\NormalTok{pricing\_error }\SpecialCharTok{\textgreater{}}\NormalTok{ low\_q }\SpecialCharTok{|}\NormalTok{ dataset}\SpecialCharTok{$}\NormalTok{ticker }\SpecialCharTok{!=}\NormalTok{ cur\_ticker) }\SpecialCharTok{\&}
+\NormalTok{      (dataset}\SpecialCharTok{$}\NormalTok{pricing\_error }\SpecialCharTok{\textless{}}\NormalTok{ high\_q }\SpecialCharTok{|}\NormalTok{ dataset}\SpecialCharTok{$}\NormalTok{ticker }\SpecialCharTok{!=}\NormalTok{ cur\_ticker))}
+\NormalTok{  \}}
+
+\NormalTok{  dataset[mask, ]}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{Data po vymazání}\label{data-po-vymazuxe1nuxed-1}
+
+\pandocbounded{\includegraphics[keepaspectratio]{regression2_files/regression2_files/figure-latex/strip_plot_box-1.png}}
+
+\begin{longtable}[]{@{}lrrrrr@{}}
+\toprule\noalign{}
+ticker & min & q1 & median & q3 & max \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+AAPL & -0.0076814 & -0.0009202 & 0.0001582 & 0.0011995 & 0.0041172 \\
+AMD & -0.0108491 & -0.0021917 & 0.0002307 & 0.0020213 & 0.0083058 \\
+AMZN & 0.0000507 & 0.0007735 & 0.0032477 & 0.0069412 & 0.0112182 \\
+GOOGL & 0.0004961 & 0.0026060 & 0.0073598 & 0.0134878 & 0.0213744 \\
+JNJ & 0.0003286 & 0.0013143 & 0.0033480 & 0.0063479 & 0.0113459 \\
+KO & 0.0001339 & 0.0009398 & 0.0021996 & 0.0042894 & 0.0080146 \\
+META & -0.0031406 & 0.0000328 & 0.0004436 & 0.0020414 & 0.0056242 \\
+MSFT & 0.0002482 & 0.0019722 & 0.0052297 & 0.0102544 & 0.0168121 \\
+NFLX & 0.0003205 & 0.0015810 & 0.0041034 & 0.0082731 & 0.0151268 \\
+NVDA & 0.0000465 & 0.0003714 & 0.0024152 & 0.0062036 & 0.0145194 \\
+PG & 0.0001332 & 0.0009830 & 0.0023467 & 0.0046530 & 0.0091910 \\
+TSLA & -0.0212363 & -0.0089334 & -0.0009543 & 0.0002113 & 0.0021987 \\
+\^{}RUT & -0.0013370 & 0.0001705 & 0.0008961 & 0.0024738 & 0.0054195 \\
+\^{}XDA & -0.0248434 & -0.0179680 & -0.0093713 & -0.0053327 &
+0.0025928 \\
+\^{}XDB & 0.0089830 & 0.0128165 & 0.0158229 & 0.0188826 & 0.0227831 \\
+\^{}XDE & -0.0015601 & 0.0006982 & 0.0028949 & 0.0051723 & 0.0103078 \\
+\^{}XDN & 0.0023848 & 0.0037129 & 0.0072318 & 0.0138163 & 0.0170313 \\
+\end{longtable}
+
+\pandocbounded{\includegraphics[keepaspectratio]{regression2_files/regression2_files/figure-latex/histogram-boxed-1.png}}
+
+\pandocbounded{\includegraphics[keepaspectratio]{regression2_files/regression2_files/figure-latex/box-advanced-1.png}}
+
+\subsection{LMER model - základní}\label{lmer-model---zuxe1kladnuxed-2}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{subset\_args }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}
+  \StringTok{"S"}\NormalTok{,}
+  \StringTok{"moneyness"}\NormalTok{,}
+  \StringTok{"K"}\NormalTok{,}
+  \StringTok{"r"}\NormalTok{,}
+  \StringTok{"sigma"}\NormalTok{,}
+  \StringTok{"q"}\NormalTok{,}
+  \StringTok{"T"}\NormalTok{,}
+  \StringTok{"am\_eu"}\NormalTok{,}
+  \StringTok{"call\_put"}\NormalTok{,}
+  \StringTok{"model"}\NormalTok{,}
+  \StringTok{"ticker"}
+\NormalTok{  )}
+\NormalTok{interactions }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}
+  \StringTok{"q:am\_eu"}\NormalTok{,}
+  \StringTok{"(1 | ticker)"}\NormalTok{,}
+  \StringTok{"(1 | snapshot\_month)"}
+\NormalTok{)}
+
+\NormalTok{rhs }\OtherTok{\textless{}{-}} \FunctionTok{paste}\NormalTok{(}\FunctionTok{c}\NormalTok{(subset\_args, interactions), }\AttributeTok{collapse =} \StringTok{" + "}\NormalTok{)}
+\NormalTok{formula }\OtherTok{\textless{}{-}} \FunctionTok{as.formula}\NormalTok{(}\FunctionTok{paste}\NormalTok{(}\StringTok{"pricing\_error \textasciitilde{} "}\NormalTok{, rhs))}
+
+\NormalTok{rmr\_relative }\OtherTok{\textless{}{-}} \FunctionTok{lmer}\NormalTok{(formula, }\AttributeTok{data =}\NormalTok{ train\_data\_rel)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## fixed-effect model matrix is rank deficient so dropping 2 columns / coefficients
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{summary}\NormalTok{(rmr\_relative)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Linear mixed model fit by REML ['lmerMod']
+## Formula: pricing_error ~ S + moneyness + K + r + sigma + q + T + am_eu +  
+##     call_put + model + ticker + q:am_eu + (1 | ticker) + (1 |  
+##     snapshot_month)
+##    Data: train_data_rel
+## 
+## REML criterion at convergence: -1477524
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -4.6723 -0.5994 -0.0186  0.6123  3.2383 
+## 
+## Random effects:
+##  Groups         Name        Variance  Std.Dev. 
+##  ticker         (Intercept) 1.283e-05 0.0035812
+##  snapshot_month (Intercept) 1.557e-08 0.0001248
+##  Residual                   1.766e-05 0.0042023
+## Number of obs: 182325, groups:  ticker, 17; snapshot_month, 4
+## 
+## Fixed effects:
+##                 Estimate Std. Error t value
+## (Intercept)    5.726e-03  3.614e-03   1.585
+## S              4.982e-06  2.079e-07  23.969
+## moneyness     -1.273e-05  1.291e-06  -9.862
+## K             -1.246e-06  4.901e-08 -25.429
+## r             -1.118e-01  1.122e-02  -9.961
+## sigma         -1.434e-02  4.295e-04 -33.392
+## q             -8.509e-02  1.711e-02  -4.973
+## T              9.172e-04  1.825e-05  50.258
+## am_eueuropean -7.400e-03  5.091e-03  -1.454
+## call_putputs   1.342e-04  2.252e-05   5.962
+## modeluser_crr -8.812e-06  2.410e-05  -0.366
+## modeluser_mc  -2.889e-05  2.410e-05  -1.199
+## ticker^XDA    -4.469e-03  5.135e-03  -0.870
+## ticker^XDB     2.171e-02  5.123e-03   4.238
+## ticker^XDE     9.117e-03  5.108e-03   1.785
+## ticker^XDN     1.592e-02  5.115e-03   3.112
+## tickerAAPL     1.287e-03  5.067e-03   0.254
+## tickerAMD      5.528e-03  5.065e-03   1.091
+## tickerAMZN     5.857e-03  5.066e-03   1.156
+## tickerGOOGL    9.703e-03  5.067e-03   1.915
+## tickerJNJ      6.634e-03  5.100e-03   1.301
+## tickerKO       5.549e-03  5.094e-03   1.089
+## tickerMETA     2.387e-03  5.066e-03   0.471
+## tickerMSFT     7.062e-03  5.068e-03   1.393
+## tickerNFLX     7.595e-03  5.066e-03   1.499
+## tickerNVDA     6.975e-03  5.065e-03   1.377
+## tickerPG       5.569e-03  5.089e-03   1.094
+\end{verbatim}
+
+\begin{verbatim}
+## 
+## Correlation matrix not shown by default, as p = 27 > 12.
+## Use print(x, correlation=TRUE)  or
+##     vcov(x)        if you need it
+\end{verbatim}
+
+\begin{verbatim}
+## fit warnings:
+## fixed-effect model matrix is rank deficient so dropping 2 columns / coefficients
+## Some predictor variables are on very different scales: consider rescaling. 
+## You may also use (g)lmerControl(autoscale = TRUE) to improve numerical stability.
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{r2}\NormalTok{(rmr\_relative)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: Can't compute random effect variances. Some variance components equal
+##   zero. Your model may suffer from singularity (see `?lme4::isSingular`
+##   and `?performance::check_singularity`).
+##   Decrease the `tolerance` level to force the calculation of random effect
+##   variances, or impose priors on your random effects parameters (using
+##   packages like `brms` or `glmmTMB`).
+\end{verbatim}
+
+\begin{verbatim}
+## Random effect variances not available. Returned R2 does not account for random effects.
+\end{verbatim}
+
+\begin{verbatim}
+## # R2 for Mixed Models
+## 
+##   Conditional R2: NA
+##      Marginal R2: 0.453
+\end{verbatim}
+
+\pandocbounded{\includegraphics[keepaspectratio]{regression2_files/regression2_files/figure-latex/unnamed-chunk-14-1.png}}
+
+Modely, styly využití a tituly mimo \^{}XDB a \^{}XDN jsou statisticky
+nevýznmané. Zmíněné měnové fondy a ostatní parametry jsou statisicky
+významné. Nevýznamnost titulů potvrdíme v ANOVA analýze.
+
+\pandocbounded{\includegraphics[keepaspectratio]{regression2_files/regression2_files/figure-latex/rmr_post_box_predict-1.png}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{anova}\NormalTok{(rmr\_relative)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Analysis of Variance Table
+##           npar   Sum Sq  Mean Sq   F value
+## S            1 0.005308 0.005308  300.6048
+## moneyness    1 0.000047 0.000047    2.6410
+## K            1 0.020088 0.020088 1137.5378
+## r            1 0.011970 0.011970  677.8026
+## sigma        1 0.018012 0.018012 1019.9656
+## q            1 0.000301 0.000301   17.0208
+## T            1 0.045501 0.045501 2576.5843
+## am_eu        1 0.000086 0.000086    4.8719
+## call_put     1 0.000630 0.000630   35.6547
+## model        2 0.000027 0.000013    0.7530
+## ticker      15 0.000748 0.000050    2.8246
+\end{verbatim}
+
+Model a tituly jsou nevýznamné. Styl využití je na hranici významnosti.
+\(S/K\) je také na hranici významnosti, \(S\) je oproti ostatním modelům
+silně významnější.
+
+\end{document}

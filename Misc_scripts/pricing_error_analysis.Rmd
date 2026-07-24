@@ -182,3 +182,47 @@ nrow(df_more |> filter(ticker != "^RUT"))
 nrow(df_more |> filter(ticker == "^RUT"))
 ```
 
+``` {r}
+sort_mask <- function(dataset) {
+  banned <- c("^XDN", "^XDB", "^XDA", "^XDE")
+
+  tickers <- c(unique(dataset$ticker))
+  tickers <- setdiff(tickers, banned)
+
+  mask <- rep(TRUE, nrow(dataset))
+
+  for(ticker in tickers) {
+    low_q <- quantile(dataset$pricing_error, 0.04)
+    high_q <- quantile(dataset$pricing_error, 0.94)
+    mask <- mask & (dataset$pricing_error > low_q & dataset$pricing_error < high_q)
+  }
+
+  dataset[mask,]
+}
+```
+
+``` {r}
+df_cut <- sort_mask(df_more)
+```
+
+``` {r}
+strip_plot <- ggplot(df_cut, aes(x = pricing_error, y = ticker, color = ticker)) +
+  geom_jitter(width = 0.2, alpha = 0.7, size = 2) +
+  theme_minimal() +
+  labs(title = "Strip plot - odchylky na ticker",
+       x = "Odchylka", 
+       y = "Ticker")
+
+strip_plot
+```
+
+``` {r}
+ggsave("nice_one.png", strip_plot, width = 6, height = 4)
+```
+
+``` {r}
+quantile(
+  (df_more |> filter(ticker == "TSLA"))$pricing_error,
+  0.01
+)
+```

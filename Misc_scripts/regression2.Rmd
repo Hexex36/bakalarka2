@@ -1,0 +1,742 @@
+---
+title: Regresní analýza
+output:
+  pdf_document:
+    keep_tex: true
+  html_document:
+    toc: true
+---
+
+``` {r imports, include=FALSE}
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(knitr)
+library(lme4)
+library(sjPlot)
+library(performance)
+library(car)
+library(lmtest)
+library(sandwich)
+library(clubSandwich)
+library(patchwork)
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  dev = "png",       # Output plots as PNGs instead of vector PDFs
+  dpi = 300          # Set resolution (300 dpi is print/publication quality)
+)
+```
+
+``` {r data-load, include=FALSE}
+load_prices <- function(path, am_eu, call_put) {
+  read_csv(path) |>
+    mutate(am_eu = am_eu, call_put = call_put)
+}
+
+df_raw <- bind_rows(
+  load_prices("../calculated_prices/american_calls.csv", "american", "calls"),
+  load_prices("../calculated_prices/american_puts.csv", "american", "puts"),
+  load_prices("../calculated_prices/european_calls.csv", "european", "calls"),
+  load_prices("../calculated_prices/european_puts.csv", "european", "puts")
+) |>
+  rename(true_price = option_price) |>
+  mutate(
+    moneyness_regime = case_when(
+      call_put == "calls" & S / K < 0.95 ~ "OTM",
+      call_put == "calls" & S / K <= 1.05 ~ "ATM",
+      call_put == "calls" ~ "ITM",
+      call_put == "puts" & S / K < 0.95 ~ "ITM",
+      call_put == "puts" & S / K <= 1.05 ~ "ATM",
+      call_put == "puts" ~ "OTM"
+    ),
+    time_regime = case_when(
+      T <= 0.1 ~ "Short",
+      T <= 0.5 ~ "Medium",
+      TRUE ~ "Long"
+    )
+  ) |>
+  mutate(moneyness = S/K) |>
+  mutate(pricing_error = (true_price - user_bs)/S) |> # Relativní odchylka
+  filter(is.finite(pricing_error)) |>
+  mutate(option_id = paste0(ticker,
+    format(expiration, "%y%m%d"),
+    substr(call_put, 1, 1),
+    K))
+
+df <- df_raw
+
+df$SK_ratio <- df$S / df$K
+```
+
+``` {r doctoring, include=FALSE}
+df_doctored <- df |>
+  filter(
+    (ticker != "NFLX" | call_put != "calls") | (K < 266 & true_price < 400)) |>
+  filter(
+    (ticker != "NVDA" | call_put != "calls") | (K < 500 & true_price < 300)) |>
+  filter(
+    (ticker != "NFLX" | call_put != "puts") | (
+      K < 266 & (K < 100 | true_price > 10))
+    ) |>
+  filter(
+    (ticker != "NVDA" | call_put != "puts") | (
+      K < 500 & (K < 300 | true_price > 100)
+    )
+  ) |>
+  pivot_longer(cols = c(user_bs, user_crr, user_mc),
+               names_to = "model",
+               values_to = "model_price") |>
+  mutate(snapshot_date = as.Date(expiration) - round(T * 365)) |>
+  mutate(snapshot_month = format(snapshot_date, "%m"))
+
+df <- df_doctored
+```
+
+# Základní data
+
+*Základními daty myslím data s opravami v předchozích iteracích analýzy, čili oprava dat u titulů NFLX a NVDA.*
+
+``` {r data-prep-rel, include=FALSE}
+train_indexes <- sample(seq_len(nrow(df)), size = 0.8 * nrow(df))
+
+train_data_rel <- df[train_indexes, ]
+test_data_rel <- df[-train_indexes, ]
+```
+
+``` {r, include=FALSE, eval=FALSE}
+#png("~/Praxe/bakalarka/figures/hist_relative.png", width = 6, height = 4, units = "in", res = 300)
+#hist(df_relative_temp$pricing_error, breaks = 200)
+#dev.off()
+
+hist(df$pricing_error, breaks = 200)
+```
+
+``` {r histogram-basic, echo=FALSE}
+ggplot(df, aes(x = pricing_error)) +
+  geom_histogram(bins = 200, fill = "red") +
+  theme_minimal() +
+  labs(
+    title = "Histogram odchylek odhadované ceny od reality",
+    x = "Odchylka",
+    y = "Frekvence"
+  )
+```
+
+Histogram počtu opcí s danými odchylkami od reality na ověření normálního rozdělení.
+
+## LMER model - základní
+
+``` {r repeated_measure_rel_base, warning=FALSE}
+subset_args <- c(
+  "S",
+  "moneyness",
+  "K",
+  "r",
+  "sigma",
+  "q",
+  "T",
+  "am_eu",
+  "call_put",
+  "model",
+  "ticker"
+)
+interactions <- c(
+  "q:am_eu",
+  "(1 | ticker)",
+  "(1 | snapshot_month)"
+)
+
+rhs <- paste(c(subset_args, interactions), collapse = " + ")
+formula <- as.formula(paste("pricing_error ~ ", rhs))
+
+rmr_relative <- lmer(formula, data = train_data_rel)
+```
+
+``` {r}
+summary(rmr_relative)
+```
+
+``` {r}
+r2(rmr_relative)
+```
+
+Model je singulární. Toto je způsobeno:
+
+- přítomností parametru `moneyness` ($S/K$) a parametrů $S$ a $K$,
+- přítomností parametru `ticker` ve fixních efektech a náhodných efektech.
+
+Toto by neměl být problém pro model jako takový, ale znemožňuje to vypočítat podmíněné $R^2$.
+
+``` {r echo=FALSE}
+relative_bias_plot <- plot_model(
+  rmr_relative,
+  type = "est",
+  show.values = TRUE,
+  value.offset = .4
+) +
+  theme_minimal() +
+  labs(
+    title = "Fixní efekty LMER modelu",
+    y = "Odhady",
+    x = "Parametry"
+  )
+
+#ggsave(
+  #"~/Praxe/bakalarka/figures/relative_bias.png",
+  #relative_bias_plot,
+  #width = 6,
+  #height = 4
+#)
+
+relative_bias_plot
+```
+
+Poměr $S/K$, styl využití opce, použitý model a tituly jsou statisticky nevýznamné. Ostatní parametry jsou stasticky významné.
+
+``` {r rmr_rel_base_predict, echo=FALSE}
+train_data_rel$predicted_error <- predict(rmr_relative)
+
+relative_hexes <- ggplot(
+  train_data_rel,
+  aes(x = predicted_error, y = pricing_error)
+) +
+  geom_hex(bins = 70) +
+  coord_equal(xlim = c(-0.6, 0.6), ylim = c(-0.6, 0.6)) +
+  scale_fill_viridis_c(
+    option = "plasma",
+    direction = -1
+  ) + # Cool modern color palette
+  geom_abline(
+    slope = 1,
+    intercept = 0,
+    color = "white",
+    linetype = "dashed",
+    size = 1
+  ) +
+  theme_minimal() +
+  labs(
+    title = "Přesnost odhadu odchylky regresního modelu",
+    x = "Odhadovaná odchylka",
+    y = "Skutečná odchylka",
+    fill = "Počet odhadů v rozmezí"
+  )
+
+#ggsave(
+# "~/Praxe/bakalarka/figures/relative_predict.png",
+# relative_hexes,
+# width = 6,
+# height = 4
+#)
+
+relative_hexes
+```
+
+Samostatné clustery v levé části grafu jsou tvořeny opcemi na titul ^VIX.
+
+``` {r}
+anova(rmr_relative)
+```
+
+Vypsaná ANOVA na ověření významnosti dle F-hodnoty. ANOVA tvrdí, že model a tituly jsou statisticky nevýznamné, nicméně dle výstupu $S$ by mělo být méně statisticky významné než $S/K$ (a dokonce i méně významné než styl využití opce). 
+
+<!-- TODO: Jednotné osy? -->
+
+# Vymazání odlehlých hodnot
+
+## Data před vymazáním
+
+<!-- TODO: Komentáře -->
+
+``` {r summary_pre, echo=FALSE}
+kable(
+  df |>
+    group_by(ticker) |>
+    summarise(
+      min    = min(pricing_error, na.rm = TRUE),
+      q1     = quantile(pricing_error, 0.25, na.rm = TRUE),
+      median = median(pricing_error, na.rm = TRUE),
+      q3     = quantile(pricing_error, 0.75, na.rm = TRUE),
+      max    = max(pricing_error, na.rm = TRUE)
+    )
+)
+```
+
+``` {r strip_plot_pre, echo=FALSE}
+strip_plot <- ggplot(
+  df,
+  aes(x = pricing_error, y = ticker, color = ticker)
+) +
+  geom_jitter(width = 0.2, alpha = 0.7, size = 2) +
+  theme_minimal() +
+  labs(title = "Strip plot - odchylky na ticker",
+       x = "Odchylka",
+       y = "Ticker")
+
+strip_plot
+```
+
+## Proces vymazání
+
+Data se odstraňují tak, aby chyba ocenění byla < 0.15 a aby strip plot ukazoval pouze přihlehlé hodnoty pro každý titul, za účelem vyřazení extrémů.
+Pro každý titul byla data omezena na hodnoty mezi 4% a 96% kvantilem, mimo tituly:
+
+- Měnové indexy (^XD_), které neomezujeme, jelikož jsou již korektní, 
+- NFLX, pro který je omezení 8% a 96%, z důvodu velkého počtu extrémních negativních hodnot.
+- JNJ a PG, pro které je omezení 6% a 96%, ze stejného důvodu.
+
+Titul ^VIX byl odstraněn kvůli zkreslení modelu kvůli vytváření samostatných clusterů s extrémy.
+
+<!-- TODO: Ticker dependant values -->
+
+``` {r filter_func}
+sort_mask <- function(dataset) {
+
+  # Výchozí hodnoty - aplikováno na normální titul
+  default_lower <- 0.04
+  default_higher <- 0.97
+
+  # Tituly, u kterých je nutno hodnoty omezit více
+  quantiles <- list(
+    NFLX = c(0.08, default_higher),
+    JNJ = c(0.08, default_higher),
+    PG = c(0.06, default_higher),
+    MSFT = c(0.05, default_higher),
+    KO = c(0.05, default_higher)
+  )
+
+  # Tituly, které nebudeme takto filtrovat
+  banned <- c("^XDN", "^XDB", "^XDA", "^XDE")
+  tickers <- c(unique(dataset$ticker))
+  tickers <- setdiff(tickers, banned)
+
+  # Základní maska
+  # - Ze začátku předpokládáme že všechny opce jsou ok a chceme je ve výsledku
+  mask <- rep(TRUE, nrow(dataset))
+
+  for (cur_ticker in tickers) {
+    # Získáváme pouze hodnoty pro daný ticker
+    ticker_diff <- dataset |> filter(ticker == cur_ticker)
+
+    # Výběr kvantilů pro omezení hodnot
+    if (cur_ticker %in% names(quantiles)) {
+      #cat(paste(cur_ticker, "found in quantiles\n"))
+      quants <- quantiles[[cur_ticker]]
+      low_q_const <- quants[1]
+      high_q_const <- quants[2]
+    } else {
+      #cat(paste(cur_ticker, "not found in quantiles\n"))
+      low_q_const <- default_lower
+      high_q_const <- default_higher
+    }
+
+    # Zjištění hodnot v těchto kvantilech
+    low_q <- quantile(ticker_diff$pricing_error, low_q_const)
+    high_q <- quantile(ticker_diff$pricing_error, high_q_const)
+
+    # Upravení masky
+    # - Řádek se buď vztahuje k jinému titulu, nebo je v korektních hodnotách...
+    #   ...jinak je vynechán
+    mask <- mask &
+      ((dataset$pricing_error > low_q | dataset$ticker != cur_ticker) &
+      (dataset$pricing_error < high_q | dataset$ticker != cur_ticker))
+  }
+
+  dataset[mask, ]
+}
+```
+
+``` {r apply_filter, include=FALSE}
+df_less <- sort_mask(df)
+df_less <- df_less |> filter(ticker != "^VIX")
+```
+
+## Data po vymazání
+
+``` {r strip_plot_post, echo=FALSE}
+strip_plot <- ggplot(
+  df_less,
+  aes(x = pricing_error, y = ticker, color = ticker)
+) +
+  geom_jitter(width = 0.2, alpha = 0.7, size = 2) +
+  theme_minimal() +
+  labs(title = "Strip plot - odchylky na ticker",
+       x = "Odchylka",
+       y = "Ticker")
+
+strip_plot
+```
+
+``` {r summary_post, echo=FALSE}
+kable(
+  df_less |>
+    group_by(ticker) |>
+    summarise(
+      min    = min(pricing_error, na.rm = TRUE),
+      q1     = quantile(pricing_error, 0.25, na.rm = TRUE),
+      median = median(pricing_error, na.rm = TRUE),
+      q3     = quantile(pricing_error, 0.75, na.rm = TRUE),
+      max    = max(pricing_error, na.rm = TRUE)
+    )
+)
+```
+
+``` {r data-prep-post, include=FALSE}
+train_indexes <- sample(seq_len(nrow(df_less)), size = 0.8 * nrow(df_less))
+
+train_data_rel <- df_less[train_indexes, ]
+test_data_rel <- df_less[-train_indexes, ]
+```
+
+``` {r, eval=FALSE, include=FALSE}
+#png("~/Praxe/bakalarka/figures/hist_relative.png", width = 6, height = 4, units = "in", res = 300)
+#hist(df_relative_temp$pricing_error, breaks = 200)
+#dev.off()
+
+hist(df_less$pricing_error, breaks = 200)
+```
+
+``` {r histogram-doctored, echo=FALSE}
+ggplot(df_less, aes(x = pricing_error)) +
+  geom_histogram(bins = 200, fill = "red") +
+  theme_minimal() +
+  labs(
+    title = "Histogram odchylek odhadované ceny od reality",
+    x = "Odchylka",
+    y = "Frekvence"
+  )
+```
+
+
+## LMER model - základní
+
+``` {r repeated_measure_post_base, warning=FALSE, messages=FALSE}
+subset_args <- c(
+  "S",
+  "moneyness",
+  "K",
+  "r",
+  "sigma",
+  "q",
+  "T",
+  "am_eu",
+  "call_put",
+  "model",
+  "ticker"
+  )
+interactions <- c(
+  "q:am_eu",
+  "(1 | ticker)",
+  "(1 | snapshot_month)"
+)
+
+rhs <- paste(c(subset_args, interactions), collapse = " + ")
+formula <- as.formula(paste("pricing_error ~ ", rhs))
+
+rmr_relative <- lmer(formula, data = train_data_rel)
+```
+
+``` {r}
+summary(rmr_relative)
+```
+
+``` {r}
+r2(rmr_relative)
+```
+
+``` {r echo=FALSE}
+relative_bias_plot <- plot_model(
+  rmr_relative,
+  type = "est",
+  show.values = TRUE,
+  value.offset = .4
+) +
+  theme_minimal() +
+  labs(
+    title = "Fixní efekty LMER modelu",
+    x = "Parametry",
+    y = "Odhady"
+  )
+
+#ggsave("~/Praxe/bakalarka/figures/relative_bias.png",
+# relative_bias_plot,
+# width = 6,
+# height = 4
+#)
+
+relative_bias_plot
+```
+
+Modely a tituly jsou statisicky nevýznamné, ostatní jsou statisticky silně významné. Některé tituly jsou stasticiky slabě významné. Dle ANOVY potvrdíme zda je proměnná jako celek významná.
+Tituly jsou stále statisticky nevýznamné. Potenciální důvody mohou být parametry/skutečnosti mimo stahovaná data nebo vliv fixního efektu a náhodného efektu titulu na model.
+
+``` {r rmr_post_base_predict, echo=FALSE}
+train_data_rel$predicted_error <- predict(rmr_relative)
+
+relative_hexes <- ggplot(
+  train_data_rel,
+  aes(x = predicted_error, y = pricing_error)
+) +
+  geom_hex(bins = 70) +
+  coord_equal(xlim = c(-0.2, 0.2), ylim = c(-0.2, 0.2)) +
+  scale_fill_viridis_c(
+    option = "plasma",
+    direction = -1
+  ) + # Cool modern color palette
+  geom_abline(
+    slope = 1,
+    intercept = 0,
+    color = "white",
+    linetype = "dashed",
+    size = 1
+  ) +
+  theme_minimal() +
+  labs(
+    title = "Přesnost odhadu odchylky regresního modelu",
+    x = "Odhadovaná odchylka",
+    y = "Skutečná odchylka",
+    fill = "Počet odhadů v rozmezí"
+  )
+
+#ggsave(
+# "~/Praxe/bakalarka/figures/relative_predict.png",
+# relative_hexes,
+# width = 6,
+# height = 4
+#)
+
+relative_hexes
+```
+
+``` {r}
+anova(rmr_relative)
+```
+
+ANOVA opět potvrzuje nevýznamnost modelu a titulu, nicméně $S$ je silně nevýznamné. U ostatních proměnných je potrvrzena významnost.
+
+# Odstranění dle boxplotu
+
+Experimentálně, zkusil jsem i odstranit outliery dle boxplotu (nechat pouze 1. - 3. kvartil).
+
+``` {r box-basic, echo=FALSE}
+ggplot(df, aes(x = ticker, y = pricing_error)) +
+  geom_boxplot() +
+  theme_minimal() +
+  labs(
+    title = "Histogram odchylek odhadované ceny od reality",
+    x = "Odchylka",
+    y = "Frekvence"
+  )
+```
+
+``` {r filter_box}
+sort_mask <- function(dataset) {
+
+  # Výchozí hodnoty - aplikováno na normální titul
+  low_q_const <- 0.25
+  high_q_const <- 0.75
+
+  tickers <- c(unique(dataset$ticker))
+
+  # Základní maska
+  # - Ze začátku předpokládáme že všechny opce jsou ok a chceme je ve výsledku
+  mask <- rep(TRUE, nrow(dataset))
+
+  for (cur_ticker in tickers) {
+    # Získáváme pouze hodnoty pro daný ticker
+    ticker_diff <- dataset |> filter(ticker == cur_ticker)
+
+    # Zjištění hodnot v těchto kvantilech
+    low_q <- quantile(ticker_diff$pricing_error, low_q_const)
+    high_q <- quantile(ticker_diff$pricing_error, high_q_const)
+
+    # Upravení masky
+    # - Řádek se buď vztahuje k jinému titulu, nebo je v korektních hodnotách...
+    #   ...jinak je vynechán
+    mask <- mask &
+      ((dataset$pricing_error > low_q | dataset$ticker != cur_ticker) &
+      (dataset$pricing_error < high_q | dataset$ticker != cur_ticker))
+  }
+
+  dataset[mask, ]
+}
+```
+
+``` {r box_filter, include=FALSE}
+df_even_less <- sort_mask(df)
+df_even_less <- df_even_less |> filter(ticker != "^VIX")
+```
+
+## Data po vymazání
+
+``` {r strip_plot_box, echo=FALSE}
+strip_plot <- ggplot(
+  df_even_less,
+  aes(x = pricing_error, y = ticker, color = ticker)
+) +
+  geom_jitter(width = 0.2, alpha = 0.7, size = 2) +
+  theme_minimal() +
+  labs(title = "Strip plot - odchylky na ticker",
+       x = "Odchylka",
+       y = "Ticker")
+
+strip_plot
+```
+
+``` {r summary_box, echo=FALSE}
+kable(
+  df_even_less |>
+    group_by(ticker) |>
+    summarise(
+      min    = min(pricing_error, na.rm = TRUE),
+      q1     = quantile(pricing_error, 0.25, na.rm = TRUE),
+      median = median(pricing_error, na.rm = TRUE),
+      q3     = quantile(pricing_error, 0.75, na.rm = TRUE),
+      max    = max(pricing_error, na.rm = TRUE)
+    )
+)
+```
+
+``` {r data-prep-box, include=FALSE}
+train_indexes <- sample(seq_len(nrow(df_even_less)), size = 0.8 * nrow(df_even_less))
+
+train_data_rel <- df_even_less[train_indexes, ]
+test_data_rel <- df_even_less[-train_indexes, ]
+```
+
+``` {r, eval=FALSE, include=FALSE}
+#png("~/Praxe/bakalarka/figures/hist_relative.png", width = 6, height = 4, units = "in", res = 300)
+#hist(df_relative_temp$pricing_error, breaks = 200)
+#dev.off()
+
+hist(df_less$pricing_error, breaks = 200)
+```
+
+``` {r histogram-boxed, echo=FALSE}
+ggplot(df_even_less, aes(x = pricing_error)) +
+  geom_histogram(bins = 200, fill = "red") +
+  theme_minimal() +
+  labs(
+    title = "Histogram odchylek odhadované ceny od reality",
+    x = "Odchylka",
+    y = "Frekvence"
+  )
+```
+
+``` {r box-advanced, echo=FALSE}
+ggplot(df_even_less, aes(x = ticker, y = pricing_error)) +
+  geom_boxplot() +
+  theme_minimal() +
+  labs(
+    title = "Histogram odchylek odhadované ceny od reality",
+    x = "Odchylka",
+    y = "Frekvence"
+  )
+```
+
+## LMER model - základní
+
+``` {r repeated_measure_post_box, warning=FALSE, messages=FALSE}
+subset_args <- c(
+  "S",
+  "moneyness",
+  "K",
+  "r",
+  "sigma",
+  "q",
+  "T",
+  "am_eu",
+  "call_put",
+  "model",
+  "ticker"
+  )
+interactions <- c(
+  "q:am_eu",
+  "(1 | ticker)",
+  "(1 | snapshot_month)"
+)
+
+rhs <- paste(c(subset_args, interactions), collapse = " + ")
+formula <- as.formula(paste("pricing_error ~ ", rhs))
+
+rmr_relative <- lmer(formula, data = train_data_rel)
+```
+
+``` {r}
+summary(rmr_relative)
+```
+
+``` {r}
+r2(rmr_relative)
+```
+
+``` {r echo=FALSE}
+relative_bias_plot <- plot_model(
+  rmr_relative,
+  type = "est",
+  show.values = TRUE,
+  value.offset = .4
+) +
+  theme_minimal() +
+  labs(
+    title = "Fixní efekty LMER modelu",
+    x = "Parametry",
+    y = "Odhady"
+  )
+
+#ggsave("~/Praxe/bakalarka/figures/relative_bias.png",
+# relative_bias_plot,
+# width = 6,
+# height = 4
+#)
+
+relative_bias_plot
+```
+
+Modely, styly využití a tituly mimo ^XDB a ^XDN jsou statisticky nevýznmané. Zmíněné měnové fondy a ostatní parametry jsou statisicky významné. Nevýznamnost titulů potvrdíme v ANOVA analýze.
+
+``` {r rmr_post_box_predict, echo=FALSE}
+train_data_rel$predicted_error <- predict(rmr_relative)
+
+relative_hexes <- ggplot(
+  train_data_rel,
+  aes(x = predicted_error, y = pricing_error)
+) +
+  geom_hex(bins = 70) +
+  coord_equal(xlim = c(-0.05, 0.05), ylim = c(-0.05, 0.05)) +
+  scale_fill_viridis_c(
+    option = "plasma",
+    direction = -1
+  ) + # Cool modern color palette
+  geom_abline(
+    slope = 1,
+    intercept = 0,
+    color = "white",
+    linetype = "dashed",
+    size = 1
+  ) +
+  theme_minimal() +
+  labs(
+    title = "Přesnost odhadu odchylky regresního modelu",
+    x = "Odhadovaná odchylka",
+    y = "Skutečná odchylka",
+    fill = "Počet odhadů v rozmezí"
+  )
+
+#ggsave(
+# "~/Praxe/bakalarka/figures/relative_predict.png",
+# relative_hexes,
+# width = 6,
+# height = 4
+#)
+
+relative_hexes
+```
+
+``` {r}
+anova(rmr_relative)
+```
+
+Model a tituly jsou nevýznamné. Styl využití je na hranici významnosti. $S/K$ je také na hranici významnosti, $S$ je oproti ostatním modelům silně významnější.
