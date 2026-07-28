@@ -51,7 +51,8 @@ df_raw <- bind_rows(
       TRUE ~ "Long"
     )
   ) %>%
-  mutate(pricing_error = (true_price - user_bs)/true_price) %>%
+  mutate(pricing_error = (true_price - user_bs)/S) %>%
+  mutate(moneyness = S / K) |>
   mutate(option_id = paste0(ticker,
     format(expiration, "%y%m%d"),
     substr(call_put, 1, 1),
@@ -62,12 +63,71 @@ df <- df_raw
 df$SK_ratio <- df$S / df$K
 ```
 
+``` {r filter_func}
+sort_mask <- function(dataset) {
+
+  # Výchozí hodnoty - aplikováno na normální titul
+  default_lower <- 0.04
+  default_higher <- 0.97
+
+  # Tituly, u kterých je nutno hodnoty omezit více
+  quantiles <- list(
+    NFLX = c(0.08, default_higher),
+    JNJ = c(0.08, default_higher),
+    PG = c(0.06, default_higher),
+    MSFT = c(0.05, default_higher),
+    KO = c(0.05, default_higher)
+  )
+
+  # Tituly, které nebudeme takto filtrovat
+  banned <- c("^XDN", "^XDB", "^XDA", "^XDE")
+  tickers <- c(unique(dataset$ticker))
+  tickers <- setdiff(tickers, banned)
+
+  # Základní maska
+  # - Ze začátku předpokládáme že všechny opce jsou ok a chceme je ve výsledku
+  mask <- rep(TRUE, nrow(dataset))
+
+  for (cur_ticker in tickers) {
+    # Získáváme pouze hodnoty pro daný ticker
+    ticker_diff <- dataset |> filter(ticker == cur_ticker)
+
+    # Výběr kvantilů pro omezení hodnot
+    if (cur_ticker %in% names(quantiles)) {
+      #cat(paste(cur_ticker, "found in quantiles\n"))
+      quants <- quantiles[[cur_ticker]]
+      low_q_const <- quants[1]
+      high_q_const <- quants[2]
+    } else {
+      #cat(paste(cur_ticker, "not found in quantiles\n"))
+      low_q_const <- default_lower
+      high_q_const <- default_higher
+    }
+
+    # Zjištění hodnot v těchto kvantilech
+    low_q <- quantile(ticker_diff$pricing_error, low_q_const)
+    high_q <- quantile(ticker_diff$pricing_error, high_q_const)
+
+    # Upravení masky
+    # - Řádek se buď vztahuje k jinému titulu, nebo je v korektních hodnotách...
+    #   ...jinak je vynechán
+    mask <- mask &
+      ((dataset$pricing_error > low_q | dataset$ticker != cur_ticker) &
+      (dataset$pricing_error < high_q | dataset$ticker != cur_ticker))
+  }
+
+  dataset[mask, ]
+}
+```
+
 ``` {r doctoring}
-df_doctored <- df %>%
-  filter((ticker != "NFLX" | call_put != "calls") | (K < 266 & true_price < 400)) %>%
-  filter((ticker != "NVDA" | call_put != "calls") | (K < 500 & true_price < 300)) %>%
-  filter((ticker != "NFLX" | call_put != "puts") | (K < 266 & (K < 100 | true_price > 10))) %>%
-  filter((ticker != "NVDA" | call_put != "puts") | (K < 500 & (K < 300 | true_price > 100)))
+df_doctored <- sort_mask(df) |>
+#df_doctored <- df |>
+  filter((ticker != "NFLX" | call_put != "calls") | (K < 266 & true_price < 400)) |>
+  filter((ticker != "NVDA" | call_put != "calls") | (K < 500 & true_price < 300)) |>
+  filter((ticker != "NFLX" | call_put != "puts") | (K < 266 & (K < 100 | true_price > 10))) |>
+  filter((ticker != "NVDA" | call_put != "puts") | (K < 500 & (K < 300 | true_price > 100))) |>
+  filter(moneyness < 10 & moneyness > 0.1)
 
 df <- df_doctored
 ```

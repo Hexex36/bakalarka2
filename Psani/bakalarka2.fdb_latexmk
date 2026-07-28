@@ -1,12 +1,11 @@
 # Fdb version 4
-["biber bakalarka2"] 1784891580.52154 "bakalarka2.bcf" "bakalarka2.bbl" "bakalarka2" 1784893656.35669 0
-  "bakalarka2.bcf" 1784893655.72183 140136 a03287a19341def624bd35667e1439fb "lualatex"
-  "thesis.bib" 1784891408.2777 4933 a6047a44fe89ddede586f55e4336d3ae ""
+["biber bakalarka2"] 1785065083.90779 "bakalarka2.bcf" "bakalarka2.bbl" "bakalarka2" 1785236635.93861 2
+  "bakalarka2.bcf" 1785236634.91592 140136 a03287a19341def624bd35667e1439fb "lualatex"
   (generated)
   "bakalarka2.bbl"
   "bakalarka2.blg"
   (rewritten before read)
-["lualatex"] 1784893647.22819 "bakalarka2.tex" "bakalarka2.pdf" "bakalarka2" 1784893656.35712 0
+["lualatex"] 1785236619.99727 "bakalarka2.tex" "bakalarka2.pdf" "bakalarka2" 1785236635.93921 0
   "/etc/texmf/tex/generic/config/language.dat" 1775415801 2774 23432d78ba890d76256b3f33c553a888 ""
   "/etc/texmf/tex/generic/config/language.dat.lua" 1775415801 1493 0cf75b944ee4f3579780f7adace81c20 ""
   "/home/matej/.texlive/texmf-var/luatex-cache/generic/fonts/hb/062c5352532e8e3f15b9c33cbb9c6500a94e4eeeddd357d6bbe30511b9050754.luc" 1776984476.74431 90645 b1917e77675a1cc34a4de609a9e251a7 ""
@@ -25,11 +24,10 @@
   "/home/matej/.texlive/texmf-var/luatex-cache/generic/fonts/otl/lmroman12-regular.luc" 1776984473.93431 127657 842a8e48deccc1ef18d5ed9dce3da0d0 ""
   "/home/matej/.texlive/texmf-var/luatex-cache/generic/names/luaotfload-lookup-cache.luc" 1784890588.95665 11461 37b0748b400157359026236ca4962ebe ""
   "/home/matej/.texlive/texmf-var/luatex-cache/generic/names/luaotfload-names.luc.gz" 1784385506.97405 414781 84eef594d5052d3a6d3920fad5451305 ""
-  "/home/matej/Praxe/bakalarka/figures/NVDA_NFLX_raw.png" 1784660002.74252 210178 266222f4f2495efa453e021bee0bd1eb ""
-  "/home/matej/Praxe/bakalarka/figures/american-scatter.png" 1784660000.66052 508519 a1be79a5884157f67fe208fdf5dd0e58 ""
+  "/home/matej/Praxe/bakalarka/figures/american-scatter.png" 1785013566.48895 370233 d7a3e7f8b4c00f0b6255a71f51b53424 ""
   "/home/matej/Praxe/bakalarka/figures/basic_lm_plots.png" 1784679250.66868 187545 25eb3913e747ecc50e33273e55d57d09 ""
-  "/home/matej/Praxe/bakalarka/figures/correlations.png" 1784660020.49252 188282 fa9db344ba6369c074a233961d95fadf ""
-  "/home/matej/Praxe/bakalarka/figures/european-scatter.png" 1784660001.39352 237222 104fbf8c374ea63ca42f32e838dd0007 ""
+  "/home/matej/Praxe/bakalarka/figures/correlations.png" 1785013599.62395 185594 d46f8fd82910a667582d6a7b7b2a3083 ""
+  "/home/matej/Praxe/bakalarka/figures/european-scatter.png" 1785013567.76395 187541 874f1eb83ef7e317b910d61d74e1bf63 ""
   "/home/matej/Praxe/bakalarka/figures/hist_absolute.png" 1784679210.03768 33182 835700861316da2d07fe4a9d1915aa3f ""
   "/home/matej/Praxe/bakalarka/figures/hist_relative.png" 1784679424.11369 35646 669879fca73663e26f45ef8d2afe019d ""
   "/home/matej/Praxe/bakalarka/figures/relative_basic.png" 1784679468.38869 182397 62a26bca308d5e4aa3b8a34ebb7c53d8 ""
@@ -333,11 +331,11 @@
   "TikzStuff/strom_example_stock.tikz" 1783328368.16057 961 73b6326226ac9413c864307330bc171a ""
   "TikzStuff/strom_very_basic.tikz" 1783328729.08094 520 e7f52c5c3222e8d46129ed6acbb620a4 ""
   "appendix_a.tex" 1783157126.18006 2908 d4eff2dc0051f814053acf372071c885 ""
-  "bakalarka2.aux" 1784893655.69983 56605 4fb06b84b01d3f7b1b0e29f7e5ef2a87 "lualatex"
-  "bakalarka2.bbl" 1784891581.38671 58358 26e1c271fe809bf9538e5de0735c6c11 "biber bakalarka2"
-  "bakalarka2.run.xml" 1784893655.72338 2562 ecee5b41c9b2358c192a1a6fec1b1f47 "lualatex"
-  "bakalarka2.tex" 1784893636.97983 147932 5243389dbf6495edaf397916f11b6e60 ""
-  "bakalarka2.toc" 1784893655.72338 6385 edf19a6234371fc851f0f4d927fd1888 "lualatex"
+  "bakalarka2.aux" 1785236634.88092 57099 8b427ace4e5610b89f9acdb35d1bb13b "lualatex"
+  "bakalarka2.bbl" 1785144787.35901 58358 26e1c271fe809bf9538e5de0735c6c11 "biber bakalarka2"
+  "bakalarka2.run.xml" 1785236634.91869 2562 ecee5b41c9b2358c192a1a6fec1b1f47 "lualatex"
+  "bakalarka2.tex" 1785236605.87592 151791 839fb4b124ece6bc9f8cb2b59ef65be5 ""
+  "bakalarka2.toc" 1785236634.91869 6483 624e8ae8e88c8619064aab209681386e "lualatex"
   "kitheses.cls" 1781721616.00964 2600 f1349da43554586dcacdd1794eac1ada ""
   (generated)
   "bakalarka2.aux"

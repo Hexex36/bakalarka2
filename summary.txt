@@ -1,0 +1,51 @@
+S & 1.246e-05 & 6.052e-07 & <2e-16 & Vysoká
+moneyness & -2.366e-06 & 3.333e-05 & 0.943 & Nevýznamné
+K & -7.610e-06 & 1.624e-07 & <2e-16 & Vysoká
+r & 1.791e+00 & 2.848e-02 & <2e-16 & Vysoká
+sigma & -8.143e-02 & 1.257e-03 & <2e-16 & Vysoká
+q & -4.454e-01 & 4.961e-02 & <2e-16 & Vysoká
+T & 3.903e-03 & 4.176e-05 & <2e-16 & Vysoká
+am_eueuropean & -3.061e-02 & 8.643e-03 & 1.000 & Nevýznamné
+call_putputs & -3.143e-03 & 6.038e-05 & <2e-16 & Vysoká
+modeluser_crr & -2.961e-05 & 7.076e-05 & 0.676 & Nevýznamné
+modeluser_mc & -4.707e-05 & 7.075e-05 & 0.506 & Nevýznamné
+^XDA & 1.000 & Nevýznamné \\
+^XDB & 1.000 & Nevýznamné \\
+^XDE & 1.000 & Nevýznamné \\
+^XDN & 1.000 & Nevýznamné \\
+AAPL & 1.000 & Nevýznamné \\
+AMD & 1.000 & Nevýznamné \\
+AMZN & 1.000 & Nevýznamné \\
+GOOGL & 1.000 & Nevýznamné \\
+JNJ & 1.000 & Nevýznamné \\
+KO & 1.000 & Nevýznamné \\
+META & 1.000 & Nevýznamné \\
+MSFT & 1.000 & Nevýznamné \\
+NFLX & 1.000 & Nevýznamné \\
+NVDA & 1.000 & Nevýznamné \\
+PG & 1.000 & Nevýznamné \\
+
+^RUT & 3.231915e-10 \\
+^XDA & -1.028174e-15 \\
+^XDB & -1.192626e-15 \\
+^XDE & 7.096233e-15 \\
+^XDN & -7.035309e-16 \\
+AAPL & -8.875639e-12 \\
+AMD & 3.858791e-11 \\
+AMZN & -8.682115e-12 \\
+GOOGL & 3.551076e-11 \\
+JNJ & -1.818018e-12 \\
+KO & -7.333479e-13 \\
+META & 1.501606e-10 \\
+MSFT & 3.172278e-11 \\
+NFLX & 4.021549e-11 \\
+NVDA & 4.893377e-12 \\
+PG & -2.066007e-12 \\
+TSLA & -5.450887e-11 \\
+## 
+## $snapshot_month
+##      (Intercept)
+01 & -7.176140e-04 \\
+02 & 9.957889e-04 \\
+03 & 4.946272e-06 \\
+05 & -2.831212e-04 \\

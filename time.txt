@@ -12,3 +12,7 @@
 11   Monte Carlo European Call    3.120
 12   Monte Carlo  European Put    3.978
 
+Americké call & 91.444 & 5.095 & 4074.821 \\
+Americké put & 81.467 & 10.383 & 4230.727 \\
+Evropské call & 3.099 & 0.003 & 3.120 \\
+Evropské put & 4.102 & 0.003 & 3.978 \\

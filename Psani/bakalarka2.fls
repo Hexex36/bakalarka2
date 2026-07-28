@@ -367,8 +367,6 @@ INPUT /usr/share/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm5.tfm
 INPUT ./TikzStuff/strom_very_basic.tikz
 INPUT ./TikzStuff/strom_basic.tikz
 INPUT ./TikzStuff/strom_example_stock.tikz
-INPUT /home/matej/Praxe/bakalarka/figures/NVDA_NFLX_raw.png
-INPUT /home/matej/Praxe/bakalarka/figures/NVDA_NFLX_raw.png
 INPUT /home/matej/Praxe/bakalarka/figures/correlations.png
 INPUT /home/matej/Praxe/bakalarka/figures/correlations.png
 INPUT /home/matej/Praxe/bakalarka/figures/american-scatter.png

@@ -1416,7 +1416,7 @@ Historická volatilita slouží jako vyjádření skutečného pohybu aktiva v m
 
   V této části práce prezentuji výsledky případové studie, kterou se naplňuje praktický rozsah cíle bakalářské práce.
 
-  V této části vypisuji způsoby získání \_\_\_\_\_ datových podkladů z platformy Yahoo Finance, popisuji způsob spočtení odhadů ocenění těchto podkladů a následně tyto vypočtené hodnoty porovnávám se získanými cenami opcí.
+  V této části vypisuji způsoby získání opčních datových podkladů z platformy Yahoo Finance, popisuji způsob spočtení odhadů ocenění těchto podkladů a následně tyto vypočtené hodnoty porovnávám se získanými cenami opcí.
 
   Přesnost modelů se hodnocena jako relativní velikost odchylky vypočteného odhadu ceny od napozorované ceny. Tento přístup je vybrán, jelikož absolutní odchylky odhadnutých a reálných cen opcí nelze porovnávat mezi tituly kvůli rozdílech v rozsahu ceny. Pro opci na akcii o ceně 50000 Kč je odchylka 25 Kč skoro zanedbatelná, zatímco pro opci na akcii o ceně 50 Kč je stejná odchylka problematická.
   K výpočtu relativní odchylky používám vzorec:
@@ -1430,6 +1430,8 @@ Historická volatilita slouží jako vyjádření skutečného pohybu aktiva v m
   Senzitivita parametrů byla získána pomocí regrese nad panelovými daty. K analýze senzitivity byly využity smíšené lineární modely, implementované v R knihovně \texttt{lme4}. Odkaz na dokumentaci této knihovny je dostupný v bibliografii. Z regresních parametrů můžeme vyvodit citlivost ohodnocení na parametry, a zjistit, které parametry a jak ovlivňují ohodnocení. \nocite{LME4}
 
   S pomocí těchto odchylek a informacích o senzitivitě na parametry získáme bližší údaje o správnosti a limitacích jednotlivých modelů, které použijeme pro jejich srovnání. 
+
+  Všechny skripty jsou dostupny na platformě Github, pod odkazem \url{https://github.com:Hexex36/bakalarka}.
 
   \section{Sběr dat}
 
@@ -1593,18 +1595,18 @@ Výsledný dataset obsahuje 168~996 opčních kontraktů na 12 amerických akci�
 
   Zatímco implementace pro evropské opce se dá zapsat pomocí jedné rovnice implementovatelné v několika řádcích R, ocenění americké opce vždy vyžaduje plné sestavení stromu, zpětný průchod a pořešení okrajových případů (nulový/velmi krátký čas do expirace, extrémní strike cena apod.). Z tohoto důvodu místo ruční implementace byla v práci použita implentace Coxových-Rossových-Rubinsteinových stromů z knihovny \texttt{fOptions}. Tato knihovna je dostupná ke stažení na GitHubu\footnote{Odkaz: \url{https://github.com/cran/fOptions}}. Odkaz na dokumentaci je vložen do bibliografie. \nocite{fOptions}
 
-  Pro výpočet hodnoty byl nastaven parametr $n$, zastupující počet binomických kroků, nastaven jako 100. Pro tuto hodnotu jsem se rozhodl skrze manuální testování, jelikož poskytuje dostatečnou rovnováhu mezi rychlostí a přesností. Tabulka \ref{tab:binom_calls} popisuje jak zavolat funkci na všechny typy opcí a styly využití.
+  Pro výpočet hodnoty byl nastaven parametr $n$, zastupující počet binomických kroků, nastaven jako 100. Pro tuto hodnotu jsem se rozhodl skrze manuální testování, jelikož poskytuje dostatečnou rovnováhu mezi rychlostí a přesností. Funkce se dá zavolat jako \texttt{CRRBinomialTreeOption}. Akceptované parametry jsou parametry opcí s tradičními označeními ($S, K, T,$ \dots), mimo parametrů $r$ a $q$, které jsou zde shrnuty do parametru $b$, který zastupuje náklady na držení. Parametr $b$ tedy můžeme vyjádřit jako $r - q$. Mimo tyto parametry musíme předat také parametr \texttt{TypeFlag}, který říká funkci o jaký typ opce se jedná. Předaný parametr by měl být řetězec znaků o délce dva, kde první znak je první písmeno typu opce (\texttt{c} pro call opce a \texttt{p} pro put opce), a druhý znak označuje styl využití opce (\texttt{a} pro americký styl a \texttt{e} pro evropské). Tabulka \ref{tab:binom_calls} popisuje jak zavolat funkci na všechny typy opcí a styly využití.
 
-  \begin{table}[h]
+  \begin{table}[h!]
     \centering
     \label{tab:binom_calls}
     \caption{Volání funkcí pro ohodnocení opcí binomickými stromy}
     \begin{tabular}{lcc}
       \toprule
-       & Kupní opce & Prodejní opce \\
+      Využití & Kupní opce & Prodejní opce \\
       \midrule
-      Evropský styl & \texttt{CRRBinomialTreeOption("ce", <parametry opce>)} & \texttt{CRRBinomialTreeOption("pe", <parametry opce>)} \\
-      Americký styl & \texttt{CRRBinomialTreeOption("ca", <parametry opce>)} & \texttt{CRRBinomialTreeOption("pa", <parametry opce>)} \\
+      Evropské & \texttt{CRRBinomialTreeOption("ce", \dots)} & \texttt{CRRBinomialTreeOption("pe", \dots)} \\
+      Americké & \texttt{CRRBinomialTreeOption("ca", \dots)} & \texttt{CRRBinomialTreeOption("pa", \dots)} \\
       \bottomrule
     \end{tabular}
   \end{table}
@@ -1631,7 +1633,7 @@ Výsledný dataset obsahuje 168~996 opčních kontraktů na 12 amerických akci�
   Pomocná funkce je použitá pro nalezení kritické ceny aktiva pro danou opci a používá specifikaci Newtonova-Raphsonova v sekci \ref{sec:bs_nr} s maximálním tolerovaným rozdílem $\alpha = 10^{-9}$. Vyšší tolerance zanedbatelně zvyšují přesnost na silný úkor přesnosti.
   Pomocná funkce pro prodejní opce volá ještě jednu pomocnou funkci na určení počátečního odhadu pro Newtonův-Raphsonův algoritmus. Toto bylo učiněno v rámci hledání chyby v implementaci pomocné funkce.
 
-  \begin{table}[h]
+  \begin{table}[h!]
     \centering
     \label{tab:bs_function_names}
     \caption{Názvy funkcí pro Blackovo-Scholesovo ohodnocení amerických opcí}
@@ -1663,25 +1665,42 @@ Výsledný dataset obsahuje 168~996 opčních kontraktů na 12 amerických akci�
 
   \subsection{Očistění dat}
 
-  Surová data pro tituly NFLX a NVDA tvořila na grafech silně atypické křivky pro call i pro put opce. Na bodových grafech \ref{fig:correctness_markets}, kde osa $x$ nese realizační ceny opcí ($K$) a osa $y$ poslední tržní cenu pro danou opci, pro oba typy opcí pro oba tituly vznikají dva clustery, zdánlivě napodobující křivky očekáváného hodnocení call/put opce pro příslušný typ, kde jeden první cluster je velmi menší a druhý cluster je v datasetu o dost rozestoupenější. Po manuální inspekci dat a porovnání s vypočtenými odhady hodnot jsem usoudil, že první cluster obsahuje korektní data, zatímco druhý cluster se jeví jako historická data pro jinou předchozí hodnotu akcie. Proto bude druhý cluster z používaných dat vyloučen.
+  Očištění dat spočívalo ve třech krocích:
 
-  \begin{figure}[h]
+  \begin{itemize}
+    \item{Pro tituly NFLX a NVDA byla stažena data, která se pro průzkumu prokázala jako staré opce pro jinou cenu akcie. Tyto data byly odstraněny.}
+    \item{Z důvodů existence velmi silných extrémů v poměru $S/K$ byly vynechány stažené údaje o opcích pro které neplatilo $0.1 < S/K < 10$. }
+    \item{Za účelem vytvoření přesnějšího regresního modelu pro analýzu byly odstraněny opce jejiž odchylka vypočetné ceny modelu od reality byly označené za odlehlé hodnoty na základě inspekce opcí pomocí strip plotu.}
+  \end{itemize}
+
+  \subsection{Časová náročnost výpočtu}
+
+  Pro použité modely dokážeme odhadnout, které modely jsou náročnější na výpočet než ty ostatní. Tabulka \ref{tab:times} zobrazuje délky výpočtu všech (zaokrouhleno) 160~000 opcí, pro každý model v sekundách. Tabulka ukazuje délky výpočtu pro opce seskupené dle typu opce a stylu využití.
+
+  \begin{table}
     \centering
-    \caption{Grafy verifikace správnosti tržních cen surových dat pro NFLX a NVDA}
-    \label{fig:correctness_markets}
-    \includegraphics{~/Praxe/bakalarka/figures/NVDA_NFLX_raw.png}
-  \end{figure}
+    \caption{Rychlosti výpočtu opcí v sekundách}
+    \label{tab:model_speeds}
+    \begin{tabular}{lccc}
+      \toprule
+      Typ a styl & Binom. stromy (s) & Black-Scholes (s) & Monte Carlo (s) \\
+      \midrule
+      Americké call & 91.444 & 5.095 & 4074.821 \\
+      Americké put & 81.467 & 10.383 & 4230.727 \\
+      Evropské call & 3.099 & 0.003 & 3.120 \\
+      Evropské put & 4.102 & 0.003 & 3.978 \\
+      \bottomrule
+    \end{tabular}
+  \end{table}
 
-  U titulu NFLX byly pro call opce vyloučeny pozice, u nichž byla teoretická cena vyšší než 400 a realizační cena vyšší než 266. Práh realizační ceny odpovídá poslední ceně, při níž je tržní cena nižší než 400 a zároveň $K < 800$. Pro put opce byly vyloučeny opce s realizací $K > 266$ a dále opce, které pro $K > 100$ vykazují tržní cenu $< 10$.
-  U akcií NVDA byly pro call opce obdobně vyloučeny pozice s tržní cenou $> 300$ a $K > 500$. Pro put opce byly vyloučeny opce, které pro $K > 300$ mají tržní cenu $< 100$, a opce s $K > 500$.
-
-  Pro zbytek datasetu jsem nenalezl žádné důkazy existence vadných dat.
+  Lze vidět, že pro všechny případy má Blackův-Scholesův model nejlepší časy. Pro americké opce je model Monte Carlo extrémně pomalý; zatímco oba modelu zvládají vypočítat 160~000 opcí pod 2 minuty (v případě Blackova-Scholesova modelu dokononce pod 11 sekund), Monte Carlo počítá tyto opce více než hodinu.
+  Ve většině případů platí, že binomické stromy zpracují opce rychleji než Monte Carlo, nicméně pro evropské put opce je Monte Carlo o desetiny sekund rychlejší. %TODO: Additional testing
 
   \section{Popis stáhnutých dat}
 
-  Po pročištění dat pro použití v práci zůstalo 156~401 opcí, z toho 134~805 amerických a 21~596 evropských. Tabulka \ref{tab:count_by_ticker} obsahuje počet stáhnutých údajích o opcích pro každý titul; první sekce obsahuje informace o amerických opcích, druhá sekce obsahuje informace o evropských opcích. Lze vidět, že po měnové indexy bylo staženo velmi málo údajů o opcích, což svědčí o nízké likviditě.
+  Po pročištění dat pro použití v práci zůstalo 156~401 opcí, z toho 134~805 amerických a 21~596 evropských. Tabulka \ref{tab:count_by_ticker} obsahuje počet stáhnutých údajů o opcích pro každý titul; první sekce obsahuje informace o amerických opcích, druhá sekce obsahuje informace o evropských opcích. Lze vidět, že po měnové indexy bylo staženo velmi málo údajů o opcích, což svědčí o nízké likviditě.
 
-  \begin{table}[h]
+  \begin{table}[h!]
     \centering
     \caption{Počty stažených opcí na titul}
     \label{tab:count_by_ticker}
@@ -1689,21 +1708,21 @@ Výsledný dataset obsahuje 168~996 opčních kontraktů na 12 amerických akci�
       \toprule
       Titul & Cally & Puty & Celkem \\
       \midrule
-      AAPL & 5374 & 4646 & 10020 \\
-      AMD & 6249 & 5592 & 11841 \\
-      AMZN & 4316 & 4005 & 8321 \\
-      GOOGL & 7671 & 6299 & 13970 \\
-      JNJ & 1791 & 1637 & 3428 \\
-      KO & 1394 & 1344 & 2738 \\
-      META & 11119 & 9131 & 20250 \\
-      MSFT & 6453 & 6000 & 12453 \\
-      NFLX & 8633 & 6887 & 15520 \\
-      NVDA & 6924 & 6327 & 13251 \\
-      PG & 1460 & 1410 & 2870 \\
-      TSLA & 10432 & 9711 & 20143 \\
+      AAPL & 4915 & 4191 & 9106 \\
+      AMD & 5746 & 5013 & 10759 \\
+      AMZN & 4077 & 3661 & 7738 \\
+      GOOGL & 7091 & 5712 & 12803 \\
+      JNJ & 1456 & 1594 & 3050 \\
+      KO & 1238 & 1279 & 2517 \\
+      META & 10289 & 7955 & 18244 \\
+      MSFT & 6166 & 5290 & 11456 \\
+      NFLX & 8360 & 6592 & 14952 \\
+      NVDA & 6620 & 6013 & 12633 \\
+      PG & 1333 & 1277 & 2610 \\
+      TSLA & 9524 & 8604 & 18128 \\
       \midrule
-      \textasciicircum{}RUT & 7804 & 9256 & 17060 \\
-      \textasciicircum{}VIX & 2519 & 1777 & 4296 \\
+      \textasciicircum{}RUT & 6991 & 8874 & 15865 \\
+      \textasciicircum{}VIX & 2354 & 1561 & 3915 \\
       \textasciicircum{}XDA & 35 & 0 & 35 \\
       \textasciicircum{}XDB & 1 & 46 & 47 \\
       \textasciicircum{}XDE & 53 & 39 & 92 \\
@@ -1712,7 +1731,9 @@ Výsledný dataset obsahuje 168~996 opčních kontraktů na 12 amerických akci�
     \end{tabular}
   \end{table}
 
-  \begin{table}[h]
+  Tabulka \ref{tab:descriptive_total} obsahuje základní deskriptivní statistiku pro všechny stažené údaje. Z těchto údajů lze ověřit, zda dané proměnné nabývají hodnot, které pro použití v analýze se jeví jako korektní.
+
+  \begin{table}[h!]
     \centering
     \caption{Globální popisné statistiky}
     \label{tab:descriptive_total}
@@ -1720,23 +1741,16 @@ Výsledný dataset obsahuje 168~996 opčních kontraktů na 12 amerických akci�
       \toprule
       Parametr & Minimum & 1. kvartil & Medián & Průměr & 3. kvartil & Maximum \\
       \midrule
-      Poměr $S/K$ & 0.08045 & 0.77523 & 1.02059 & 2.10704 & 1.43294 & 430.66 \\
-      $\sigma p.a.$ & 0.06288 & 0.26624 & 0.33893 & 0.39082 & 0.47135 & 1.3825 \\
-      $q p.a.$ & 0.0000 & 0.0000 & 0.0000 & 0.00242 & 0.002934 & 0.136007 \\
-      $r p.a.$ & 0.03381 & 0.03653 & 0.03742 & 0.03714 & 0.03764 & 0.0406 \\
-      $T p.a.$ & 0.00274 & 0.07123 & 0.39452 & 0.65388 & 0.89589 & 2.89041 \\
+      Poměr $S/K$ & 0.101 & 0.782 & 1.013 & 1.290 & 1.365 & 9.979 \\
+      $\sigma p.a.$ & 0.063 & 0.266 & 0.339 & 0.390 & 0.431 & 1.383 \\
+      $q p.a.$ & 0.000 & 0.000 & 0.000 & 0.004 & 0.005 & 0.036 \\
+      $r p.a.$ & 0.034 & 0.037 & 0.037 & 0.037 & 0.038 & 0.041 \\
+      $T p.a.$ & 0.003 & 0.071 & 0.386 & 0.637 & 0.896 & 2.890 \\
       \bottomrule
     \end{tabular}
   \end{table}
 
-  Tabulka \ref{tab:descriptive_total} obsahuje základní deskriptivní statistiku pro všechny stažené údaje. Z těchto údajů lze ověřit, zda dané proměnné nabývají hodnot, které pro použití v analýze se jeví jako korektní.
-
-  \begin{itemize}
-    \item{Poměr $S/K$ má 1. a 3. kvartil mezi hodnotami 0.77523 a 1.43294, což jsou zdravé hodnoty pro S/K poměr. Minima a maxima jsou silně extrémní; minimum je silně OTM opce a maximum je silně ITM opce. Průměr se silně liší od mediánu, právě kvůli existenci extrémů.}
-    \item{$\sigma$ má maximum 1.3825, patřící CBOE Volatility Indexu. Tabulky \ref{tab:descriptive_american_1}, \ref{tab:descriptive_american_2} a \ref{tab:descriptive_european} ukazují, že jediné hodnoty nad 1 patří právě tomuto indexu, o kterém jsme již dříve zmínili, že je specifickým případem. Minimum 0.06 patřící měnovým indexům je také speciální případ: Měny bývají velmi stabilní, což se odráží na nízké volatilitě měnových indexů. Zbytek hodnot můžeme odznačit za smysluplné.}
-    \item{Velká část opcí má krátké časy do expirace, tudíž akcie nikdy nezíská žádnou dividendu, a hodnota $q$ je 0. Maximum 13.6 \% vyplácené dividendy za rok je zdánlivě podezřelá, nicméně manuální inspekce ukázala, že všechny hodnoty vyplácené dividendy patří titulu Coca-Cola (KO) k opcím s krátkými expiracemi (< 3 týdny). Tímto se prudce změní vyplácená dividendová míra za rok. Tato hodnota by neměla být chybou, nicméně jako extrém s ní je nutno nakládat opatrně.}
-    \item{$r$ i $T$ nabývají pro všechny metriky zdravé a smysluplné hodnoty. $r$ se drží v hodnotách určených v souborech získaných pro jeho určení a $T$ je v rozmezí 1 dne a 3 let.}
-  \end{itemize}
+  Tabulka \ref{tab:descriptive_type} obsahuje deskriptivní ukazatele pro opce seskupené dle typu opce a stylu využití, zaokrouhlených na tři desetinná místa. 
 
   \begin{table}[h!]
     \centering
@@ -1746,37 +1760,30 @@ Výsledný dataset obsahuje 168~996 opčních kontraktů na 12 amerických akci�
       \toprule
       Parametr & Americké cally & Americké puty & Evropské cally & Evropské puty \\
       \midrule
-      Min. poměru $S/K$ & 0.3192 & 0.3192 & 0.0805 & 0.0805 \\
-      Medián poměru $S/K$ & 0.9586 & 1.0851 & 0.9736 & 1.0806 \\
-      Max. poměru $S/K$ & 430.6600 & 430.6600 & 3.0202 & 3.0202 \\
+      Min. poměru $S/K$ & 0.319 & 0.319 & 0.101 & 0.104 \\
+      Medián poměru $S/K$ & 0.924 & 1.104 & 0.961 & 1.087 \\
+      Max. poměru $S/K$ & 9.979 & 9.979 & 2.869 & 3.020 \\
       \midrule
-      Min. $\sigma p.a.$ & 0.1561 & 0.1561 & 0.0629 & 0.0629 \\
-      Medián $\sigma p.a.$ & 0.3419 & 0.3454 & 0.2309 & 0.2309 \\
-      Max. $\sigma p.a.$ & 0.6353 & 0.6353 & 1.3825 & 1.3825 \\
+      Min. $\sigma p.a.$ & 0.156 & 0.156 & 0.063 & 0.063 \\
+      Medián $\sigma p.a.$ & 0.342 & 0.342 & 0.231 & 0.231 \\
+      Max. $\sigma p.a.$ & 0.635 & 0.635 & 1.383 & 1.383 \\
       \midrule
-      Min. $q p.a.$ & 0.0000 & 0.0000 & 0.0000 & 0.0000 \\
-      Medián $q p.a.$ & 0.0000 & 0.0000 & 0.0000 & 0.0000 \\
-      Max. $q p.a.$ & 0.1360 & 0.1360 & 0.0000 & 0.0000 \\
+      Min. $q p.a.$ & 0.000 & 0.000 & 0.000 & 0.000 \\
+      Medián $q p.a.$ & 0.000 & 0.000 & 0.000 & 0.000 \\
+      Max. $q p.a.$ & 0.036 & 0.036 & 0.000 & 0.000 \\
       \midrule
-      Min. $r p.a.$ & 0.0338 & 0.0338 & 0.0339 & 0.0339 \\
-      Medián $r p.a.$ & 0.0374 & 0.0374 & 0.0375 & 0.0375 \\
-      Max. $r p.a.$ & 0.0406 & 0.0406 & 0.0406 & 0.0406 \\
+      Min. $r p.a.$ & 0.034 & 0.034 & 0.034 & 0.034 \\
+      Medián $r p.a.$ & 0.037 & 0.037 & 0.037 & 0.037 \\
+      Max. $r p.a.$ & 0.041 & 0.041 & 0.041 & 0.041 \\
       \midrule
-      Min. $T p.a.$ & 0.0027 & 0.0027 & 0.0027 & 0.0027 \\
-      Medián $T p.a.$ & 0.4822 & 0.4822 & 0.0986 & 0.0904 \\
-      Max. $T p.a.$ & 2.8904 & 2.8904 & 2.8904 & 2.8904 \\
+      Min. $T p.a.$ & 0.003 & 0.003 & 0.003 & 0.003 \\
+      Medián $T p.a.$ & 0.474 & 0.482 & 0.090 & 0.090 \\
+      Max. $T p.a.$ & 2.890 & 2.890 & 2.890 & 2.890 \\
       \bottomrule
     \end{tabular}
   \end{table}
 
-  Tabulka \ref{tab:descriptive_type} obsahuje deskriptivní ukazatele pro opce seskupené dle typu opce a stylu využití. Na základě této tabulky lze říct:
-
-  \begin{itemize}
-    \item{Extrémy poměru $S/K$ nachází v amerických opcích. Minimum u evropských opcí je na podobné hladině jako minimum u opcí amerických, nicméně maximum u evropských opcí je mnohem blíže hodnotě 1.}
-    \item{$\sigma$ pro americké opce se pohybuje v očekávaných hodnotách, pro evropské opce extrémy byly již analyzovány.}
-    \item{$q$ pro evropské opce je 0, poněvadž index je cash-settled a tím pádem nemůže vyplácet dividendu.}
-    \item{$r$ a $T$ jsou v očekávaných hodnotách.}
-  \end{itemize}
+  Tabulky \ref{tab:descriptive_american_1}, \ref{tab:descriptive_american_2} a \ref{tab:descriptive_european} rozepisují deskriptivní ukazatele pro jednotlivé tituly za účelem ukázání titulů s atypickými hodnotami. Tabulka \ref{tab:descriptive_european} popisuje údaje o opcích na vybraných indexech, tabulky \ref{tab:descriptive_american_1} a \ref{tab:descriptive_american_2} ukazují údaje o opcích na vybraných titulech společností S\&P 500, přičemž obě tabulky popisují stejné ukazatele pro dvě skupiny titulů, rozdělených pro účely formátování a čitelnosti v této práce.  
 
   \begin{table}[h!]
     \centering
@@ -1786,25 +1793,25 @@ Výsledný dataset obsahuje 168~996 opčních kontraktů na 12 amerických akci�
       \toprule
       Parametr & AAPL & AMD & AMZN & GOOGL & JNJ & KO \\
       \midrule
-      Min. poměru $S/K$ & 0.4510 & 0.3843 & 0.5609 & 0.4322 & 0.6509 & 0.6224 \\
-      Medián. poměru $S/K$ & 1.1275 & 1.1290 & 1.0343 & 1.0638 & 1.2230 & 1.0733 \\
-      Max. poměru $S/K$ & 61.7640 & 93.5020 & 3.5509 & 76.5940 & 3.2463 & 2.5071 \\
+      Min. poměru $S/K$ & 0.451 & 0.384 & 0.561 & 0.432 & 0.651 & 0.622 \\
+      Medián poměru $S/K$ & 1.103 & 1.101 & 1.040 & 1.058 & 1.190 & 1.067 \\
+      Max. poměru $S/K$ & 9.922 & 9.350 & 3.551 & 9.574 & 3.246 & 2.507 \\
       \midrule
-      Min. $\sigma p.a.$ & 0.2211 & 0.5924 & 0.2967 & 0.2859 & 0.1641 & 0.1561 \\
-      Medián. $\sigma p.a.$ & 0.3139 & 0.6327 & 0.3454 & 0.3037 & 0.1903 & 0.1670 \\
-      Max. $\sigma p.a.$ & 0.3206 & 0.6353 & 0.3514 & 0.3216 & 0.1953 & 0.1781 \\
+      Min. $\sigma p.a.$ & 0.221 & 0.592 & 0.297 & 0.286 & 0.164 & 0.156 \\
+      Medián $\sigma p.a.$ & 0.314 & 0.633 & 0.345 & 0.304 & 0.190 & 0.167 \\
+      Max. $\sigma p.a.$ & 0.321 & 0.635 & 0.351 & 0.322 & 0.195 & 0.178 \\
       \midrule
-      Min. $q p.a.$ & 0.0000 & 0.0000 & 0.0000 & 0.0000 & 0.0000 & 0.0000 \\
-      Medián. $q p.a.$ & 0.0035 & 0.0000 & 0.0000 & 0.0027 & 0.0194 & 0.0247 \\
-      Max. $q p.a.$ & 0.0210 & 0.0000 & 0.0000 & 0.0176 & 0.0666 & 0.1360 \\
+      Min. $q p.a.$ & 0.004 & 0.000 & 0.000 & 0.004 & 0.032 & 0.029 \\
+      Medián $q p.a.$ & 0.005 & 0.000 & 0.000 & 0.005 & 0.033 & 0.030 \\
+      Max. $q p.a.$ & 0.005 & 0.000 & 0.000 & 0.005 & 0.036 & 0.034 \\
       \midrule
-      Min. $r p.a.$ & 0.0338 & 0.0339 & 0.0338 & 0.0338 & 0.0339 & 0.0339 \\
-      Medián. $r p.a.$ & 0.0374 & 0.0374 & 0.0374 & 0.0374 & 0.0374 & 0.0375 \\
-      Max. $r p.a.$ & 0.0406 & 0.0406 & 0.0406 & 0.0406 & 0.0394 & 0.0394 \\
+      Min. $r p.a.$ & 0.034 & 0.034 & 0.034 & 0.034 & 0.034 & 0.034 \\
+      Medián $r p.a.$ & 0.037 & 0.037 & 0.037 & 0.037 & 0.037 & 0.037 \\
+      Max. $r p.a.$ & 0.041 & 0.041 & 0.041 & 0.041 & 0.039 & 0.039 \\
       \midrule
-      Min. $T p.a.$ & 0.0027 & 0.0027 & 0.0027 & 0.0027 & 0.0027 & 0.0027 \\
-      Medián. $T p.a.$ & 0.5589 & 0.4822 & 0.4740 & 0.5671 & 0.3945 & 0.2411 \\
-      Max. $T p.a.$ & 2.8904 & 2.8904 & 2.8904 & 2.8904 & 1.9890 & 1.9890 \\
+      Min. $T p.a.$ & 0.003 & 0.003 & 0.003 & 0.003 & 0.003 & 0.003 \\
+      Medián $T p.a.$ & 0.482 & 0.405 & 0.474 & 0.559 & 0.395 & 0.230 \\
+      Max. $T p.a.$ & 2.890 & 2.890 & 2.890 & 2.890 & 1.989 & 1.989 \\
       \bottomrule
     \end{tabular}
   \end{table}
@@ -1817,25 +1824,25 @@ Výsledný dataset obsahuje 168~996 opčních kontraktů na 12 amerických akci�
       \toprule
       Parametr & META & MSFT & NFLX & NVDA & PG & TSLA \\
       \midrule
-      Min. poměru $S/K$ & 0.3650 & 0.4575 &      0.3192 & 0.4077       & 0.5478 & 0.3759 \\
-      Medián. poměru $S/K$ & 0.9453 & 0.9207 &   0.8888 & 1.1729       & 1.0246 & 0.9965 \\
-      Max. poměru $S/K$ & 131.7520 & 2.6626 &    186.6400 & 430.6600   & 2.3393 & 89.8120 \\
+      Min. poměru $S/K$ & 0.365 & 0.457 & 0.319 & 0.408 & 0.548 & 0.376 \\
+      Medián poměru $S/K$ & 0.939 & 0.938 & 0.869 & 1.127 & 1.028 & 0.973 \\
+      Max. poměru $S/K$ & 9.955 & 2.663 & 9.844 & 9.877 & 2.339 & 9.979 \\
       \midrule
-      Min. $\sigma p.a.$ & 0.3479 & 0.2404 &          0.3266 & 0.3389       & 0.1789 & 0.4713 \\
-      Medián. $\sigma p.a.$ & 0.3917 & 0.2641 &       0.3384 & 0.4062       & 0.1895 & 0.5497 \\
-      Max. $\sigma p.a.$ & 0.3933 & 0.2662 &          0.3419 & 0.4874       & 0.1920 & 0.6219 \\
+      Min. $\sigma p.a.$ & 0.348 & 0.240 & 0.327 & 0.339 & 0.179 & 0.471 \\
+      Medián $\sigma p.a.$ & 0.378 & 0.242 & 0.338 & 0.406 & 0.185 & 0.605 \\
+      Max. $\sigma p.a.$ & 0.393 & 0.266 & 0.342 & 0.487 & 0.192 & 0.622 \\
       \midrule
-      Min. $q p.a.$ & 0.0000 & 0.0000 &               0.0000 & 0.0000       & 0.0000 & 0.0000 \\
-      Medián. $q p.a.$ & 0.0035 & 0.0075 &            0.0000 & 0.0002       & 0.0177 & 0.0000 \\
-      Max. $q p.a.$ & 0.0139 & 0.0266 &               0.0000 & 0.0039       & 0.0775 & 0.0000 \\
+      Min. $q p.a.$ & 0.003 & 0.008 & 0.000 & 0.000 & 0.025 & 0.000 \\
+      Medián $q p.a.$ & 0.003 & 0.008 & 0.000 & 0.000 & 0.026 & 0.000 \\
+      Max. $q p.a.$ & 0.003 & 0.009 & 0.000 & 0.000 & 0.033 & 0.000 \\
       \midrule
-      Min. $r p.a.$ & 0.0338 & 0.0338 &               0.0338 & 0.0339       & 0.0339 & 0.0338 \\
-      Medián. $r p.a.$ & 0.0374 & 0.0374 &            0.0373 & 0.0373       & 0.0375 & 0.0374 \\
-      Max. $r p.a.$ & 0.0406 & 0.0406 &               0.0406 & 0.0406       & 0.0394 & 0.0406 \\
+      Min. $r p.a.$ & 0.034 & 0.034 & 0.034 & 0.034 & 0.034 & 0.034 \\
+      Medián $r p.a.$ & 0.037 & 0.037 & 0.037 & 0.037 & 0.037 & 0.037 \\
+      Max. $r p.a.$ & 0.041 & 0.041 & 0.041 & 0.041 & 0.039 & 0.041 \\
       \midrule
-      Min. $T p.a.$ & 0.0027 & 0.0027 &               0.0027 & 0.0027       & 0.0027 & 0.0027 \\
-      Medián. $T p.a.$ & 0.4822 & 0.4822 &            0.5699 & 0.4740       & 0.2301 & 0.3945 \\
-      Max. $T p.a.$ & 2.8904 & 2.8904 &               2.8904 & 2.8904       & 1.9890 & 2.8904 \\
+      Min. $T p.a.$ & 0.003 & 0.003 & 0.003 & 0.003 & 0.003 & 0.003 \\
+      Medián $T p.a.$ & 0.405 & 0.482 & 0.570 & 0.405 & 0.225 & 0.386 \\
+      Max. $T p.a.$ & 2.890 & 2.890 & 2.890 & 2.890 & 1.989 & 2.890 \\
       \bottomrule
     \end{tabular}
   \end{table}
@@ -1848,31 +1855,36 @@ Výsledný dataset obsahuje 168~996 opčních kontraktů na 12 amerických akci�
       \toprule
       Parametr & \textasciicircum{}RUT & \textasciicircum{}VIX & \textasciicircum{}XDA & \textasciicircum{}XDB & \textasciicircum{}XDE & \textasciicircum{}XDN \\
       \midrule
-      Min. poměru $S/K$ & 0.5738 & 0.0805 & 0.9188 & 0.9527 & 0.9377 & 0.7851 \\
-      Medián poměru $S/K$ & 1.0434 & 0.6771 & 1.0294 & 1.0107 & 0.9915 & 0.9398 \\
-      Max. poměru $S/K$ & 3.0202 & 2.7440 & 1.3402 & 1.1370 & 1.0748 & 1.0195 \\
-      Min. $\sigma p.a.$ & 0.1926 & 1.1418 & 0.0810 & 0.0657 & 0.0629 & 0.0858 \\
-      Medián $\sigma p.a.$ & 0.2301 & 1.3628 & 0.0981 & 0.0691 & 0.0771 & 0.0998 \\
-      Max. $\sigma p.a.$ & 0.2311 & 1.3825 & 0.1017 & 0.0721 & 0.0777 & 0.1003 \\
+      Min. poměru $S/K$ & 0.574 & 0.101 & 0.919 & 0.953 & 0.938 & 0.785 \\
+      Medián poměru $S/K$ & 1.038 & 0.691 & 1.029 & 1.011 & 0.992 & 0.940 \\
+      Max. poměru $S/K$ & 3.020 & 2.744 & 1.340 & 1.137 & 1.075 & 1.020 \\
       \midrule
-      Min. $q p.a.$ & 0.0000 & 0.0000 & 0.0000 & 0.0000 & 0.0000 & 0.0000 \\
-      Medián $q p.a.$ & 0.0000 & 0.0000 & 0.0000 & 0.0000 & 0.0000 & 0.0000 \\
-      Max. $q p.a.$ & 0.0000 & 0.0000 & 0.0000 & 0.0000 & 0.0000 & 0.0000 \\
+      Min. $\sigma p.a.$ & 0.193 & 1.142 & 0.081 & 0.066 & 0.063 & 0.086 \\
+      Medián $\sigma p.a.$ & 0.230 & 1.368 & 0.098 & 0.069 & 0.077 & 0.100 \\
+      Max. $\sigma p.a.$ & 0.231 & 1.383 & 0.102 & 0.072 & 0.078 & 0.100 \\
       \midrule
-      Min. $r p.a.$ & 0.0339 & 0.0356 & 0.0353 & 0.0353 & 0.0353 & 0.0353 \\
-      Medián $r p.a.$ & 0.0375 & 0.0373 & 0.0375 & 0.0373 & 0.0373 & 0.0373 \\
-      Max. $r p.a.$ & 0.0406 & 0.0388 & 0.0381 & 0.0381 & 0.0380 & 0.0381 \\
+      Min. $q p.a.$ & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+      Medián $q p.a.$ & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+      Max. $q p.a.$ & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
       \midrule
-      Min. $T p.a.$ & 0.0027 & 0.0055 & 0.0603 & 0.0603 & 0.0603 & 0.0603 \\
-      Medián $T p.a.$ & 0.0904 & 0.2247 & 0.4822 & 0.3178 & 0.1479 & 0.1479 \\
-      Max. $T p.a.$ & 2.8904 & 0.6575 & 0.8959 & 0.8164 & 0.8082 & 0.8959 \\
+      Min. $r p.a.$ & 0.034 & 0.036 & 0.035 & 0.035 & 0.035 & 0.035 \\
+      Medián $r p.a.$ & 0.037 & 0.037 & 0.037 & 0.037 & 0.037 & 0.037 \\
+      Max. $r p.a.$ & 0.041 & 0.039 & 0.038 & 0.038 & 0.038 & 0.038 \\
+      \midrule
+      Min. $T p.a.$ & 0.003 & 0.005 & 0.060 & 0.060 & 0.060 & 0.060 \\
+      Medián $T p.a.$ & 0.079 & 0.219 & 0.482 & 0.318 & 0.148 & 0.148 \\
+      Max. $T p.a.$ & 2.890 & 0.658 & 0.896 & 0.816 & 0.808 & 0.896 \\
       \bottomrule
     \end{tabular}
   \end{table}
 
-  Tabulky \ref{tab:descriptive_american_1}, \ref{tab:descriptive_american_2} a \ref{tab:descriptive_european} poskytují lepší porozumění jednotlivých titulů.
-    Extrémní minima poměru $S/K$ ($S/K < 0.1$) se nacházejí v titulech \textasciicircum{}VIX, NVDA a NFLX. Extrémní maxima poměru $S/K$ ($S/K > 10$) se nacházejí v titulech AAPL, AMD, GOOGL, META, NFLX, NVDA a TSLA.
-    Zbytek informací již byl zmíněn v předchozích seznamech.
+  \begin{itemize}
+    \item{Poměr $S/K$ se liší mezi americkými a evropskými opcemi. Zatímco u evropských opcí je maximum kolem 3 (trojnásobné $S$ oproti $K$), u amerických opcí se maximum pohybuje pod hodnotou 10, a zatímco americké opce mají minimální poměr $S/K$ zaokrouhleno 0.3 (přibližně trojnásobné $K$ oproti $S$), minimální poměr u evropských opcí je nad 0.1. Tyto hodnoty jsou extrémní, nicméně je stále můžeme považovat za užitelné pro účely regresní analýzy.}
+    \item{Parametr $\sigma$ má maximum 1.3825, patřící CBOE Volatility Indexu. Tabulky \ref{tab:descriptive_american_1}, \ref{tab:descriptive_american_2} a \ref{tab:descriptive_european} ukazují, že jediné hodnoty nad 1 patří právě tomuto indexu, o kterém jsme již dříve zmínili, že je specifickým případem. Minimum 0.06 patřící měnovým indexům je také speciální případ: Měny bývají velmi stabilní, což se odráží na nízké volatilitě měnových indexů. Hodnoty pro americké opce jsou všude přiměřené.}
+    \item{Pro titul JNJ existují opce, u kterých je odhadnutá hodnota spojité dividendové míry větší než bezriziková úroková míra. Při bližším průzkumu jsem zjistil, že největší hodnota $q - r$ mezi všemi JNJ opcemi nabývá $0.0007$. Lze říci, že daný rozdíl je pravděpodobně tvořen způsobem výpočtu $q$, kde spojitou míru dividendy odhadujeme z historické hodnoty. Tuto hodnotu není třeba vynechávat.}
+    \item{Evropské opce nevyplácejí dividendy. Toto bylo očekáváno, a je konzistentní se způsobem vyplacení využité opce na indexy.}
+    \item{Parametry $r$ a $T$ nabývají očekávaných hodnot. Bezrizková úroková míra se nechází mezi hodnotami $3.34 \% p.a.$ a $4.06 \% p.a.$ a doba expirace je mezi jedním dnem a třemi lety.}
+  \end{itemize}
 
   \section{Ověření integrity dat}
 
@@ -1930,24 +1942,16 @@ Výsledný dataset obsahuje 168~996 opčních kontraktů na 12 amerických akci�
 
   Jelikož stahovaná data jsou panelovými daty, čili daty s opakovanými pozorováními v čase, nestačí použít jen prostou lineární regresi. Pro vytvoření modelu používám smíšené lineární regresní modely z knihovny \texttt{lme4}, specificky funkci \texttt{lmer}. Smíšené lineární modely přidávají k fixním efektům, čili vstupním proměnným klasické lineární regrese (regresory a interakce), navíc náhodné efekty, kde se náhodné efekty liší podle skupiny pozorování. Za náhodné efekty pro stažená data považujeme jednotlivé opce dle opčního identifikátoru, kde pozorujeme vývoj ceny akcie za více časových momentů, a titul. % TODO: Zdroj
 
-  Pro vytvoření modelu je využit přístup vytvoření obecného modelu lineární regrese smíšenými modely, obsahujícího všechny relevantní parametry a interakce, a jeho následné zjednodušení. Vstupní parametry modelu jsou:
+  Vstupní parametry modelu jsou:
   \begin{itemize}
     \item $S, K$,
     \item $r, \sigma, q, T$,
     \item styl využití, typ opce,
     \item model ohodnocení.
   \end{itemize}
-  Pro interakce byly zvoleny interakce proměnných:
-  \begin{itemize}
-    \item $q\ \times$  styl využití (evropské opce neplatí dividendu),
-    \item $r \times q$ (cost of carry)
-    \item $S \times K$ (moneyness)
-    \item $\sigma \times T$
-    \item styl využití $\times$ typ opce
-  \end{itemize}
+  Pouze americké opce platí dividendu, tudíž je nutné do modelu přidat interakci $q\ \times$  styl využití. 
 
-  Zjednodušení vzniká na základě $t$-hodnoty \footnote{U klasické lineární regrese by se použila $p$-hodnota, nicméně \texttt{lmer} nevypisuje $p$-hodnoty.}, kde $t$-hodnoty menší než 3 jsou brány za méně statisticky významné a jsou eliminovány z modelu.
-  Ostatní proměnné jsou vyřazeny na základě experimentace, kde je cílem maximalizovat metriku $R^2$. Pro smíšené lineární modely nabírá $R^2$ dvou hodnot, mezní a podmíněnou. Mezní $R^2$ říká jaké procento variace vysvětlují fixní proměnné, zatímco podmíněné $R^2$ říká, kolik variace vysvětlují fixní proměnné a náhodné proměnné. Pro účely vytvoření modelu se snažíme maximalizovat mezní $R^2$.
+  Hlavním účelem modelu je zjistit, které proměnné jsou statisticky významné. Funkce \texttt{lmer} narozdíl od R funkce \texttt{lm} negeneruje p-hodnoty. Pro ohodnocení významnosti proměnné použiji $t$-hodnoty modelu, v konjunkci s ANOVA analýzou a grafem odhadů z knihovny \texttt{sjPlot}. Tento graf se použít k shrnutí regresních parametrů s jejich významností.
 
   \subsection{Kontrola předpokladů}
 
@@ -2007,64 +2011,123 @@ Výsledný dataset obsahuje 168~996 opčních kontraktů na 12 amerických akci�
   Pro test autokorelace byl použit Durbinův-Watsonův test, který jako nulovou hypotézu stanovuje, že data nejsou autokorelována, zatímco alternativní hypotéza je, že data autokorelována jsou. Pro tento test jsme nedokázali zamítnout nulovou hypotézu. Budeme předpokládat, že data nejsou autokorelována. 
   Jako poslední zkontrolujeme multikolinearitu pomocí funkce \texttt{vif} z knihovny \texttt{car}, která vypočítává faktory zvyšující varianci (Variance Inflation Factor, VIF) pro každý parametr modelu. Ideální stav je VIF parametru rovno 1, což značí nulovou multikolinearitu. Hodnoty VIF 1-5 jsou akceptovatelné. Pro absolutní data všechny parametry jsme v akceptovatelných hodnotách. Pro relativní data typy opcí a styly využití v interakci jsou velmi silně multikolineární.
 
-  \subsection{Výsledné modely a interpretace}
+  \subsection{Výsledný model}
 
-  \subsubsection{Absolutní model}
+  Tabulka \ref{tab:your_mom} obsahuje vyhodnocení vstupních parametrů opcí spolu s typem opce a stylem využití v regresním modelu. Hodnoty tabulky jsou odhad vlivů parametrů na odchylky v ocenění modelů, směrodatná odchylka odhadu, $p$-hodnota pro daný parametr a slovně vyjádřená významnost daného parametru. Jako statisticky významné beru hodnoty s $p$-hodnotou menší než 0.05.
 
-  Výsledná verze modelu se smíšenými lineárními modely obsahuje pro absolutní data fixní efekty: 
-
-  \begin{itemize}
-    \item $S, K, r, \sigma, T$,
-    \item typy opcí,
-    \item interakci $S \times K$,
-    \item interakci $\sigma \times T$.
-  \end{itemize}
-
-  Pro tento model je podmíněná $R^2$ rovna 0.839 a mezní $R^2$ 0.297. Toto je silně lepší než pro prostý model, kde $R^2 = 0.06$. Velmi velká část chyby se dá tedy vysvětlit primárně jako náhodné efekty, čili většina variance vzniká důsledkem rozdílů mezi tituly a v rámci opakovaného stahování opcí. %TODO: Důsledek?
-
-  \begin{figure}[h!]
+  \begin{table}[h!]
     \centering
-    \caption{Systematická chyba modelu na absolutní chybě ocenění}
-    \label{fig:bias_abs}
-    %TODO: vložit
-  \end{figure}
+    \caption{Regresní parametry}
+    \label{tab:your_mom}
+    \begin{tabular}{lcccc}
+      \toprule
+      Parametr & Odhad & Směr. odchylka & $p$-hodnota & Významnost \\
+      \midrule
+      $S$ & 1.246e-05 & 6.052e-07 & <2e-16 & Vysoká \\
+      $K$ & -7.610e-06 & 1.624e-07 & <2e-16 & Vysoká \\
+      $S/K$ & -2.366e-06 & 3.333e-05 & 0.943 & Nevýznamné \\
+      $r$ & 1.791e+00 & 2.848e-02 & <2e-16 & Vysoká \\
+      $sigma$ & -8.143e-02 & 1.257e-03 & <2e-16 & Vysoká \\
+      $q$ & -4.454e-01 & 4.961e-02 & <2e-16 & Vysoká \\
+      $T$ & 3.903e-03 & 4.176e-05 & <2e-16 & Vysoká \\
+      Evropský styl & -3.061e-02 & 8.643e-03 & 1.000 & Nevýznamné \\
+      Put opce & -3.143e-03 & 6.038e-05 & <2e-16 & Vysoká \\
+      Model odhadu: CRR & -2.961e-05 & 7.076e-05 & 0.676 & Nevýznamné \\
+      Model odhadu: MC & -4.707e-05 & 7.075e-05 & 0.506 & Nevýznamné \\
+      \bottomrule
+    \end{tabular}
+  \end{table}
 
-  Graf \ref{fig:bias_abs} vyobrazuje systematickou chybu modelu. V tomto grafu lze vidět, že nejvyšší chyba v ohodnocení vzniká z parametrů $r$, $\sigma$ a interakce $\sigma \times T$.
+  Mezi nevýznamné parametry patří poměr $S/K$. Toto je z důvodu korelace s již použitými parametry $S$ a $K$, které již toto částečně popisují. Další nevýznamnou proměnnou je model použitý pro výpočet odhadu. Vysvětlením tohoto faktu je již zjištená velmi silná korelace všech modelů, možná i nazvatelná jako lineární vztah mezi modely. Poslední nevýznamnou proměnnou se styl opce. Z toho lze vyvodit, že pro oba typy opcí by odchylky měly být přibližně stejné.
 
-  \begin{figure}
+  Tabulka \ref{tab:your_dad} obsahuje informace o významnosti všech titulů v regresním modelu.
+
+  \begin{table}[h!]
     \centering
-    \caption{Rozdíly absolutního regresního modelu a reálných chyb}
-    \label{fig:diff_abs}
-    %TODO: vložit
-  \end{figure}
+    \caption{Regresní hodnoty pro tituly}
+    \label{tab:your_dad}
+    \begin{tabular}{lcc}
+      \toprule
+      Parametr & $p$-hodnota & Významnost \\
+      \midrule
+      \textasciicircum{}XDA & 1.000 & Nevýznamné \\
+      \textasciicircum{}XDB & 1.000 & Nevýznamné \\
+      \textasciicircum{}XDE & 1.000 & Nevýznamné \\
+      \textasciicircum{}XDN & 1.000 & Nevýznamné \\
+      AAPL & 1.000 & Nevýznamné \\
+      AMD & 1.000 & Nevýznamné \\
+      AMZN & 1.000 & Nevýznamné \\
+      GOOGL & 1.000 & Nevýznamné \\
+      JNJ & 1.000 & Nevýznamné \\
+      KO & 1.000 & Nevýznamné \\
+      META & 1.000 & Nevýznamné \\
+      MSFT & 1.000 & Nevýznamné \\
+      NFLX & 1.000 & Nevýznamné \\
+      NVDA & 1.000 & Nevýznamné \\
+      PG & 1.000 & Nevýznamné \\
+      \bottomrule
+    \end{tabular}
+  \end{table}
 
-  Graf \ref{fig:diff_abs} obsahuje heatmapu rozložení chyb mezi reálnými chybami v ohodnocení a odhadem regresního modelu. Je vidět, že pro nulové chyby je regresní model relativně přesný. Jeví se, že odchylka regresního modelu je relativně konzistentní.
+  Všechny tituly jsou statisticky nevýznamné, s maximální možnou $p$-hodnotou. Lze vyvodit, že parametr titul jako fixní efekt je celý statisticky nevýznamný.
 
-  \subsubsection{Relativní model}
+  Tabulka \ref{tab:your_uncle} obsahuje odhadované hodnoty náhodných efektů v modelu. Z těchto odhadů lze vidět, že vliv titulů jako náhodných efektů je řádově menší než náhodný efekt data sběru. Spolu s nevýznamností všech titulů v tabulce \ref{tab:your_dad} lze říci, že titul neovlivňuje velikost odchylky od modelu.
 
-  Fixní efekty modelu s relativní verzí odchylky cen vypočtených modelem jsou stejné jako fixní efektu absolutní verze.
-
-  Pro tento model se podmíněná $R^2$ rovná 0.953, zatímco mezní $R^2$ se rovná 0.261. Náhodné efekty tedy opět vysvětlují velmi velkou část variance. Zatímco relativní model dokáže vysvětlit varianci lépe celkově, absolutní model lépe vystihuje varianci jen svými regresory a interakcemi.
-
-  \begin{figure}[h!]
+  \begin{table}[h!]
     \centering
-    \caption{Systematická chyba modelu na relativní chybě ocenění}
-    \label{fig:bias_rel}
-    %TODO: vložit
-  \end{figure}
+    \caption{Odhady náhodných efektů}
+    \label{tab:your_uncle}
+    \begin{tabular}{lc}
+      \toprule
+      \multicolumn{2}{l}{\textbf{Tituly}} \\
+      Odhadovaný efekt & Odhad \\
+      \textasciicircum{}RUT & 3.231915e-10 \\
+      \textasciicircum{}XDA & -1.028174e-15 \\
+      \textasciicircum{}XDB & -1.192626e-15 \\
+      \textasciicircum{}XDE & 7.096233e-15 \\
+      \textasciicircum{}XDN & -7.035309e-16 \\
+      AAPL & -8.875639e-12 \\
+      AMD & 3.858791e-11 \\
+      AMZN & -8.682115e-12 \\
+      GOOGL & 3.551076e-11 \\
+      JNJ & -1.818018e-12 \\
+      KO & -7.333479e-13 \\
+      META & 1.501606e-10 \\
+      MSFT & 3.172278e-11 \\
+      NFLX & 4.021549e-11 \\
+      NVDA & 4.893377e-12 \\
+      PG & -2.066007e-12 \\
+      TSLA & -5.450887e-11 \\
+      \midrule
+      \multicolumn{2}{l}{\textbf{Měsíce sběru}} \\
+      Odhadovaný efekt & Odhad \\
+      01 & -7.176140e-04 \\
+      02 & 9.957889e-04 \\
+      03 & 4.946272e-06 \\
+      05 & -2.831212e-04 \\
+      \bottomrule
+    \end{tabular}
+  \end{table}
 
-  Z grafu \ref{fig:bias_rel} dokážeme vyčíst, že nejvyšší systematické chyby jsou pro regresory $r, \sigma, q$, nicméně tyto chyby vypadají relativně malé.
+  \subsection{Interpretace výsledků}
 
-  \begin{figure}
-    \centering
-    \caption{Rozdíly relativního regresního modelu a reálných chyb}
-    \label{fig:diff_rel}
-    %TODO: vložit
-  \end{figure}
+  Dle tabulky \ref{tab:your_mom} jsou parametry, skrze které vzniká největší odchylka, $r, q, \sigma, T$. U parametrů $q$ a $\sigma$ používáme odhady, generované zjednodušenými prostředky (historická volatilita místo implikované, odhad spojité dividendové míry), což by potenciální vliv na odchylkách vysvětlovalo. Nicméně parametry $r$ a $T$ jsou určeny celkem jednoznačně, tudíž je tato odchylka relativně mysteriózní. Oproti tomu parametry $S$ a $K$ mají na hodnotu odchylky od reality relativně malý vliv, čímž lze teoretizovat, že pro různé $S$ a $K$ (za předpokladu konstantnosti ostatních parametrů) jsou ohodnocení modelem relativně správná.
 
-  Křivka, kterou body v grafu \ref{fig:diff_rel} je tlustší než u grafu pro absolutní model, a relativní model má s rostoucí hodnotou chyby větší tendenci podhodnocovat chyby. Toto asi bude kvůli specifickému tvaru rozdělení chyb v ohodnocení pro relativní metodu.
+  \section{Výsledné porovnání modelů}
+
+  Z hlediska přesnosti odhadu a senzitivity na jednotlivé parametry, modely jsou si ekvivalentní, tudíž pro získání hodnoty bez ohledu na čas je výběr modelu výpočtu hodnoty opce nepodstatný.
+
+  Pro potřeby ohodnocení vanilkových opcí se jako ideální model jeví Blackův-Scholesův model s rozšířením Barone-Adesi a Whaley pro americké opce, které je z používaných metod nejrychlejší a nejjednodušeji implementovatelné. Nicméně tento model je dost neflexibilní, a pro potřeb ohodnocení většiny exotických opcí je tento model nedostačující a špatně zpracovatelný. K tomu je Baroneho-Adesiho a Whaleyho aproximace pouze aproximací, a mohou nastat případy potenciální nekonvergence nebo nepřesného ocenění.
+
+  Monte Carlo se jeví jako ideální alternativa pro exotické opce s jeho přizpůsobitelností a srovnatelný výkon s binomickými stromy pro některé typy opcí. Pro americké opce se i s Longstaff-Schwartzovým rozšířením se tato metoda jeví jako silně suboptimální kvůli délce výpočtu, a pro evropské opce je stále pomalejší než Blackův-Scholesův model.
+
+  Binomické stromy 
 
   \chapter{Závěr}
+
+  Cílem práce bylo porovnat modely na ohodnocení opcí na podíly, aplikovat je na konkrétní opce, analyzovat přesnost a vhodnost jednotlivých modelů, získat informace o citlivosti ocenění na jednotlivé parametry, a vytvořit porovnání modelů pro praxi.
+
+  V práci bylo prokázáno, že modely dávají velmi podobná ocenění pro evropské a americké opce, a že hlavní rozdíly v modelech vznikají v aplikaci modelů na specifické případy a v rychlosti výpočtu. Monte Carlo je nejpomalejší a nejlépe aplikovatelné na exotické opce, 
 
   \printbibliography
   
