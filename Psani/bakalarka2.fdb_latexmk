@@ -1,11 +1,11 @@
 # Fdb version 4
-["biber bakalarka2"] 1785065083.90779 "bakalarka2.bcf" "bakalarka2.bbl" "bakalarka2" 1785236635.93861 2
-  "bakalarka2.bcf" 1785236634.91592 140136 a03287a19341def624bd35667e1439fb "lualatex"
+["biber bakalarka2"] 1785065083.90779 "bakalarka2.bcf" "bakalarka2.bbl" "bakalarka2" 1785237328.83509 2
+  "bakalarka2.bcf" 1785237327.82494 140136 a03287a19341def624bd35667e1439fb "lualatex"
   (generated)
   "bakalarka2.bbl"
   "bakalarka2.blg"
   (rewritten before read)
-["lualatex"] 1785236619.99727 "bakalarka2.tex" "bakalarka2.pdf" "bakalarka2" 1785236635.93921 0
+["lualatex"] 1785237305.42564 "bakalarka2.tex" "bakalarka2.pdf" "bakalarka2" 1785237328.83559 0
   "/etc/texmf/tex/generic/config/language.dat" 1775415801 2774 23432d78ba890d76256b3f33c553a888 ""
   "/etc/texmf/tex/generic/config/language.dat.lua" 1775415801 1493 0cf75b944ee4f3579780f7adace81c20 ""
   "/home/matej/.texlive/texmf-var/luatex-cache/generic/fonts/hb/062c5352532e8e3f15b9c33cbb9c6500a94e4eeeddd357d6bbe30511b9050754.luc" 1776984476.74431 90645 b1917e77675a1cc34a4de609a9e251a7 ""
@@ -331,11 +331,11 @@
   "TikzStuff/strom_example_stock.tikz" 1783328368.16057 961 73b6326226ac9413c864307330bc171a ""
   "TikzStuff/strom_very_basic.tikz" 1783328729.08094 520 e7f52c5c3222e8d46129ed6acbb620a4 ""
   "appendix_a.tex" 1783157126.18006 2908 d4eff2dc0051f814053acf372071c885 ""
-  "bakalarka2.aux" 1785236634.88092 57099 8b427ace4e5610b89f9acdb35d1bb13b "lualatex"
+  "bakalarka2.aux" 1785237327.78294 57099 8b427ace4e5610b89f9acdb35d1bb13b "lualatex"
   "bakalarka2.bbl" 1785144787.35901 58358 26e1c271fe809bf9538e5de0735c6c11 "biber bakalarka2"
-  "bakalarka2.run.xml" 1785236634.91869 2562 ecee5b41c9b2358c192a1a6fec1b1f47 "lualatex"
+  "bakalarka2.run.xml" 1785237327.82717 2562 ecee5b41c9b2358c192a1a6fec1b1f47 "lualatex"
   "bakalarka2.tex" 1785236605.87592 151791 839fb4b124ece6bc9f8cb2b59ef65be5 ""
-  "bakalarka2.toc" 1785236634.91869 6483 624e8ae8e88c8619064aab209681386e "lualatex"
+  "bakalarka2.toc" 1785237327.82717 6483 624e8ae8e88c8619064aab209681386e "lualatex"
   "kitheses.cls" 1781721616.00964 2600 f1349da43554586dcacdd1794eac1ada ""
   (generated)
   "bakalarka2.aux"
