@@ -1,12 +1,12 @@
 # Fdb version 4
-["biber bakalarka2"] 1785505323.58438 "bakalarka2.bcf" "bakalarka2.bbl" "bakalarka2" 1785509728.86276 0
-  "bakalarka2.bcf" 1785509727.78718 140227 0ae832e1c2ff5ac1aeba506beff81e5d "lualatex"
-  "thesis.bib" 1784891408.2777 4933 a6047a44fe89ddede586f55e4336d3ae ""
+["biber bakalarka2"] 1785514286.09634 "bakalarka2.bcf" "bakalarka2.bbl" "bakalarka2" 1785514365.05045 0
+  "bakalarka2.bcf" 1785514363.95628 140223 d38c8f2b52907b6fd6c037d192516cc5 "lualatex"
+  "thesis.bib" 1785513066.99025 5415 2ecdecc757a3bf6709d14cf2e85587de ""
   (generated)
   "bakalarka2.bbl"
   "bakalarka2.blg"
   (rewritten before read)
-["lualatex"] 1785509713.4123 "bakalarka2.tex" "bakalarka2.pdf" "bakalarka2" 1785509728.86345 0
+["lualatex"] 1785514349.13275 "bakalarka2.tex" "bakalarka2.pdf" "bakalarka2" 1785514365.05101 0
   "/etc/texmf/tex/generic/config/language.dat" 1775415801 2774 23432d78ba890d76256b3f33c553a888 ""
   "/etc/texmf/tex/generic/config/language.dat.lua" 1775415801 1493 0cf75b944ee4f3579780f7adace81c20 ""
   "/home/matej/.texlive/texmf-var/luatex-cache/generic/fonts/hb/062c5352532e8e3f15b9c33cbb9c6500a94e4eeeddd357d6bbe30511b9050754.luc" 1776984476.74431 90645 b1917e77675a1cc34a4de609a9e251a7 ""
@@ -27,12 +27,7 @@
   "/home/matej/.texlive/texmf-var/luatex-cache/generic/names/luaotfload-names.luc.gz" 1784385506.97405 414781 84eef594d5052d3a6d3920fad5451305 ""
   "/home/matej/Praxe/bakalarka/figures/american-scatter.png" 1785507795.21313 483816 170ceccdac06c1995c2079cca149455b ""
   "/home/matej/Praxe/bakalarka/figures/correlations.png" 1785507832.40214 199693 105cc45b418ec6df74a8ffd11ab75c10 ""
-  "/home/matej/Praxe/bakalarka/figures/effect_gaussness.png" 1785326330.47608 34692 6670a82b52f4a33582a6a4a6456b0d78 ""
   "/home/matej/Praxe/bakalarka/figures/european-scatter.png" 1785507796.61513 237139 7fc79b9d7f1658363ea42efafb466620 ""
-  "/home/matej/Praxe/bakalarka/figures/homosced-am2.png" 1785326310.16408 851537 ff17a572bfd5cb3ab07147677aeb7877 ""
-  "/home/matej/Praxe/bakalarka/figures/homosced-eu2.png" 1785326327.20008 290921 9da346c50da1d960e72c05625b6be294 ""
-  "/home/matej/Praxe/bakalarka/figures/residual_gaussness.png" 1785326279.19608 35659 6ccbdfd5cb0cb427cb0f00137575a577 ""
-  "/home/matej/Praxe/bakalarka/figures/residual_linearity.png" 1785326229.27208 320753 490272c0d0e53c0ce54ff529ef3894db ""
   "/home/matej/texmf/tex/latex/tikzit/tikzit.sty" 1783261193.80579 1256 d5884056f1991e20c09b4936675b780b ""
   "/usr/share/texmf-dist/fonts/opentype/adobe/sourcecodepro/SourceCodePro-Regular.otf" 1775415801 131128 f471e697282189889a1514d0ebcf5491 ""
   "/usr/share/texmf-dist/fonts/opentype/public/libertinus-fonts/LibertinusMath-Regular.otf" 1775415801 588848 85516be07e4691c1817fa657a3ec9349 ""
@@ -333,11 +328,11 @@
   "TikzStuff/strom_basic.tikz" 1783328711.25848 958 ddfbbc9bd72c3f409bfa9ce5de819824 ""
   "TikzStuff/strom_example_stock.tikz" 1783328368.16057 961 73b6326226ac9413c864307330bc171a ""
   "TikzStuff/strom_very_basic.tikz" 1783328729.08094 520 e7f52c5c3222e8d46129ed6acbb620a4 ""
-  "bakalarka2.aux" 1785509727.75018 54131 cfd26fa52bf5e5a180906524e1e79dce "lualatex"
-  "bakalarka2.bbl" 1785505325.26508 58238 ed427a02e7b7019cc867a46585272795 "biber bakalarka2"
-  "bakalarka2.run.xml" 1785509727.78955 2562 ecee5b41c9b2358c192a1a6fec1b1f47 "lualatex"
-  "bakalarka2.tex" 1785509697.98618 157866 ca3bdb9ef9412964c1cd8f31782161a6 ""
-  "bakalarka2.toc" 1785509727.78955 5827 8d98becc9e104e54fc365566323899f0 "lualatex"
+  "bakalarka2.aux" 1785514363.90628 52050 75e7ae4465418a2938df17bf4b69ac6b "lualatex"
+  "bakalarka2.bbl" 1785514287.64728 62222 cac7ba4ab87e7a591b68cebf06b00513 "biber bakalarka2"
+  "bakalarka2.run.xml" 1785514363.95941 2562 ecee5b41c9b2358c192a1a6fec1b1f47 "lualatex"
+  "bakalarka2.tex" 1785514357.94128 153335 417e339fcb3fb21c5f446c39c8014d53 ""
+  "bakalarka2.toc" 1785514363.95941 5827 832756977a2cbb9ceeee23f4fbf5a742 "lualatex"
   "kitheses.cls" 1781721616.00964 2600 f1349da43554586dcacdd1794eac1ada ""
   (generated)
   "bakalarka2.aux"

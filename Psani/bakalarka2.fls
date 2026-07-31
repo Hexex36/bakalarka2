@@ -374,16 +374,6 @@ INPUT /home/matej/Praxe/bakalarka/figures/american-scatter.png
 INPUT /home/matej/Praxe/bakalarka/figures/american-scatter.png
 INPUT /home/matej/Praxe/bakalarka/figures/european-scatter.png
 INPUT /home/matej/Praxe/bakalarka/figures/european-scatter.png
-INPUT /home/matej/Praxe/bakalarka/figures/residual_linearity.png
-INPUT /home/matej/Praxe/bakalarka/figures/residual_linearity.png
-INPUT /home/matej/Praxe/bakalarka/figures/residual_gaussness.png
-INPUT /home/matej/Praxe/bakalarka/figures/residual_gaussness.png
-INPUT /home/matej/Praxe/bakalarka/figures/homosced-am2.png
-INPUT /home/matej/Praxe/bakalarka/figures/homosced-am2.png
-INPUT /home/matej/Praxe/bakalarka/figures/homosced-eu2.png
-INPUT /home/matej/Praxe/bakalarka/figures/homosced-eu2.png
-INPUT /home/matej/Praxe/bakalarka/figures/effect_gaussness.png
-INPUT /home/matej/Praxe/bakalarka/figures/effect_gaussness.png
 INPUT ./bakalarka2.aux
 INPUT ./bakalarka2.run.xml
 OUTPUT bakalarka2.run.xml
