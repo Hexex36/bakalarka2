@@ -120,8 +120,8 @@ podmíněné \(R^2\) kvůli nízkému efektu měsíců.
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{subset\_args }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}
-  \StringTok{"S"}\NormalTok{,}
-  \CommentTok{\#"moneyness",}
+  \CommentTok{\#"S",}
+  \StringTok{"moneyness"}\NormalTok{,}
   \StringTok{"K"}\NormalTok{,}
   \StringTok{"r"}\NormalTok{,}
   \StringTok{"sigma"}\NormalTok{,}
@@ -160,46 +160,46 @@ podmíněné \(R^2\) kvůli nízkému efektu měsíců.
 ## Formula: formula
 ##    Data: train_data_rel
 ## 
-## REML criterion at convergence: -1766596
+## REML criterion at convergence: -1766454
 ## 
 ## Scaled residuals: 
 ##     Min      1Q  Median      3Q     Max 
-## -6.9817 -0.3327  0.0635  0.4441  5.1644 
+## -7.0153 -0.3301  0.0616  0.4438  5.1913 
 ## 
 ## Random effects:
 ##  Groups         Name        Variance  Std.Dev. 
-##  snapshot_month (Intercept) 5.208e-07 0.0007216
-##  Residual                   2.746e-04 0.0165700
+##  snapshot_month (Intercept) 6.640e-07 0.0008149
+##  Residual                   2.747e-04 0.0165738
 ## Number of obs: 329512, groups:  snapshot_month, 4
 ## 
 ## Fixed effects:
 ##                 Estimate Std. Error         df t value Pr(>|t|)    
-## (Intercept)   -3.113e-02  1.331e-03  5.360e+02 -23.389  < 2e-16 ***
-## S              1.243e-05  6.012e-07  8.341e+04  20.684  < 2e-16 ***
-## K             -7.506e-06  1.395e-07  3.295e+05 -53.819  < 2e-16 ***
-## r              1.781e+00  2.844e-02  1.414e+05  62.616  < 2e-16 ***
-## sigma         -8.096e-02  1.256e-03  5.932e+04 -64.461  < 2e-16 ***
-## q             -4.741e-01  4.962e-02  3.294e+05  -9.555  < 2e-16 ***
-## T              3.880e-03  4.146e-05  3.294e+05  93.593  < 2e-16 ***
-## am_eueuropean -3.048e-02  1.497e-03  4.768e+04 -20.366  < 2e-16 ***
-## call_putputs  -3.148e-03  6.029e-05  3.295e+05 -52.215  < 2e-16 ***
-## modeluser_crr -8.143e-06  7.071e-05  3.295e+05  -0.115   0.9083    
-## modeluser_mc   1.578e-05  7.070e-05  3.295e+05   0.223   0.8234    
-## ticker^XDA    -1.496e-02  2.345e-03  2.352e+05  -6.377 1.80e-10 ***
-## ticker^XDB     1.869e-02  2.161e-03  2.249e+05   8.649  < 2e-16 ***
-## ticker^XDE     4.192e-03  1.882e-03  1.795e+05   2.228   0.0259 *  
-## ticker^XDN     1.217e-02  2.013e-03  1.871e+05   6.046 1.49e-09 ***
-## tickerAAPL    -1.375e-02  4.226e-04  1.776e+05 -32.535  < 2e-16 ***
-## tickerAMD      1.059e-02  1.749e-04  1.085e+05  60.537  < 2e-16 ***
-## tickerAMZN    -4.600e-03  3.216e-04  1.833e+05 -14.304  < 2e-16 ***
-## tickerGOOGL    7.413e-04  4.072e-04  1.591e+05   1.820   0.0687 .  
-## tickerJNJ      5.889e-04  1.740e-03  3.238e+05   0.338   0.7350    
-## tickerKO      -3.924e-03  1.585e-03  3.246e+05  -2.475   0.0133 *  
-## tickerMETA    -7.866e-03  3.447e-04  6.645e+04 -22.817  < 2e-16 ***
-## tickerMSFT    -6.975e-03  5.708e-04  1.612e+05 -12.219  < 2e-16 ***
-## tickerNFLX    -1.856e-03  3.399e-04  2.539e+05  -5.460 4.77e-08 ***
-## tickerNVDA     3.693e-03  2.449e-04  2.861e+05  15.077  < 2e-16 ***
-## tickerPG      -2.851e-03  1.437e-03  3.222e+05  -1.985   0.0472 *  
+## (Intercept)   -2.786e-02  1.337e-03  3.383e+02 -20.835  < 2e-16 ***
+## moneyness      7.451e-05  3.311e-05  3.290e+05   2.250 0.024420 *  
+## K             -7.003e-06  1.596e-07  3.282e+05 -43.888  < 2e-16 ***
+## r              1.760e+00  2.845e-02  1.833e+05  61.875  < 2e-16 ***
+## sigma         -7.688e-02  1.238e-03  1.162e+05 -62.078  < 2e-16 ***
+## q             -5.514e-01  4.948e-02  3.294e+05 -11.143  < 2e-16 ***
+## T              3.881e-03  4.171e-05  3.294e+05  93.029  < 2e-16 ***
+## am_eueuropean -1.976e-03  5.659e-04  1.605e+05  -3.493 0.000478 ***
+## call_putputs  -3.107e-03  6.031e-05  3.295e+05 -51.517  < 2e-16 ***
+## modeluser_crr  4.528e-05  7.073e-05  3.295e+05   0.640 0.522067    
+## modeluser_mc   2.146e-06  7.072e-05  3.295e+05   0.030 0.975795    
+## ticker^XDA    -4.370e-02  1.880e-03  3.295e+05 -23.238  < 2e-16 ***
+## ticker^XDB    -1.180e-02  1.577e-03  3.295e+05  -7.483 7.30e-14 ***
+## ticker^XDE    -2.573e-02  1.206e-03  3.295e+05 -21.333  < 2e-16 ***
+## ticker^XDN    -1.818e-02  1.338e-03  3.295e+05 -13.583  < 2e-16 ***
+## tickerAAPL    -1.391e-02  4.223e-04  2.092e+05 -32.929  < 2e-16 ***
+## tickerAMD      8.925e-03  1.568e-04  2.687e+05  56.938  < 2e-16 ***
+## tickerAMZN    -5.856e-03  3.166e-04  1.666e+05 -18.494  < 2e-16 ***
+## tickerGOOGL    1.208e-03  4.064e-04  2.132e+05   2.972 0.002964 ** 
+## tickerJNJ      2.570e-03  1.737e-03  3.278e+05   1.480 0.138838    
+## tickerKO      -4.055e-03  1.584e-03  3.265e+05  -2.559 0.010492 *  
+## tickerMETA    -4.476e-03  3.007e-04  2.051e+05 -14.887  < 2e-16 ***
+## tickerMSFT    -5.190e-03  5.627e-04  2.495e+05  -9.224  < 2e-16 ***
+## tickerNFLX    -4.812e-03  3.108e-04  1.596e+05 -15.481  < 2e-16 ***
+## tickerNVDA     1.598e-03  2.252e-04  2.034e+05   7.097 1.28e-12 ***
+## tickerPG      -2.362e-03  1.436e-03  3.257e+05  -1.645 0.099979 .  
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \end{verbatim}
@@ -241,7 +241,7 @@ podmíněné \(R^2\) kvůli nízkému efektu měsíců.
 ## # R2 for Mixed Models
 ## 
 ##   Conditional R2: NA
-##      Marginal R2: 0.176
+##      Marginal R2: 0.171
 \end{verbatim}
 
 \pandocbounded{\includegraphics[keepaspectratio]{regression2_files/regression2_files/figure-latex/unnamed-chunk-9-1.png}}
@@ -256,17 +256,17 @@ podmíněné \(R^2\) kvůli nízkému efektu měsíců.
 
 \begin{verbatim}
 ## Type III Analysis of Variance Table with Satterthwaite's method
-##          Sum Sq Mean Sq NumDF  DenDF   F value Pr(>F)    
-## S        0.1175 0.11746     1  83414  427.8228 <2e-16 ***
-## K        0.7953 0.79528     1 329480 2896.5112 <2e-16 ***
-## r        1.0765 1.07650     1 141352 3920.7494 <2e-16 ***
-## sigma    1.1409 1.14089     1  59322 4155.2666 <2e-16 ***
-## q        0.0251 0.02507     1 329356   91.2919 <2e-16 ***
-## T        2.4051 2.40508     1 329399 8759.6239 <2e-16 ***
-## am_eu    0.1139 0.11388     1  47677  414.7580 <2e-16 ***
-## call_put 0.7486 0.74858     1 329483 2726.4416 <2e-16 ***
-## model    0.0000 0.00002     2 329483    0.0592 0.9425    
-## ticker   4.6973 0.31315    15 262975 1140.5449 <2e-16 ***
+##           Sum Sq Mean Sq NumDF  DenDF   F value    Pr(>F)    
+## moneyness 0.0014 0.00139     1 329011    5.0646 0.0244204 *  
+## K         0.5291 0.52910     1 328204 1926.1881 < 2.2e-16 ***
+## r         1.0517 1.05167     1 183266 3828.5761 < 2.2e-16 ***
+## sigma     1.0586 1.05858     1 116203 3853.7199 < 2.2e-16 ***
+## q         0.0341 0.03411     1 329442  124.1696 < 2.2e-16 ***
+## T         2.3773 2.37728     1 329448 8654.4196 < 2.2e-16 ***
+## am_eu     0.0034 0.00335     1 160451   12.1982 0.0004785 ***
+## call_put  0.7290 0.72903     1 329485 2654.0085 < 2.2e-16 ***
+## model     0.0001 0.00007     2 329483    0.2609 0.7703652    
+## ticker    4.5653 0.30436    15 306468 1108.0001 < 2.2e-16 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \end{verbatim}
@@ -280,10 +280,10 @@ podmíněné \(R^2\) kvůli nízkému efektu měsíců.
 \begin{verbatim}
 ## $snapshot_month
 ##      (Intercept)
-## 01 -7.129052e-04
-## 02  9.922789e-04
-## 03 -5.833745e-05
-## 05 -2.210362e-04
+## 01 -0.0006767549
+## 02  0.0008359038
+## 03 -0.0007151198
+## 05  0.0005559710
 ## 
 ## with conditional variances for "snapshot_month"
 \end{verbatim}
@@ -340,47 +340,47 @@ využití opce (a model).
 ## Formula: formula
 ##    Data: train_data_rel
 ## 
-## REML criterion at convergence: -1766277
+## REML criterion at convergence: -1766546
 ## 
 ## Scaled residuals: 
 ##     Min      1Q  Median      3Q     Max 
-## -7.0098 -0.3318  0.0604  0.4445  5.1863 
+## -7.0151 -0.3300  0.0616  0.4438  5.1911 
 ## 
 ## Random effects:
 ##  Groups         Name        Variance  Std.Dev. 
-##  ticker         (Intercept) 9.816e-05 0.0099075
-##  snapshot_month (Intercept) 6.710e-07 0.0008192
-##  Residual                   2.749e-04 0.0165805
+##  ticker         (Intercept) 9.216e-05 0.0095997
+##  snapshot_month (Intercept) 6.651e-07 0.0008155
+##  Residual                   2.747e-04 0.0165738
 ## Number of obs: 329512, groups:  ticker, 17; snapshot_month, 4
 ## 
 ## Fixed effects:
 ##                 Estimate Std. Error         df t value Pr(>|t|)    
-## (Intercept)   -3.043e-02  3.140e-03  2.101e+01  -9.691 3.33e-09 ***
-## moneyness      9.876e-05  3.307e-05  3.285e+05   2.987  0.00282 ** 
-## K             -6.864e-06  1.596e-07  3.179e+05 -43.008  < 2e-16 ***
-## r              1.765e+00  2.846e-02  1.847e+05  62.027  < 2e-16 ***
-## sigma         -7.654e-02  1.238e-03  1.113e+05 -61.801  < 2e-16 ***
-## q             -5.477e-01  4.840e-02  7.261e+03 -11.316  < 2e-16 ***
-## T              3.863e-03  4.169e-05  3.295e+05  92.647  < 2e-16 ***
-## am_eueuropean -1.984e-02  5.334e-03  1.519e+01  -3.719  0.00202 ** 
-## call_putputs  -3.112e-03  6.034e-05  3.295e+05 -51.571  < 2e-16 ***
-## modeluser_crr -9.530e-06  7.075e-05  3.295e+05  -0.135  0.89285    
-## modeluser_mc   1.392e-05  7.075e-05  3.295e+05   0.197  0.84407    
+## (Intercept)   -3.010e-02  3.058e-03  2.145e+01  -9.844 2.07e-09 ***
+## moneyness      7.581e-05  3.311e-05  3.284e+05   2.290  0.02202 *  
+## K             -6.990e-06  1.595e-07  3.164e+05 -43.836  < 2e-16 ***
+## r              1.760e+00  2.845e-02  1.834e+05  61.878  < 2e-16 ***
+## sigma         -7.678e-02  1.236e-03  1.089e+05 -62.092  < 2e-16 ***
+## q             -5.504e-01  4.830e-02  6.473e+03 -11.394  < 2e-16 ***
+## T              3.880e-03  4.171e-05  3.295e+05  93.021  < 2e-16 ***
+## am_eueuropean -1.949e-02  5.172e-03  1.522e+01  -3.769  0.00182 ** 
+## call_putputs  -3.105e-03  6.031e-05  3.295e+05 -51.492  < 2e-16 ***
+## modeluser_crr  4.531e-05  7.073e-05  3.295e+05   0.641  0.52179    
+## modeluser_mc   2.136e-06  7.072e-05  3.295e+05   0.030  0.97591    
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
 ## Correlation of Fixed Effects:
 ##             (Intr) mnynss K      r      sigma  q      T      am_rpn cll_pt
 ## moneyness   -0.020                                                        
-## K           -0.016  0.500                                                 
-## r           -0.334  0.019  0.007                                          
-## sigma       -0.138 -0.057 -0.069  0.002                                   
-## q           -0.143  0.011  0.005 -0.026  0.048                            
-## T           -0.058 -0.100 -0.075  0.157 -0.007  0.001                     
-## am_eueuropn -0.508 -0.005 -0.012 -0.002  0.057  0.088  0.003              
-## call_putpts -0.006 -0.038  0.211 -0.011 -0.014  0.000 -0.018 -0.002       
-## modelsr_crr -0.011  0.000  0.000  0.000  0.000 -0.001  0.000  0.000  0.000
-## modelusr_mc -0.011 -0.001 -0.001  0.000  0.001 -0.001  0.000  0.000  0.001
+## K           -0.017  0.501                                                 
+## r           -0.343  0.019  0.007                                          
+## sigma       -0.142 -0.057 -0.069  0.000                                   
+## q           -0.147  0.011  0.004 -0.025  0.048                            
+## T           -0.059 -0.102 -0.076  0.156 -0.008  0.000                     
+## am_eueuropn -0.506 -0.005 -0.012 -0.002  0.059  0.091  0.003              
+## call_putpts -0.007 -0.038  0.211 -0.010 -0.013  0.000 -0.018 -0.002       
+## modelsr_crr -0.012  0.000  0.000  0.001  0.000  0.000  0.000  0.000  0.001
+## modelusr_mc -0.012  0.000  0.000  0.000  0.001  0.000  0.001  0.000  0.001
 ##             mdlsr_c
 ## moneyness          
 ## K                  
@@ -436,15 +436,15 @@ využití opce (a model).
 \begin{verbatim}
 ## Type III Analysis of Variance Table with Satterthwaite's method
 ##            Sum Sq Mean Sq NumDF  DenDF   F value    Pr(>F)    
-## moneyness 0.00245 0.00245     1 328514    8.9215  0.002818 ** 
-## K         0.50850 0.50850     1 317863 1849.6632 < 2.2e-16 ***
-## r         1.05768 1.05768     1 184707 3847.3058 < 2.2e-16 ***
-## sigma     1.04999 1.04999     1 111346 3819.3525 < 2.2e-16 ***
-## q         0.03520 0.03520     1   7261  128.0488 < 2.2e-16 ***
-## T         2.35972 2.35972     1 329452 8583.5268 < 2.2e-16 ***
-## am_eu     0.00380 0.00380     1     15   13.8308  0.002017 ** 
-## call_put  0.73116 0.73116     1 329485 2659.6153 < 2.2e-16 ***
-## model     0.00003 0.00002     2 329483    0.0555  0.945970    
+## moneyness 0.00144 0.00144     1 328430    5.2442  0.022020 *  
+## K         0.52784 0.52784     1 316421 1921.5878 < 2.2e-16 ***
+## r         1.05174 1.05174     1 183433 3828.8293 < 2.2e-16 ***
+## sigma     1.05903 1.05903     1 108858 3855.3801 < 2.2e-16 ***
+## q         0.03566 0.03566     1   6473  129.8314 < 2.2e-16 ***
+## T         2.37685 2.37685     1 329455 8652.8582 < 2.2e-16 ***
+## am_eu     0.00390 0.00390     1     15   14.2026  0.001816 ** 
+## call_put  0.72832 0.72832     1 329481 2651.4301 < 2.2e-16 ***
+## model     0.00014 0.00007     2 329483    0.2613  0.770046    
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \end{verbatim}
@@ -458,30 +458,30 @@ využití opce (a model).
 \begin{verbatim}
 ## $ticker
 ##         (Intercept)
-## ^RUT   0.0198248629
-## ^XDA  -0.0246242852
-## ^XDB   0.0088074687
-## ^XDE  -0.0055644258
-## ^XDN   0.0015563796
-## AAPL  -0.0117662628
-## AMD    0.0110811235
-## AMZN  -0.0036266622
-## GOOGL  0.0033001023
-## JNJ    0.0047768113
-## KO    -0.0017662644
-## META  -0.0023118431
-## MSFT  -0.0028877790
-## NFLX  -0.0025451289
-## NVDA   0.0038170048
-## PG    -0.0001604142
-## TSLA   0.0020893125
+## ^RUT   0.0197026595
+## ^XDA  -0.0231085954
+## ^XDB   0.0077566108
+## ^XDE  -0.0058943448
+## ^XDN   0.0015436691
+## AAPL  -0.0116981687
+## AMD    0.0110988494
+## AMZN  -0.0036484389
+## GOOGL  0.0034111098
+## JNJ    0.0047570645
+## KO    -0.0018581621
+## META  -0.0022828535
+## MSFT  -0.0029851768
+## NFLX  -0.0026031854
+## NVDA   0.0037957028
+## PG    -0.0001664148
+## TSLA   0.0021796720
 ## 
 ## $snapshot_month
 ##      (Intercept)
-## 01 -0.0006664638
-## 02  0.0008346210
-## 03 -0.0007334943
-## 05  0.0005653371
+## 01 -0.0006782164
+## 02  0.0008344671
+## 03 -0.0007153664
+## 05  0.0005591158
 ## 
 ## with conditional variances for "ticker" "snapshot_month"
 \end{verbatim}
@@ -540,34 +540,34 @@ Stejné významnosti jako model s náhodným efektem měsíce, menší mezní
 ## Formula: formula
 ##    Data: train_data_rel
 ## 
-## REML criterion at convergence: -1766244
+## REML criterion at convergence: -1766513
 ## 
 ## Scaled residuals: 
 ##     Min      1Q  Median      3Q     Max 
-## -7.0101 -0.3318  0.0604  0.4445  5.1860 
+## -7.0153 -0.3301  0.0617  0.4438  5.1908 
 ## 
 ## Random effects:
 ##  Groups   Name        Variance  Std.Dev.
-##  ticker   (Intercept) 9.812e-05 0.009906
-##  Residual             2.749e-04 0.016581
+##  ticker   (Intercept) 9.212e-05 0.009598
+##  Residual             2.747e-04 0.016574
 ## Number of obs: 329512, groups:  ticker, 17
 ## 
 ## Fixed effects:
 ##                    Estimate Std. Error         df t value Pr(>|t|)    
-## (Intercept)      -3.114e-02  3.112e-03  2.036e+01 -10.006 2.62e-09 ***
-## moneyness         9.848e-05  3.307e-05  3.290e+05   2.978  0.00290 ** 
-## K                -6.866e-06  1.596e-07  3.190e+05 -43.015  < 2e-16 ***
-## r                 1.766e+00  2.850e-02  3.295e+05  61.965  < 2e-16 ***
-## sigma            -7.649e-02  1.241e-03  2.776e+05 -61.636  < 2e-16 ***
-## q                -5.473e-01  4.840e-02  7.259e+03 -11.306  < 2e-16 ***
-## T                 3.863e-03  4.169e-05  3.295e+05  92.653  < 2e-16 ***
-## am_eueuropean    -1.982e-02  5.333e-03  1.520e+01  -3.717  0.00203 ** 
-## call_putputs     -3.112e-03  6.034e-05  3.295e+05 -51.574  < 2e-16 ***
-## snapshot_month02  1.509e-03  8.419e-05  3.291e+05  17.925  < 2e-16 ***
-## snapshot_month03 -6.770e-05  8.925e-05  3.295e+05  -0.759  0.44814    
-## snapshot_month05  1.240e-03  1.090e-04  3.262e+05  11.373  < 2e-16 ***
-## modeluser_crr    -9.542e-06  7.075e-05  3.295e+05  -0.135  0.89272    
-## modeluser_mc      1.391e-05  7.075e-05  3.295e+05   0.197  0.84410    
+## (Intercept)      -3.083e-02  3.030e-03  2.071e+01 -10.174 1.65e-09 ***
+## moneyness         7.554e-05  3.311e-05  3.289e+05   2.282  0.02251 *  
+## K                -6.992e-06  1.595e-07  3.176e+05 -43.843  < 2e-16 ***
+## r                 1.761e+00  2.849e-02  3.295e+05  61.815  < 2e-16 ***
+## sigma            -7.673e-02  1.239e-03  2.723e+05 -61.925  < 2e-16 ***
+## q                -5.499e-01  4.831e-02  6.466e+03 -11.385  < 2e-16 ***
+## T                 3.881e-03  4.172e-05  3.295e+05  93.026  < 2e-16 ***
+## am_eueuropean    -1.948e-02  5.171e-03  1.522e+01  -3.766  0.00183 ** 
+## call_putputs     -3.105e-03  6.031e-05  3.295e+05 -51.494  < 2e-16 ***
+## snapshot_month02  1.521e-03  8.415e-05  3.290e+05  18.072  < 2e-16 ***
+## snapshot_month03 -3.766e-05  8.926e-05  3.295e+05  -0.422  0.67307    
+## snapshot_month05  1.245e-03  1.090e-04  3.256e+05  11.427  < 2e-16 ***
+## modeluser_crr     4.530e-05  7.073e-05  3.295e+05   0.640  0.52186    
+## modeluser_mc      2.133e-06  7.072e-05  3.295e+05   0.030  0.97593    
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \end{verbatim}
@@ -594,8 +594,8 @@ Stejné významnosti jako model s náhodným efektem měsíce, menší mezní
 \begin{verbatim}
 ## # R2 for Mixed Models
 ## 
-##   Conditional R2: 0.454
-##      Marginal R2: 0.259
+##   Conditional R2: 0.448
+##      Marginal R2: 0.263
 \end{verbatim}
 
 \pandocbounded{\includegraphics[keepaspectratio]{regression2_files/regression2_files/figure-latex/unnamed-chunk-19-1.png}}
@@ -611,16 +611,16 @@ Stejné významnosti jako model s náhodným efektem měsíce, menší mezní
 \begin{verbatim}
 ## Type III Analysis of Variance Table with Satterthwaite's method
 ##                 Sum Sq Mean Sq NumDF  DenDF   F value    Pr(>F)    
-## moneyness      0.00244 0.00244     1 328987    8.8704  0.002899 ** 
-## K              0.50867 0.50867     1 319024 1850.2913 < 2.2e-16 ***
-## r              1.05558 1.05558     1 329496 3839.6935 < 2.2e-16 ***
-## sigma          1.04439 1.04439     1 277623 3798.9940 < 2.2e-16 ***
-## q              0.03514 0.03514     1   7259  127.8279 < 2.2e-16 ***
-## T              2.36000 2.36000     1 329490 8584.5360 < 2.2e-16 ***
-## am_eu          0.00380 0.00380     1     15   13.8132  0.002026 ** 
-## call_put       0.73122 0.73122     1 329483 2659.8382 < 2.2e-16 ***
-## snapshot_month 0.14439 0.04813     3 327415  175.0688 < 2.2e-16 ***
-## model          0.00003 0.00002     2 329483    0.0556  0.945932    
+## moneyness      0.00143 0.00143     1 328900    5.2057  0.022514 *  
+## K              0.52801 0.52801     1 317629 1922.2149 < 2.2e-16 ***
+## r              1.04963 1.04963     1 329496 3821.1481 < 2.2e-16 ***
+## sigma          1.05334 1.05334     1 272300 3834.6494 < 2.2e-16 ***
+## q              0.03560 0.03560     1   6466  129.6072 < 2.2e-16 ***
+## T              2.37712 2.37712     1 329490 8653.8619 < 2.2e-16 ***
+## am_eu          0.00390 0.00390     1     15   14.1840  0.001827 ** 
+## call_put       0.72837 0.72837     1 329479 2651.6299 < 2.2e-16 ***
+## snapshot_month 0.14335 0.04778     3 327124  173.9591 < 2.2e-16 ***
+## model          0.00014 0.00007     2 329483    0.2612  0.770112    
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \end{verbatim}
@@ -634,23 +634,23 @@ Stejné významnosti jako model s náhodným efektem měsíce, menší mezní
 \begin{verbatim}
 ## $ticker
 ##         (Intercept)
-## ^RUT   0.0198232763
-## ^XDA  -0.0246245864
-## ^XDB   0.0088089399
-## ^XDE  -0.0055634411
-## ^XDN   0.0015558108
-## AAPL  -0.0117619301
-## AMD    0.0110707091
-## AMZN  -0.0036223174
-## GOOGL  0.0033037797
-## JNJ    0.0047728753
-## KO    -0.0017680271
-## META  -0.0023104190
-## MSFT  -0.0028828390
-## NFLX  -0.0025405844
-## NVDA   0.0038173705
-## PG    -0.0001614436
-## TSLA   0.0020828256
+## ^RUT   0.0197010746
+## ^XDA  -0.0231089249
+## ^XDB   0.0077580520
+## ^XDE  -0.0058934239
+## ^XDN   0.0015432227
+## AAPL  -0.0116938129
+## AMD    0.0110884442
+## AMZN  -0.0036440703
+## GOOGL  0.0034148386
+## JNJ    0.0047530334
+## KO    -0.0018599903
+## META  -0.0022814061
+## MSFT  -0.0029802225
+## NFLX  -0.0025986170
+## NVDA   0.0037960879
+## PG    -0.0001674755
+## TSLA   0.0021731917
 ## 
 ## with conditional variances for "ticker"
 \end{verbatim}
@@ -678,8 +678,8 @@ měsíce.
   \CommentTok{\#"ticker"}
 \NormalTok{)}
 \NormalTok{interactions }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}
-  \StringTok{"(1 | ticker)"}
-  \CommentTok{\#"(1 | snapshot\_month)"}
+  \StringTok{"(1 | ticker)"}\NormalTok{,}
+  \StringTok{"(1 | snapshot\_month)"}
 \NormalTok{)}
 
 \NormalTok{rhs }\OtherTok{\textless{}{-}} \FunctionTok{paste}\NormalTok{(}\FunctionTok{c}\NormalTok{(subset\_args, interactions), }\AttributeTok{collapse =} \StringTok{" + "}\NormalTok{)}
@@ -708,46 +708,47 @@ měsíce.
 ## Formula: formula
 ##    Data: train_data_rel
 ## 
-## REML criterion at convergence: -1765770
+## REML criterion at convergence: -1766546
 ## 
 ## Scaled residuals: 
 ##     Min      1Q  Median      3Q     Max 
-## -6.9596 -0.3304  0.0579  0.4389  5.2279 
+## -7.0151 -0.3300  0.0616  0.4438  5.1911 
 ## 
 ## Random effects:
-##  Groups   Name        Variance  Std.Dev.
-##  ticker   (Intercept) 0.0001032 0.01016 
-##  Residual             0.0002753 0.01659 
-## Number of obs: 329512, groups:  ticker, 17
+##  Groups         Name        Variance  Std.Dev. 
+##  ticker         (Intercept) 9.216e-05 0.0095997
+##  snapshot_month (Intercept) 6.651e-07 0.0008155
+##  Residual                   2.747e-04 0.0165738
+## Number of obs: 329512, groups:  ticker, 17; snapshot_month, 4
 ## 
 ## Fixed effects:
 ##                 Estimate Std. Error         df t value Pr(>|t|)    
-## (Intercept)   -2.251e-02  3.146e-03  1.930e+01  -7.153 7.73e-07 ***
-## moneyness      1.383e-04  3.284e-05  3.290e+05   4.210 2.55e-05 ***
-## K             -6.594e-06  1.579e-07  3.188e+05 -41.759  < 2e-16 ***
-## r              1.636e+00  2.416e-02  3.286e+05  67.724  < 2e-16 ***
-## sigma         -8.373e-02  9.635e-04  3.072e+05 -86.906  < 2e-16 ***
-## q             -6.303e-01  4.830e-02  7.947e+03 -13.050  < 2e-16 ***
-## T              3.807e-03  4.160e-05  3.295e+05  91.520  < 2e-16 ***
-## am_eueuropean -2.227e-02  5.463e-03  1.518e+01  -4.077 0.000969 ***
-## call_putputs  -3.091e-03  6.037e-05  3.295e+05 -51.194  < 2e-16 ***
-## modeluser_crr -7.615e-06  7.081e-05  3.295e+05  -0.108 0.914356    
-## modeluser_mc   1.432e-05  7.081e-05  3.295e+05   0.202 0.839696    
+## (Intercept)   -3.010e-02  3.058e-03  2.145e+01  -9.844 2.07e-09 ***
+## moneyness      7.581e-05  3.311e-05  3.284e+05   2.290  0.02202 *  
+## K             -6.990e-06  1.595e-07  3.164e+05 -43.836  < 2e-16 ***
+## r              1.760e+00  2.845e-02  1.834e+05  61.878  < 2e-16 ***
+## sigma         -7.678e-02  1.236e-03  1.089e+05 -62.092  < 2e-16 ***
+## q             -5.504e-01  4.830e-02  6.473e+03 -11.394  < 2e-16 ***
+## T              3.880e-03  4.171e-05  3.295e+05  93.021  < 2e-16 ***
+## am_eueuropean -1.949e-02  5.172e-03  1.522e+01  -3.769  0.00182 ** 
+## call_putputs  -3.105e-03  6.031e-05  3.295e+05 -51.492  < 2e-16 ***
+## modeluser_crr  4.531e-05  7.073e-05  3.295e+05   0.641  0.52179    
+## modeluser_mc   2.136e-06  7.072e-05  3.295e+05   0.030  0.97591    
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
 ## Correlation of Fixed Effects:
 ##             (Intr) mnynss K      r      sigma  q      T      am_rpn cll_pt
-## moneyness   -0.023                                                        
-## K           -0.019  0.491                                                 
-## r           -0.314  0.001 -0.023                                          
-## sigma       -0.197  0.012  0.023  0.314                                   
-## q           -0.139  0.013  0.009 -0.031  0.029                            
-## T           -0.047 -0.100 -0.074  0.144  0.000 -0.001                     
-## am_eueuropn -0.520 -0.001 -0.007  0.010  0.042  0.084  0.003              
-## call_putpts -0.007 -0.041  0.210 -0.015 -0.001  0.001 -0.017 -0.002       
-## modelsr_crr -0.011  0.000  0.000  0.000  0.001 -0.001  0.000  0.000  0.000
-## modelusr_mc -0.011 -0.001 -0.001  0.000  0.002 -0.001  0.000  0.000  0.001
+## moneyness   -0.020                                                        
+## K           -0.017  0.501                                                 
+## r           -0.343  0.019  0.007                                          
+## sigma       -0.142 -0.057 -0.069  0.000                                   
+## q           -0.147  0.011  0.004 -0.025  0.048                            
+## T           -0.059 -0.102 -0.076  0.156 -0.008  0.000                     
+## am_eueuropn -0.506 -0.005 -0.012 -0.002  0.059  0.091  0.003              
+## call_putpts -0.007 -0.038  0.211 -0.010 -0.013  0.000 -0.018 -0.002       
+## modelsr_crr -0.012  0.000  0.000  0.001  0.000  0.000  0.000  0.000  0.001
+## modelusr_mc -0.012  0.000  0.000  0.000  0.001  0.000  0.001  0.000  0.001
 ##             mdlsr_c
 ## moneyness          
 ## K                  
@@ -771,10 +772,23 @@ měsíce.
 \end{Shaded}
 
 \begin{verbatim}
+## Warning: Can't compute random effect variances. Some variance components equal
+##   zero. Your model may suffer from singularity (see `?lme4::isSingular`
+##   and `?performance::check_singularity`).
+##   Decrease the `tolerance` level to force the calculation of random effect
+##   variances, or impose priors on your random effects parameters (using
+##   packages like `brms` or `glmmTMB`).
+\end{verbatim}
+
+\begin{verbatim}
+## Random effect variances not available. Returned R2 does not account for random effects.
+\end{verbatim}
+
+\begin{verbatim}
 ## # R2 for Mixed Models
 ## 
-##   Conditional R2: 0.471
-##      Marginal R2: 0.273
+##   Conditional R2: NA
+##      Marginal R2: 0.321
 \end{verbatim}
 
 \pandocbounded{\includegraphics[keepaspectratio]{regression2_files/regression2_files/figure-latex/unnamed-chunk-24-1.png}}
@@ -790,15 +804,15 @@ měsíce.
 \begin{verbatim}
 ## Type III Analysis of Variance Table with Satterthwaite's method
 ##            Sum Sq Mean Sq NumDF  DenDF   F value    Pr(>F)    
-## moneyness 0.00488 0.00488     1 328991   17.7251 2.553e-05 ***
-## K         0.48015 0.48015     1 318831 1743.7878 < 2.2e-16 ***
-## r         1.26289 1.26289     1 328626 4586.5186 < 2.2e-16 ***
-## sigma     2.07962 2.07962     1 307205 7552.6721 < 2.2e-16 ***
-## q         0.04689 0.04689     1   7947  170.3037 < 2.2e-16 ***
-## T         2.30629 2.30629     1 329492 8375.8952 < 2.2e-16 ***
-## am_eu     0.00458 0.00458     1     15   16.6244 0.0009689 ***
-## call_put  0.72165 0.72165     1 329488 2620.8642 < 2.2e-16 ***
-## model     0.00003 0.00001     2 329486    0.0495 0.9517141    
+## moneyness 0.00144 0.00144     1 328430    5.2442  0.022020 *  
+## K         0.52784 0.52784     1 316421 1921.5878 < 2.2e-16 ***
+## r         1.05174 1.05174     1 183433 3828.8293 < 2.2e-16 ***
+## sigma     1.05903 1.05903     1 108858 3855.3801 < 2.2e-16 ***
+## q         0.03566 0.03566     1   6473  129.8314 < 2.2e-16 ***
+## T         2.37685 2.37685     1 329455 8652.8582 < 2.2e-16 ***
+## am_eu     0.00390 0.00390     1     15   14.2026  0.001816 ** 
+## call_put  0.72832 0.72832     1 329481 2651.4301 < 2.2e-16 ***
+## model     0.00014 0.00007     2 329483    0.2613  0.770046    
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \end{verbatim}
@@ -812,27 +826,83 @@ měsíce.
 \begin{verbatim}
 ## $ticker
 ##         (Intercept)
-## ^RUT   0.0200290083
-## ^XDA  -0.0245611348
-## ^XDB   0.0085831997
-## ^XDE  -0.0057006223
-## ^XDN   0.0016495493
-## AAPL  -0.0124606424
-## AMD    0.0124350572
-## AMZN  -0.0044011312
-## GOOGL  0.0026986683
-## JNJ    0.0057295103
-## KO    -0.0011771214
-## META  -0.0026113541
-## MSFT  -0.0036155649
-## NFLX  -0.0033547402
-## NVDA   0.0036175684
-## PG     0.0002661214
-## TSLA   0.0028736297
+## ^RUT   0.0197026595
+## ^XDA  -0.0231085954
+## ^XDB   0.0077566108
+## ^XDE  -0.0058943448
+## ^XDN   0.0015436691
+## AAPL  -0.0116981687
+## AMD    0.0110988494
+## AMZN  -0.0036484389
+## GOOGL  0.0034111098
+## JNJ    0.0047570645
+## KO    -0.0018581621
+## META  -0.0022828535
+## MSFT  -0.0029851768
+## NFLX  -0.0026031854
+## NVDA   0.0037957028
+## PG    -0.0001664148
+## TSLA   0.0021796720
 ## 
-## with conditional variances for "ticker"
+## $snapshot_month
+##      (Intercept)
+## 01 -0.0006782164
+## 02  0.0008344671
+## 03 -0.0007153664
+## 05  0.0005591158
+## 
+## with conditional variances for "ticker" "snapshot_month"
 \end{verbatim}
 
---\textgreater{}
+\section{Kontrola předpokladů}\label{kontrola-pux159edpokladux16f}
+
+\subsection{Linearita reziduí}\label{linearita-reziduuxed}
+
+\begin{verbatim}
+## png 
+##   2
+\end{verbatim}
+
+\pandocbounded{\includegraphics[keepaspectratio]{regression2_files/regression2_files/figure-latex/residuals-linearity-1.png}}
+
+\subsection{Normalita reziduí}\label{normalita-reziduuxed}
+
+\begin{verbatim}
+## png 
+##   2
+\end{verbatim}
+
+\subsection{Homoscedasticita}\label{homoscedasticita}
+
+\pandocbounded{\includegraphics[keepaspectratio]{regression2_files/regression2_files/figure-latex/homoska-am-1.png}}
+
+\pandocbounded{\includegraphics[keepaspectratio]{regression2_files/regression2_files/figure-latex/homoska-eu-1.png}}
+
+\pandocbounded{\includegraphics[keepaspectratio]{regression2_files/regression2_files/figure-latex/homoska2-am-1.png}}
+
+\pandocbounded{\includegraphics[keepaspectratio]{regression2_files/regression2_files/figure-latex/homoska2-eu-1.png}}
+
+\subsection{Multikolinearita}\label{multikolinearita}
+
+\begin{verbatim}
+##               GVIF Df GVIF^(1/(2*Df))
+## moneyness 1.385882  1        1.177235
+## K         1.441263  1        1.200526
+## r         1.026899  1        1.013360
+## sigma     1.011052  1        1.005511
+## q         1.011027  1        1.005498
+## T         1.038014  1        1.018830
+## am_eu     1.011383  1        1.005675
+## call_put  1.077958  1        1.038248
+## model     1.000005  2        1.000001
+\end{verbatim}
+
+\subsection{Linearita náhodných
+efektů}\label{linearita-nuxe1hodnuxfdch-efektux16f}
+
+\begin{verbatim}
+## png 
+##   2
+\end{verbatim}
 
 \end{document}

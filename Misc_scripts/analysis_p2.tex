@@ -119,11 +119,72 @@
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{df\_doctored }\OtherTok{\textless{}{-}}\NormalTok{ df }\SpecialCharTok{\%\textgreater{}\%}
-  \FunctionTok{filter}\NormalTok{((ticker }\SpecialCharTok{!=} \StringTok{"NFLX"} \SpecialCharTok{|}\NormalTok{ call\_put }\SpecialCharTok{!=} \StringTok{"calls"}\NormalTok{) }\SpecialCharTok{|}\NormalTok{ (K }\SpecialCharTok{\textless{}} \DecValTok{266} \SpecialCharTok{\&}\NormalTok{ true\_price }\SpecialCharTok{\textless{}} \DecValTok{400}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%}
-  \FunctionTok{filter}\NormalTok{((ticker }\SpecialCharTok{!=} \StringTok{"NVDA"} \SpecialCharTok{|}\NormalTok{ call\_put }\SpecialCharTok{!=} \StringTok{"calls"}\NormalTok{) }\SpecialCharTok{|}\NormalTok{ (K }\SpecialCharTok{\textless{}} \DecValTok{500} \SpecialCharTok{\&}\NormalTok{ true\_price }\SpecialCharTok{\textless{}} \DecValTok{300}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%}
-  \FunctionTok{filter}\NormalTok{((ticker }\SpecialCharTok{!=} \StringTok{"NFLX"} \SpecialCharTok{|}\NormalTok{ call\_put }\SpecialCharTok{!=} \StringTok{"puts"}\NormalTok{) }\SpecialCharTok{|}\NormalTok{ (K }\SpecialCharTok{\textless{}} \DecValTok{266} \SpecialCharTok{\&}\NormalTok{ (K }\SpecialCharTok{\textless{}} \DecValTok{100} \SpecialCharTok{|}\NormalTok{ true\_price }\SpecialCharTok{\textgreater{}} \DecValTok{10}\NormalTok{))) }\SpecialCharTok{\%\textgreater{}\%}
-  \FunctionTok{filter}\NormalTok{((ticker }\SpecialCharTok{!=} \StringTok{"NVDA"} \SpecialCharTok{|}\NormalTok{ call\_put }\SpecialCharTok{!=} \StringTok{"puts"}\NormalTok{) }\SpecialCharTok{|}\NormalTok{ (K }\SpecialCharTok{\textless{}} \DecValTok{500} \SpecialCharTok{\&}\NormalTok{ (K }\SpecialCharTok{\textless{}} \DecValTok{300} \SpecialCharTok{|}\NormalTok{ true\_price }\SpecialCharTok{\textgreater{}} \DecValTok{100}\NormalTok{)))}
+\NormalTok{sort\_mask }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(dataset) \{}
+
+  \CommentTok{\# Výchozí hodnoty {-} aplikováno na normální titul}
+\NormalTok{  default\_lower }\OtherTok{\textless{}{-}} \FloatTok{0.04}
+\NormalTok{  default\_higher }\OtherTok{\textless{}{-}} \FloatTok{0.97}
+
+  \CommentTok{\# Tituly, u kterých je nutno hodnoty omezit více}
+\NormalTok{  quantiles }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{(}
+    \AttributeTok{NFLX =} \FunctionTok{c}\NormalTok{(}\FloatTok{0.08}\NormalTok{, default\_higher),}
+    \AttributeTok{JNJ =} \FunctionTok{c}\NormalTok{(}\FloatTok{0.08}\NormalTok{, default\_higher),}
+    \AttributeTok{PG =} \FunctionTok{c}\NormalTok{(}\FloatTok{0.06}\NormalTok{, default\_higher),}
+    \AttributeTok{MSFT =} \FunctionTok{c}\NormalTok{(}\FloatTok{0.05}\NormalTok{, default\_higher),}
+    \AttributeTok{KO =} \FunctionTok{c}\NormalTok{(}\FloatTok{0.05}\NormalTok{, default\_higher)}
+\NormalTok{  )}
+
+  \CommentTok{\# Tituly, které nebudeme takto filtrovat}
+\NormalTok{  banned }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"\^{}XDN"}\NormalTok{, }\StringTok{"\^{}XDB"}\NormalTok{, }\StringTok{"\^{}XDA"}\NormalTok{, }\StringTok{"\^{}XDE"}\NormalTok{)}
+\NormalTok{  tickers }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\FunctionTok{unique}\NormalTok{(dataset}\SpecialCharTok{$}\NormalTok{ticker))}
+\NormalTok{  tickers }\OtherTok{\textless{}{-}} \FunctionTok{setdiff}\NormalTok{(tickers, banned)}
+
+  \CommentTok{\# Základní maska}
+  \CommentTok{\# {-} Ze začátku předpokládáme že všechny opce jsou ok a chceme je ve výsledku}
+\NormalTok{  mask }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\ConstantTok{TRUE}\NormalTok{, }\FunctionTok{nrow}\NormalTok{(dataset))}
+
+  \ControlFlowTok{for}\NormalTok{ (cur\_ticker }\ControlFlowTok{in}\NormalTok{ tickers) \{}
+    \CommentTok{\# Získáváme pouze hodnoty pro daný ticker}
+\NormalTok{    ticker\_diff }\OtherTok{\textless{}{-}}\NormalTok{ dataset }\SpecialCharTok{|\textgreater{}} \FunctionTok{filter}\NormalTok{(ticker }\SpecialCharTok{==}\NormalTok{ cur\_ticker)}
+
+    \CommentTok{\# Výběr kvantilů pro omezení hodnot}
+    \ControlFlowTok{if}\NormalTok{ (cur\_ticker }\SpecialCharTok{\%in\%} \FunctionTok{names}\NormalTok{(quantiles)) \{}
+      \CommentTok{\#cat(paste(cur\_ticker, "found in quantiles\textbackslash{}n"))}
+\NormalTok{      quants }\OtherTok{\textless{}{-}}\NormalTok{ quantiles[[cur\_ticker]]}
+\NormalTok{      low\_q\_const }\OtherTok{\textless{}{-}}\NormalTok{ quants[}\DecValTok{1}\NormalTok{]}
+\NormalTok{      high\_q\_const }\OtherTok{\textless{}{-}}\NormalTok{ quants[}\DecValTok{2}\NormalTok{]}
+\NormalTok{    \} }\ControlFlowTok{else}\NormalTok{ \{}
+      \CommentTok{\#cat(paste(cur\_ticker, "not found in quantiles\textbackslash{}n"))}
+\NormalTok{      low\_q\_const }\OtherTok{\textless{}{-}}\NormalTok{ default\_lower}
+\NormalTok{      high\_q\_const }\OtherTok{\textless{}{-}}\NormalTok{ default\_higher}
+\NormalTok{    \}}
+
+    \CommentTok{\# Zjištění hodnot v těchto kvantilech}
+\NormalTok{    low\_q }\OtherTok{\textless{}{-}} \FunctionTok{quantile}\NormalTok{(ticker\_diff}\SpecialCharTok{$}\NormalTok{pricing\_error, low\_q\_const)}
+\NormalTok{    high\_q }\OtherTok{\textless{}{-}} \FunctionTok{quantile}\NormalTok{(ticker\_diff}\SpecialCharTok{$}\NormalTok{pricing\_error, high\_q\_const)}
+
+    \CommentTok{\# Upravení masky}
+    \CommentTok{\# {-} Řádek se buď vztahuje k jinému titulu, nebo je v korektních hodnotách...}
+    \CommentTok{\#   ...jinak je vynechán}
+\NormalTok{    mask }\OtherTok{\textless{}{-}}\NormalTok{ mask }\SpecialCharTok{\&}
+\NormalTok{      ((dataset}\SpecialCharTok{$}\NormalTok{pricing\_error }\SpecialCharTok{\textgreater{}}\NormalTok{ low\_q }\SpecialCharTok{|}\NormalTok{ dataset}\SpecialCharTok{$}\NormalTok{ticker }\SpecialCharTok{!=}\NormalTok{ cur\_ticker) }\SpecialCharTok{\&}
+\NormalTok{      (dataset}\SpecialCharTok{$}\NormalTok{pricing\_error }\SpecialCharTok{\textless{}}\NormalTok{ high\_q }\SpecialCharTok{|}\NormalTok{ dataset}\SpecialCharTok{$}\NormalTok{ticker }\SpecialCharTok{!=}\NormalTok{ cur\_ticker))}
+\NormalTok{  \}}
+
+\NormalTok{  dataset[mask, ]}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#df\_doctored \textless{}{-} sort\_mask(df) |\textgreater{}}
+\NormalTok{df\_doctored }\OtherTok{\textless{}{-}}\NormalTok{ df }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{filter}\NormalTok{((ticker }\SpecialCharTok{!=} \StringTok{"NFLX"} \SpecialCharTok{|}\NormalTok{ call\_put }\SpecialCharTok{!=} \StringTok{"calls"}\NormalTok{) }\SpecialCharTok{|}\NormalTok{ (K }\SpecialCharTok{\textless{}} \DecValTok{266} \SpecialCharTok{\&}\NormalTok{ true\_price }\SpecialCharTok{\textless{}} \DecValTok{400}\NormalTok{)) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{filter}\NormalTok{((ticker }\SpecialCharTok{!=} \StringTok{"NVDA"} \SpecialCharTok{|}\NormalTok{ call\_put }\SpecialCharTok{!=} \StringTok{"calls"}\NormalTok{) }\SpecialCharTok{|}\NormalTok{ (K }\SpecialCharTok{\textless{}} \DecValTok{500} \SpecialCharTok{\&}\NormalTok{ true\_price }\SpecialCharTok{\textless{}} \DecValTok{300}\NormalTok{)) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{filter}\NormalTok{((ticker }\SpecialCharTok{!=} \StringTok{"NFLX"} \SpecialCharTok{|}\NormalTok{ call\_put }\SpecialCharTok{!=} \StringTok{"puts"}\NormalTok{) }\SpecialCharTok{|}\NormalTok{ (K }\SpecialCharTok{\textless{}} \DecValTok{266} \SpecialCharTok{\&}\NormalTok{ (K }\SpecialCharTok{\textless{}} \DecValTok{100} \SpecialCharTok{|}\NormalTok{ true\_price }\SpecialCharTok{\textgreater{}} \DecValTok{10}\NormalTok{))) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{filter}\NormalTok{((ticker }\SpecialCharTok{!=} \StringTok{"NVDA"} \SpecialCharTok{|}\NormalTok{ call\_put }\SpecialCharTok{!=} \StringTok{"puts"}\NormalTok{) }\SpecialCharTok{|}\NormalTok{ (K }\SpecialCharTok{\textless{}} \DecValTok{500} \SpecialCharTok{\&}\NormalTok{ (K }\SpecialCharTok{\textless{}} \DecValTok{300} \SpecialCharTok{|}\NormalTok{ true\_price }\SpecialCharTok{\textgreater{}} \DecValTok{100}\NormalTok{))) }\CommentTok{\#|\textgreater{}}
+  \CommentTok{\#filter(moneyness \textless{} 10 \& moneyness \textgreater{} 0.1)}
 
 \NormalTok{df }\OtherTok{\textless{}{-}}\NormalTok{ df\_doctored}
 \end{Highlighting}
@@ -280,7 +341,8 @@ ticker & calls & puts & total \\
 ## i Summaries were computed grouped by am_eu and call_put.
 ## i Output is grouped by am_eu.
 ## i Use `summarise(.groups = "drop_last")` to silence this message.
-## i Use `summarise(.by = c(am_eu, call_put))` for per-operation grouping (`?dplyr::dplyr_by`) instead.
+## i Use `summarise(.by = c(am_eu, call_put))` for per-operation grouping
+##   (`?dplyr::dplyr_by`) instead.
 \end{verbatim}
 
 \begin{Shaded}
@@ -555,9 +617,15 @@ T\_max & 2.8904110 & 0.6575342 & 0.8958904 & 0.8164384 & 0.8082192 &
   \FunctionTok{ggplot}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ user\_bs, }\AttributeTok{y =}\NormalTok{ true\_price, }\AttributeTok{color =}\NormalTok{ call\_put)) }\SpecialCharTok{+}
   \FunctionTok{geom\_blank}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ max\_val, }\AttributeTok{y =}\NormalTok{ max\_val)) }\SpecialCharTok{+}
   \FunctionTok{geom\_point}\NormalTok{(}\AttributeTok{alpha =} \FloatTok{0.15}\NormalTok{, }\AttributeTok{size =} \FloatTok{0.3}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{scale\_color\_discrete}\NormalTok{(}\AttributeTok{labels =} \FunctionTok{c}\NormalTok{(}\AttributeTok{calls =} \StringTok{"Call opce"}\NormalTok{, }\AttributeTok{puts =} \StringTok{"Put opce"}\NormalTok{)) }\SpecialCharTok{+}
   \FunctionTok{geom\_abline}\NormalTok{(}\AttributeTok{slope =} \DecValTok{1}\NormalTok{, }\AttributeTok{intercept =} \DecValTok{0}\NormalTok{, }\AttributeTok{color =} \StringTok{"black"}\NormalTok{, }\AttributeTok{linewidth =} \FloatTok{0.5}\NormalTok{, }\AttributeTok{alpha =} \FloatTok{0.4}\NormalTok{) }\SpecialCharTok{+}
   \FunctionTok{facet\_wrap}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{ticker, }\AttributeTok{nrow =} \DecValTok{3}\NormalTok{, }\AttributeTok{ncol =} \DecValTok{4}\NormalTok{, }\AttributeTok{scales =} \StringTok{"free"}\NormalTok{) }\SpecialCharTok{+}
-  \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"Black{-}Scholes price"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Market price"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}
+    \AttributeTok{x =} \StringTok{"Ohodnocení opce vypočtené modelem"}\NormalTok{,}
+    \AttributeTok{y =} \StringTok{"Opční prémie"}\NormalTok{,}
+    \AttributeTok{color =} \StringTok{"Styl využití"}
+\NormalTok{  ) }\SpecialCharTok{+}
+  \FunctionTok{scale\_x\_continuous}\NormalTok{(}\AttributeTok{breaks =}\NormalTok{ scales}\SpecialCharTok{::}\FunctionTok{breaks\_pretty}\NormalTok{(}\AttributeTok{n =} \DecValTok{3}\NormalTok{)) }\SpecialCharTok{+}
   \FunctionTok{theme\_minimal}\NormalTok{()}
 
 \NormalTok{scatter\_am}
@@ -586,9 +654,15 @@ RUT a VIX přeceňují. XDE a XDN all over the place.
   \FunctionTok{ggplot}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ user\_bs, }\AttributeTok{y =}\NormalTok{ true\_price, }\AttributeTok{color =}\NormalTok{ call\_put)) }\SpecialCharTok{+}
   \FunctionTok{geom\_blank}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ max\_val, }\AttributeTok{y =}\NormalTok{ max\_val)) }\SpecialCharTok{+}
   \FunctionTok{geom\_point}\NormalTok{(}\AttributeTok{alpha =} \FloatTok{0.15}\NormalTok{, }\AttributeTok{size =} \FloatTok{0.3}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{scale\_color\_discrete}\NormalTok{(}\AttributeTok{labels =} \FunctionTok{c}\NormalTok{(}\AttributeTok{calls =} \StringTok{"Call opce"}\NormalTok{, }\AttributeTok{puts =} \StringTok{"Put opce"}\NormalTok{)) }\SpecialCharTok{+}
   \FunctionTok{geom\_abline}\NormalTok{(}\AttributeTok{slope =} \DecValTok{1}\NormalTok{, }\AttributeTok{intercept =} \DecValTok{0}\NormalTok{, }\AttributeTok{color =} \StringTok{"black"}\NormalTok{, }\AttributeTok{linewidth =} \FloatTok{0.5}\NormalTok{, }\AttributeTok{alpha =} \FloatTok{0.4}\NormalTok{) }\SpecialCharTok{+}
   \FunctionTok{facet\_wrap}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{ticker, }\AttributeTok{nrow =} \DecValTok{3}\NormalTok{, }\AttributeTok{ncol =} \DecValTok{2}\NormalTok{, }\AttributeTok{scales =} \StringTok{"free"}\NormalTok{) }\SpecialCharTok{+}
-  \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"Black{-}Scholes price"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Market price"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}
+    \AttributeTok{x =} \StringTok{"Ohodnocení opce vypočtené modelem"}\NormalTok{,}
+    \AttributeTok{y =} \StringTok{"Opční prémie"}\NormalTok{,}
+    \AttributeTok{color =} \StringTok{"Styl využití"}
+\NormalTok{  ) }\SpecialCharTok{+}
+  \FunctionTok{scale\_x\_continuous}\NormalTok{(}\AttributeTok{breaks =}\NormalTok{ scales}\SpecialCharTok{::}\FunctionTok{breaks\_pretty}\NormalTok{(}\AttributeTok{n =} \DecValTok{3}\NormalTok{)) }\SpecialCharTok{+}
   \FunctionTok{theme\_minimal}\NormalTok{()}
 
 \NormalTok{scatter\_eu}
@@ -729,7 +803,7 @@ RUT podceňuje, VIX ideální, XDB a XDE podceňuje.
 \begin{Highlighting}[]
 \NormalTok{df\_moneyness }\OtherTok{\textless{}{-}}\NormalTok{ df\_raw }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(ticker }\SpecialCharTok{==} \StringTok{"NFLX"} \SpecialCharTok{\&}\NormalTok{ call\_put }\SpecialCharTok{==} \StringTok{"calls"}\NormalTok{)}
 
-\FunctionTok{ggplot}\NormalTok{(df\_moneyness, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ K, }\AttributeTok{y =}\NormalTok{ T, }\AttributeTok{color =}\NormalTok{ ticker)) }\SpecialCharTok{+}
+\FunctionTok{ggplot}\NormalTok{(df\_moneyness, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ T, }\AttributeTok{y =}\NormalTok{ true\_price, }\AttributeTok{color =}\NormalTok{ ticker)) }\SpecialCharTok{+}
   \FunctionTok{geom\_point}\NormalTok{(}\AttributeTok{alpha =} \FloatTok{0.3}\NormalTok{, }\AttributeTok{size =} \FloatTok{0.5}\NormalTok{) }\SpecialCharTok{+}
   \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"K"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Cena opce"}\NormalTok{,}
        \AttributeTok{color =} \StringTok{"Ticker"}\NormalTok{) }\SpecialCharTok{+}
@@ -743,7 +817,7 @@ RUT podceňuje, VIX ideální, XDB a XDE podceňuje.
 \begin{Highlighting}[]
 \NormalTok{df\_moneyness }\OtherTok{\textless{}{-}}\NormalTok{ df\_raw }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(ticker }\SpecialCharTok{==} \StringTok{"NFLX"} \SpecialCharTok{\&}\NormalTok{ call\_put }\SpecialCharTok{==} \StringTok{"puts"}\NormalTok{)}
 
-\FunctionTok{ggplot}\NormalTok{(df\_moneyness, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ K, }\AttributeTok{y =}\NormalTok{ T, }\AttributeTok{color =}\NormalTok{ ticker)) }\SpecialCharTok{+}
+\FunctionTok{ggplot}\NormalTok{(df\_moneyness, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ T, }\AttributeTok{y =}\NormalTok{ true\_price, }\AttributeTok{color =}\NormalTok{ ticker)) }\SpecialCharTok{+}
   \FunctionTok{geom\_point}\NormalTok{(}\AttributeTok{alpha =} \FloatTok{0.3}\NormalTok{, }\AttributeTok{size =} \FloatTok{0.5}\NormalTok{) }\SpecialCharTok{+}
   \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"K"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Cena opce"}\NormalTok{,}
        \AttributeTok{color =} \StringTok{"Ticker"}\NormalTok{) }\SpecialCharTok{+}
@@ -757,7 +831,7 @@ RUT podceňuje, VIX ideální, XDB a XDE podceňuje.
 \begin{Highlighting}[]
 \NormalTok{df\_moneyness }\OtherTok{\textless{}{-}}\NormalTok{ df\_raw }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(ticker }\SpecialCharTok{==} \StringTok{"NVDA"} \SpecialCharTok{\&}\NormalTok{ call\_put }\SpecialCharTok{==} \StringTok{"calls"}\NormalTok{)}
 
-\FunctionTok{ggplot}\NormalTok{(df\_moneyness, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ K, }\AttributeTok{y =}\NormalTok{ T, }\AttributeTok{color =}\NormalTok{ ticker)) }\SpecialCharTok{+}
+\FunctionTok{ggplot}\NormalTok{(df\_moneyness, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ T, }\AttributeTok{y =}\NormalTok{ true\_price, }\AttributeTok{color =}\NormalTok{ ticker)) }\SpecialCharTok{+}
   \FunctionTok{geom\_point}\NormalTok{(}\AttributeTok{alpha =} \FloatTok{0.3}\NormalTok{, }\AttributeTok{size =} \FloatTok{0.5}\NormalTok{) }\SpecialCharTok{+}
   \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"K"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Cena opce"}\NormalTok{,}
        \AttributeTok{color =} \StringTok{"Ticker"}\NormalTok{) }\SpecialCharTok{+}
@@ -771,7 +845,7 @@ RUT podceňuje, VIX ideální, XDB a XDE podceňuje.
 \begin{Highlighting}[]
 \NormalTok{df\_moneyness }\OtherTok{\textless{}{-}}\NormalTok{ df\_raw }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{filter}\NormalTok{(ticker }\SpecialCharTok{==} \StringTok{"NVDA"} \SpecialCharTok{\&}\NormalTok{ call\_put }\SpecialCharTok{==} \StringTok{"puts"}\NormalTok{)}
 
-\FunctionTok{ggplot}\NormalTok{(df\_moneyness, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ K, }\AttributeTok{y =}\NormalTok{ T, }\AttributeTok{color =}\NormalTok{ ticker)) }\SpecialCharTok{+}
+\FunctionTok{ggplot}\NormalTok{(df\_moneyness, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ T, }\AttributeTok{y =}\NormalTok{ true\_price, }\AttributeTok{color =}\NormalTok{ ticker)) }\SpecialCharTok{+}
   \FunctionTok{geom\_point}\NormalTok{(}\AttributeTok{alpha =} \FloatTok{0.3}\NormalTok{, }\AttributeTok{size =} \FloatTok{0.5}\NormalTok{) }\SpecialCharTok{+}
   \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"K"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Cena opce"}\NormalTok{,}
        \AttributeTok{color =} \StringTok{"Ticker"}\NormalTok{) }\SpecialCharTok{+}
@@ -945,7 +1019,13 @@ opce můžeme odstranit opce které mají pro \texttt{K} \textgreater{} 300
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{df\_corr }\OtherTok{\textless{}{-}}\NormalTok{ df\_doctored }\SpecialCharTok{\%\textgreater{}\%}
-  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{type =} \FunctionTok{paste}\NormalTok{(am\_eu, call\_put, }\AttributeTok{sep =} \StringTok{" {-} "}\NormalTok{))}
+  \FunctionTok{mutate}\NormalTok{(}
+    \AttributeTok{am\_eu\_short =} \FunctionTok{case\_when}\NormalTok{(}
+\NormalTok{      am\_eu }\SpecialCharTok{==} \StringTok{"american"} \SpecialCharTok{\textasciitilde{}} \StringTok{"US"}\NormalTok{,}
+\NormalTok{      am\_eu }\SpecialCharTok{==} \StringTok{"european"} \SpecialCharTok{\textasciitilde{}} \StringTok{"EU"}
+\NormalTok{    )}
+\NormalTok{  ) }\SpecialCharTok{|\textgreater{}}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{type =} \FunctionTok{paste}\NormalTok{(am\_eu\_short, call\_put, }\AttributeTok{sep =} \StringTok{" {-} "}\NormalTok{))}
 
 \NormalTok{df\_pairs }\OtherTok{\textless{}{-}} \FunctionTok{bind\_rows}\NormalTok{(}
 \NormalTok{  df\_corr }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{comparison =} \StringTok{"BS vs CRR"}\NormalTok{, }\AttributeTok{price\_x =}\NormalTok{ user\_bs,   }\AttributeTok{price\_y =}\NormalTok{ user\_crr),}
@@ -957,8 +1037,11 @@ opce můžeme odstranit opce které mají pro \texttt{K} \textgreater{} 300
   \FunctionTok{geom\_point}\NormalTok{(}\AttributeTok{alpha =} \FloatTok{0.15}\NormalTok{, }\AttributeTok{size =} \FloatTok{0.3}\NormalTok{) }\SpecialCharTok{+}
   \FunctionTok{geom\_abline}\NormalTok{(}\AttributeTok{slope =} \DecValTok{1}\NormalTok{, }\AttributeTok{intercept =} \DecValTok{0}\NormalTok{, }\AttributeTok{color =} \StringTok{"red"}\NormalTok{, }\AttributeTok{linewidth =} \FloatTok{0.5}\NormalTok{) }\SpecialCharTok{+}
   \FunctionTok{facet\_grid}\NormalTok{(type }\SpecialCharTok{\textasciitilde{}}\NormalTok{ comparison, }\AttributeTok{scales =} \StringTok{"free"}\NormalTok{) }\SpecialCharTok{+}
-  \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \ConstantTok{NULL}\NormalTok{, }\AttributeTok{y =} \ConstantTok{NULL}\NormalTok{) }\SpecialCharTok{+}
-  \FunctionTok{theme\_minimal}\NormalTok{()}
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"Odhodnocení prvním modelem"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Ohodnocení druhým modelem"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{theme\_minimal}\NormalTok{() }\CommentTok{\# +}
+  \CommentTok{\# theme(}
+ \CommentTok{\#   strip.text = element\_text(size = 7) \# Adjust font size here (default is \textasciitilde{}10{-}11)}
+  \CommentTok{\#)}
 
 \FunctionTok{ggsave}\NormalTok{(}\StringTok{"\textasciitilde{}/Praxe/bakalarka/figures/correlations.png"}\NormalTok{, correlations, }\AttributeTok{width =} \DecValTok{6}\NormalTok{, }\AttributeTok{height =} \DecValTok{4}\NormalTok{)}
 

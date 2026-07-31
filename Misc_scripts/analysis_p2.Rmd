@@ -121,13 +121,13 @@ sort_mask <- function(dataset) {
 ```
 
 ``` {r doctoring}
-df_doctored <- sort_mask(df) |>
-#df_doctored <- df |>
+#df_doctored <- sort_mask(df) |>
+df_doctored <- df |>
   filter((ticker != "NFLX" | call_put != "calls") | (K < 266 & true_price < 400)) |>
   filter((ticker != "NVDA" | call_put != "calls") | (K < 500 & true_price < 300)) |>
   filter((ticker != "NFLX" | call_put != "puts") | (K < 266 & (K < 100 | true_price > 10))) |>
-  filter((ticker != "NVDA" | call_put != "puts") | (K < 500 & (K < 300 | true_price > 100))) |>
-  filter(moneyness < 10 & moneyness > 0.1)
+  filter((ticker != "NVDA" | call_put != "puts") | (K < 500 & (K < 300 | true_price > 100))) #|>
+  #filter(moneyness < 10 & moneyness > 0.1)
 
 df <- df_doctored
 ```
@@ -295,9 +295,15 @@ scatter_am <- df %>%
   ggplot(aes(x = user_bs, y = true_price, color = call_put)) +
   geom_blank(aes(x = max_val, y = max_val)) +
   geom_point(alpha = 0.15, size = 0.3) +
+  scale_color_discrete(labels = c(calls = "Call opce", puts = "Put opce")) +
   geom_abline(slope = 1, intercept = 0, color = "black", linewidth = 0.5, alpha = 0.4) +
   facet_wrap(~ticker, nrow = 3, ncol = 4, scales = "free") +
-  labs(x = "Black-Scholes price", y = "Market price") +
+  labs(
+    x = "Ohodnocení opce vypočtené modelem",
+    y = "Opční prémie",
+    color = "Styl využití"
+  ) +
+  scale_x_continuous(breaks = scales::breaks_pretty(n = 3)) +
   theme_minimal()
 
 scatter_am
@@ -352,9 +358,15 @@ scatter_eu <- df %>%
   ggplot(aes(x = user_bs, y = true_price, color = call_put)) +
   geom_blank(aes(x = max_val, y = max_val)) +
   geom_point(alpha = 0.15, size = 0.3) +
+  scale_color_discrete(labels = c(calls = "Call opce", puts = "Put opce")) +
   geom_abline(slope = 1, intercept = 0, color = "black", linewidth = 0.5, alpha = 0.4) +
   facet_wrap(~ticker, nrow = 3, ncol = 2, scales = "free") +
-  labs(x = "Black-Scholes price", y = "Market price") +
+  labs(
+    x = "Ohodnocení opce vypočtené modelem",
+    y = "Opční prémie",
+    color = "Styl využití"
+  ) +
+  scale_x_continuous(breaks = scales::breaks_pretty(n = 3)) +
   theme_minimal()
 
 scatter_eu
@@ -643,7 +655,13 @@ nrow(df_more |> filter(ticker == "^RUT"))
 
 ``` {r corr-grid}
 df_corr <- df_doctored %>%
-  mutate(type = paste(am_eu, call_put, sep = " - "))
+  mutate(
+    am_eu_short = case_when(
+      am_eu == "american" ~ "US",
+      am_eu == "european" ~ "EU"
+    )
+  ) |>
+  mutate(type = paste(am_eu_short, call_put, sep = " - "))
 
 df_pairs <- bind_rows(
   df_corr %>% mutate(comparison = "BS vs CRR", price_x = user_bs,   price_y = user_crr),
@@ -655,8 +673,11 @@ correlations <- ggplot(df_pairs, aes(x = price_x, y = price_y)) +
   geom_point(alpha = 0.15, size = 0.3) +
   geom_abline(slope = 1, intercept = 0, color = "red", linewidth = 0.5) +
   facet_grid(type ~ comparison, scales = "free") +
-  labs(x = NULL, y = NULL) +
-  theme_minimal()
+  labs(x = "Odhodnocení prvním modelem", y = "Ohodnocení druhým modelem") +
+  theme_minimal() # +
+  # theme(
+ #   strip.text = element_text(size = 7) # Adjust font size here (default is ~10-11)
+  #)
 
 ggsave("~/Praxe/bakalarka/figures/correlations.png", correlations, width = 6, height = 4)
 

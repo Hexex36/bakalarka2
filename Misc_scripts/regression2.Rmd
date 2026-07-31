@@ -430,8 +430,8 @@ Všechny fixní efekty mimo modelu jsou statisicky významné. Velmi malý efekt
 
 ``` {r repeated_measure_post_base_fixed, warning=FALSE, messages=FALSE}
 subset_args <- c(
-  "S",
-  #"moneyness",
+  #"S",
+  "moneyness",
   "K",
   "r",
   "sigma",
@@ -762,8 +762,8 @@ subset_args <- c(
   #"ticker"
 )
 interactions <- c(
-  "(1 | ticker)"
-  #"(1 | snapshot_month)"
+  "(1 | ticker)",
+  "(1 | snapshot_month)"
 )
 
 rhs <- paste(c(subset_args, interactions), collapse = " + ")
@@ -849,6 +849,134 @@ anova(rmr_relative)
 ranef(rmr_relative)
 ```
 
+# Kontrola předpokladů
+
+## Linearita reziduí
+
+```{r residuals-linearity, echo=FALSE}
+png("~/Praxe/bakalarka/figures/residual_linearity.png", width = 6, height = 4, units = "in", res = 300)
+lin_res <- plot(rmr_relative)
+lin_res
+dev.off()
+
+lin_res
+```
+
+## Normalita reziduí
+
+```{r residuals-normality, echo=FALSE}
+png("~/Praxe/bakalarka/figures/residual_gaussness.png", width = 6, height = 4, units = "in", res = 300)
+qqnorm(resid(rmr_relative))
+qqline(resid(rmr_relative))
+dev.off()
+```
+
+## Homoscedasticita
+
+```{r homoska-am, echo=FALSE}
+homosced_am1 <- ggplot(
+  df_less |> filter(model == "user_bs" & am_eu == "american"),
+  aes(x = model_price, y = pricing_error, color = call_put)
+) +
+  geom_point(alpha = 0.15) +
+  facet_wrap(~ticker, nrow = 3, ncol = 4, scales = "free") +
+  scale_x_continuous(
+    breaks = scales::pretty_breaks(n = 3)  # nebo n = 3, podle prostoru
+  ) +
+  labs(
+    x = "Cena odhadnutá modelem",
+    y = "Odchylka",
+    title = "Test homoscedasticity"
+  ) +
+  theme(axis.text.x = element_text(size = 7))
+
+ggsave("~/Praxe/bakalarka/figures/homosced-am1.png", homosced_am1, width = 6, height = 4)
+
+homosced_am1
+```
+
+```{r homoska-eu, echo=FALSE}
+homosced_eu1 <- ggplot(
+  df_less |> filter(model == "user_bs" & am_eu == "european"),
+  aes(x = model_price, y = pricing_error, color = call_put)
+) +
+  geom_point(alpha = 0.15) +
+  facet_wrap(~ticker, nrow = 3, ncol = 2, scales = "free") +
+  scale_x_continuous(
+    breaks = scales::pretty_breaks(n = 3)  # nebo n = 3, podle prostoru
+  ) +
+  labs(
+    x = "Cena odhadnutá modelem",
+    y = "Odchylka",
+    title = "Test homoscedasticity"
+  ) +
+  theme(axis.text.x = element_text(size = 7))
+
+ggsave("~/Praxe/bakalarka/figures/homosced-eu1.png", homosced_eu1, width = 6, height = 4)
+
+homosced_eu1
+```
+
+```{r homoska2-am, echo=FALSE}
+homosced_am2 <- ggplot(
+  df_less |> filter(model == "user_bs" & am_eu == "american"),
+  aes(x = model_price, y = pricing_error, color = call_put)
+) +
+  geom_point(alpha = 0.15) +
+  facet_wrap(~ticker, nrow = 3, ncol = 4, scales = "free") +
+  scale_x_continuous(
+    breaks = scales::pretty_breaks(n = 3)  # nebo n = 3, podle prostoru
+  ) +
+  labs(
+    x = "Stáhnutá cena",
+    y = "Odchylka",
+    title = "Test homoscedasticity"
+  ) +
+  theme(axis.text.x = element_text(size = 7))
+
+ggsave("~/Praxe/bakalarka/figures/homosced-am2.png", homosced_am2, width = 6, height = 4)
+
+homosced_am2
+```
+
+```{r homoska2-eu, echo=FALSE}
+homosced_eu2 <- ggplot(
+  df_less |> filter(model == "user_bs" & am_eu == "european"),
+  aes(x = model_price, y = pricing_error, color = call_put)
+) +
+  geom_point(alpha = 0.15) +
+  facet_wrap(~ticker, nrow = 3, ncol = 2, scales = "free") +
+  scale_x_continuous(
+    breaks = scales::pretty_breaks(n = 3)  # nebo n = 3, podle prostoru
+  ) +
+  labs(
+    x = "Stáhnutá cena",
+    y = "Odchylka",
+    title = "Test homoscedasticity"
+  ) +
+  theme(axis.text.x = element_text(size = 7))
+
+ggsave("~/Praxe/bakalarka/figures/homosced-eu2.png", homosced_eu2, width = 6, height = 4)
+
+homosced_eu2
+```
+
+## Multikolinearita
+
+```{r multicol, echo=FALSE}
+car::vif(rmr_relative)
+```
+
+## Linearita náhodných efektů
+
+```{r random_linearity, echo=FALSE}
+png("~/Praxe/bakalarka/figures/effect_gaussness.png", width = 6, height = 4, units = "in", res = 300)
+re <- ranef(rmr_relative)$ticker
+qqnorm(re$`(Intercept)`)
+qqline(re$`(Intercept)`)
+dev.off()
+```
+
 <!--
 
 # Odstranění dle boxplotu
@@ -906,7 +1034,7 @@ df_even_less <- df_even_less |> filter(ticker != "^VIX")
 
 ## Data po vymazání
 
-``` {r strip_plot_box, echo=FALSE}
+``` {r strip_plot_box, echo=FALSE, eval=FALSE}
 strip_plot <- ggplot(
   df_even_less,
   aes(x = pricing_error, y = ticker, color = ticker)
