@@ -1,0 +1,304 @@
+This is LuaHBTeX, Version 1.24.0 (TeX Live 2026/Termux)  (format=lualatex 2026.8.10)  12 AUG 2026 01:26
+ restricted system commands enabled.
+**test.tex
+(./test.tex
+LaTeX2e <2026-06-01>
+L3 programming layer <2026-07-20>
+Lua module: luaotfload 2024-12-03 v3.29 Lua based OpenType font support
+Lua module: lualibs 2023-07-13 v2.76 ConTeXt Lua standard libraries.
+Lua module: lualibs-extended 2023-07-13 v2.76 ConTeXt Lua libraries -- extended 
+collection.
+luaotfload | conf : Root cache directory is "/data/data/com.termux/files/usr/sha
+re/texlive/2026/texmf-var/luatex-cache/generic/names".
+luaotfload | init : Loading fontloader "fontloader-2023-12-28.lua" from kpse-res
+olved path "/data/data/com.termux/files/usr/share/texlive/2026/texmf-dist/tex/lu
+atex/luaotfload/fontloader-2023-12-28.lua".
+Lua-only attribute luaotfload@noligature = 1
+luaotfload | init : Context OpenType loader version 3.134
+Inserting `luaotfload.node_processor' in `pre_linebreak_filter'.
+Inserting `luaotfload.node_processor' in `hpack_filter'.
+Inserting `luaotfload.glyph_stream' in `glyph_stream_provider'.
+Inserting `luaotfload.define_font' in `define_font'.
+Lua-only attribute luaotfload_color_attribute = 2
+luaotfload | conf : Root cache directory is "/data/data/com.termux/files/usr/sha
+re/texlive/2026/texmf-var/luatex-cache/generic/names".
+Inserting `luaotfload.harf.strip_prefix' in `find_opentype_file'.
+Inserting `luaotfload.harf.strip_prefix' in `find_truetype_file'.
+Removing  `luaotfload.glyph_stream' from `glyph_stream_provider'.
+Inserting `luaotfload.harf.glyphstream' in `glyph_stream_provider'.
+Inserting `luaotfload.harf.finalize_vlist' in `post_linebreak_filter'.
+Inserting `luaotfload.harf.finalize_hlist' in `hpack_filter'.
+Inserting `luaotfload.cleanup_files' in `wrapup_run'.
+Inserting `luaotfload.harf.finalize_unicode' in `finish_pdffile'.
+Inserting `luaotfload.glyphinfo' in `glyph_info'.
+Lua-only attribute luaotfload.letterspace_done = 3
+Inserting `luaotfload.aux.set_sscale_dimens' in `luaotfload.patch_font'.
+Inserting `luaotfload.aux.set_font_index' in `luaotfload.patch_font'.
+Inserting `luaotfload.aux.patch_cambria_domh' in `luaotfload.patch_font'.
+Inserting `luaotfload.aux.fixup_fontdata' in `luaotfload.patch_font_unsafe'.
+Inserting `luaotfload.aux.set_capheight' in `luaotfload.patch_font'.
+Inserting `luaotfload.aux.set_xheight' in `luaotfload.patch_font'.
+Inserting `luaotfload.rewrite_fontname' in `luaotfload.patch_font'.
+Inserting `tracingstacklevels' in `input_level_string'.
+(/data/data/com.termux/files/usr/share/texlive/2026/texmf-dist/tex/latex/base/a
+rticle.cls
+Document Class: article 2025/01/22 v1.4n Standard LaTeX document class
+
+(/data/data/com.termux/files/usr/share/texlive/2026/texmf-dist/tex/latex/base/s
+ize10.clo
+File: size10.clo 2025/01/22 v1.4n Standard LaTeX file (size option)
+luaotfload | db : Font names database loaded from /data/data/com.termux/files/us
+r/share/texlive/2026/texmf-var/luatex-cache/generic/names/luaotfload-names.luc.g
+z)
+\c@part=\count274
+\c@section=\count275
+\c@subsection=\count276
+\c@subsubsection=\count277
+\c@paragraph=\count278
+\c@subparagraph=\count279
+\c@figure=\count280
+\c@table=\count281
+\abovecaptionskip=\skip49
+\belowcaptionskip=\skip50
+\bibindent=\dimen149
+)
+(/data/data/com.termux/files/usr/share/texlive/2026/texmf-dist/tex/latex/pdfpag
+es/pdfpages.sty
+Package: pdfpages 2026/03/30 v0.6h Insert pages of external PDF documents (AM)
+
+(/data/data/com.termux/files/usr/share/texlive/2026/texmf-dist/tex/latex/base/i
+fthen.sty
+Package: ifthen 2024/03/16 v1.1e Standard LaTeX ifthen package (DPC)
+)
+(/data/data/com.termux/files/usr/share/texlive/2026/texmf-dist/tex/latex/tools/
+calc.sty
+Package: calc 2025/03/01 v4.3b Infix arithmetic (KKT,FJ)
+\calc@Acount=\count282
+\calc@Bcount=\count283
+\calc@Adimen=\dimen150
+\calc@Bdimen=\dimen151
+\calc@Askip=\skip51
+\calc@Bskip=\skip52
+LaTeX Info: Redefining \setlength on input line 86.
+LaTeX Info: Redefining \addtolength on input line 87.
+\calc@Ccount=\count284
+\calc@Cskip=\skip53
+)
+(/data/data/com.termux/files/usr/share/texlive/2026/texmf-dist/tex/latex/eso-pi
+c/eso-pic.sty
+Package: eso-pic 2026/05/31 v3.0e eso-pic (RN)
+\ESO@tempdima=\dimen152
+\ESO@tempdimb=\dimen153
+
+(/data/data/com.termux/files/usr/share/texlive/2026/texmf-dist/tex/latex/graphi
+cs/keyval.sty
+Package: keyval 2026-05-17 v1.15 key=value parser (DPC)
+\KV@toks@=\toks17
+)
+(/data/data/com.termux/files/usr/share/texlive/2026/texmf-dist/tex/latex/xcolor
+/xcolor.sty
+Package: xcolor 2024/09/29 v3.02 LaTeX color extensions (UK)
+
+(/data/data/com.termux/files/usr/share/texlive/2026/texmf-dist/tex/latex/graphi
+cs-cfg/color.cfg
+File: color.cfg 2016/01/02 v1.6 sample color configuration
+)
+Package xcolor Info: Driver file: luatex.def on input line 274.
+
+(/data/data/com.termux/files/usr/share/texlive/2026/texmf-dist/tex/latex/graphi
+cs-def/luatex.def
+File: luatex.def 2025/09/29 v1.2f Graphics/color driver for luatex
+)
+(/data/data/com.termux/files/usr/share/texlive/2026/texmf-dist/tex/latex/graphi
+cs/mathcolor.ltx)
+Package xcolor Info: Model `cmy' substituted by `cmy0' on input line 1349.
+Package xcolor Info: Model `hsb' substituted by `rgb' on input line 1353.
+Package xcolor Info: Model `RGB' extended on input line 1365.
+Package xcolor Info: Model `HTML' substituted by `rgb' on input line 1367.
+Package xcolor Info: Model `Hsb' substituted by `hsb' on input line 1368.
+Package xcolor Info: Model `tHsb' substituted by `hsb' on input line 1369.
+Package xcolor Info: Model `HSB' substituted by `hsb' on input line 1370.
+Package xcolor Info: Model `Gray' substituted by `gray' on input line 1371.
+Package xcolor Info: Model `wave' substituted by `hsb' on input line 1372.
+))
+(/data/data/com.termux/files/usr/share/texlive/2026/texmf-dist/tex/latex/etoolb
+ox/etoolbox.sty
+Package: etoolbox 2025/10/02 v2.5m e-TeX tools for LaTeX (JAW)
+\etb@tempcnta=\count285
+)
+(/data/data/com.termux/files/usr/share/texlive/2026/texmf-dist/tex/latex/graphi
+cs/graphicx.sty
+Package: graphicx 2026-05-17 v1.2e Enhanced LaTeX Graphics (DPC,SPQR)
+
+(/data/data/com.termux/files/usr/share/texlive/2026/texmf-dist/tex/latex/graphi
+cs/graphics.sty
+Package: graphics 2026-05-17 v1.4h Standard LaTeX Graphics (DPC,SPQR)
+
+(/data/data/com.termux/files/usr/share/texlive/2026/texmf-dist/tex/latex/graphi
+cs/trig.sty
+Package: trig 2023/12/02 v1.11 sin cos tan (DPC)
+)
+(/data/data/com.termux/files/usr/share/texlive/2026/texmf-dist/tex/latex/graphi
+cs-cfg/graphics.cfg
+File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
+)
+Package graphics Info: Driver file: luatex.def on input line 106.
+)
+\Gin@req@height=\dimen154
+\Gin@req@width=\dimen155
+)
+\AM@pagewidth=\dimen156
+\AM@pageheight=\dimen157
+\AM@fboxrule=\dimen158
+
+(/data/data/com.termux/files/usr/share/texlive/2026/texmf-dist/tex/latex/pdfpag
+es/ppluatex.def
+File: ppluatex.def 2026/03/30 v0.6h Pdfpages driver for LuaTeX (AM)
+)
+\pdfpages@includegraphics@status=\count286
+\AM@pagebox=\box53
+\AM@global@opts=\toks18
+\AM@pagecnt=\count287
+\AM@toc@title=\toks19
+\AM@lof@heading=\toks20
+\c@AM@survey=\count288
+\AM@templatesizebox=\box54
+)
+(/data/data/com.termux/files/usr/share/texlive/2026/texmf-dist/tex/latex/l3back
+end/l3backend-luatex.def
+File: l3backend-luatex.def 2026-07-20 L3 backend support: PDF output (LuaTeX)
+\l__color_backend_stack_int=\count289
+Inserting `l3color' in `luaotfload.parse_color'.) (./test.aux)
+\openout1 = test.aux
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 5.
+LaTeX Font Info:    ... okay on input line 5.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 5.
+LaTeX Font Info:    ... okay on input line 5.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 5.
+LaTeX Font Info:    ... okay on input line 5.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 5.
+LaTeX Font Info:    ... okay on input line 5.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 5.
+LaTeX Font Info:    ... okay on input line 5.
+LaTeX Font Info:    Checking defaults for TU/lmr/m/n on input line 5.
+LaTeX Font Info:    ... okay on input line 5.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 5.
+LaTeX Font Info:    ... okay on input line 5.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 5.
+LaTeX Font Info:    ... okay on input line 5.
+
+(/data/data/com.termux/files/usr/share/texlive/2026/texmf-dist/tex/context/base
+/mkii/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+\scratchcounter=\count290
+\scratchdimen=\dimen159
+\scratchbox=\box55
+\nofMPsegments=\count291
+\nofMParguments=\count292
+\everyMPshowfont=\toks21
+\MPscratchCnt=\count293
+\MPscratchDim=\dimen160
+\MPnumerator=\count294
+\makeMPintoPDFobject=\count295
+\everyMPtoPDFconversion=\toks22
+)
+(/data/data/com.termux/files/usr/share/texlive/2026/texmf-dist/tex/latex/epstop
+df-pkg/epstopdf-base.sty
+Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
+Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
+85.
+
+(/data/data/com.termux/files/usr/share/texlive/2026/texmf-dist/tex/latex/latexc
+onfig/epstopdf-sys.cfg
+File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
+e
+))
+(/data/data/com.termux/files/usr/share/texlive/2026/texmf-dist/tex/latex/pdflsc
+ape/pdflscape.sty
+Package: pdflscape 2025-06-23 v0.14 Display of landscape pages in PDF
+
+(/data/data/com.termux/files/usr/share/texlive/2026/texmf-dist/tex/latex/pdflsc
+ape/pdflscape-nometadata.sty
+Package: pdflscape-nometadata 2025-06-23 v0.14 Display of landscape pages in PD
+F (HO)
+
+(/data/data/com.termux/files/usr/share/texlive/2026/texmf-dist/tex/generic/ifte
+x/iftex.sty
+Package: iftex 2024/12/12 v1.0g TeX engine tests
+)
+(/data/data/com.termux/files/usr/share/texlive/2026/texmf-dist/tex/latex/graphi
+cs/lscape.sty
+Package: lscape 2020/05/28 v3.02 Landscape Pages (DPC)
+)
+Package pdflscape Info: Auto-detected driver: pdftex on input line 81.
+))
+<zadani.pdf, id=1, 597.23125pt x 845.1575pt>
+File: zadani.pdf Graphic file (type pdf)
+<use zadani.pdf>
+Package luatex.def Info: zadani.pdf  used on input line 6.
+(luatex.def)             Requested size: 597.22978pt x 845.15544pt.
+<zadani.pdf, id=3, page=1, 597.23125pt x 845.1575pt>
+File: zadani.pdf Graphic file (type pdf)
+<use zadani.pdf, page 1>
+Package luatex.def Info: zadani.pdf , page1 used on input line 6.
+(luatex.def)             Requested size: 597.22978pt x 845.15544pt.
+File: zadani.pdf Graphic file (type pdf)
+<use zadani.pdf, page 1>
+Package luatex.def Info: zadani.pdf , page1 used on input line 6.
+(luatex.def)             Requested size: 561.86221pt x 795.10587pt.
+File: zadani.pdf Graphic file (type pdf)
+<use zadani.pdf, page 1>
+Package luatex.def Info: zadani.pdf , page1 used on input line 6.
+(luatex.def)             Requested size: 561.86221pt x 795.10587pt.
+File: zadani.pdf Graphic file (type pdf)
+<use zadani.pdf, page 1>
+Package luatex.def Info: zadani.pdf , page1 used on input line 6.
+(luatex.def)             Requested size: 561.86221pt x 795.10587pt.
+File: zadani.pdf Graphic file (type pdf)
+<use zadani.pdf, page 1>
+Package luatex.def Info: zadani.pdf , page1 used on input line 6.
+(luatex.def)             Requested size: 561.86221pt x 795.10587pt.
+ [1
+
+
+<./zadani.pdf>]
+<zadani.pdf, id=36, page=2, 597.23125pt x 845.1575pt>
+File: zadani.pdf Graphic file (type pdf)
+<use zadani.pdf, page 2>
+Package luatex.def Info: zadani.pdf , page2 used on input line 6.
+(luatex.def)             Requested size: 561.86221pt x 795.10587pt.
+File: zadani.pdf Graphic file (type pdf)
+<use zadani.pdf, page 2>
+Package luatex.def Info: zadani.pdf , page2 used on input line 6.
+(luatex.def)             Requested size: 561.86221pt x 795.10587pt.
+File: zadani.pdf Graphic file (type pdf)
+<use zadani.pdf, page 2>
+Package luatex.def Info: zadani.pdf , page2 used on input line 6.
+(luatex.def)             Requested size: 561.86221pt x 795.10587pt.
+ [2
+
+<./zadani.pdf>] (./test.aux)
+ ***********
+LaTeX2e <2026-06-01>
+L3 programming layer <2026-07-20>
+ ***********
+)
+
+Here is how much of LuaTeX's memory you used:
+ 3174 strings out of 475695
+ 100000,662416 words of node,token memory allocated
+ 416 words of node memory still in use:
+   3 hlist, 1 vlist, 1 rule, 2 glue, 3 kern, 1 glyph, 4 attribute, 50 glue_spec,
+ 4 attribute_list, 1 write nodes
+   avail lists: 2:94,3:15,4:10,5:41,6:2,7:46,9:96
+ 25948 multiletter control sequences out of 65536+600000
+ 15 fonts using 723367 bytes
+ 72i,17n,87p,213b,491s stack positions out of 10000i,1000n,20000p,200000b,200000s
+Output written on test.pdf (2 pages, 17705 bytes).
+
+PDF statistics: 47 PDF objects out of 1000 (max. 8388607)
+ 29 compressed objects within 1 object stream
+ 0 named destinations out of 1000 (max. 1048576)
+ 1 words of extra memory for PDF output out of 10000 (max. 100000000)
+
