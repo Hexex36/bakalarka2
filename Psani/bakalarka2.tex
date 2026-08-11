@@ -60,6 +60,7 @@
 \fi
 
 \usepackage{csquotes} % uvozovky
+\usepackage{pdfpages}
 
 % sazba ukázek kódu 
 
@@ -158,7 +159,6 @@ Oceňování opcí na akcie \\za pomocí různých oceňovacích přístupů\par
     Vedoucí práce: 	& \vedouci\\
 &\\
 Studijní program:       & \programreal\\
-\ifthenelse{\boolean{api}}{Studijní obor:          & \obor\\}{}
 \end{tabular} 
 }
 \vspace{1.5cm}
@@ -166,22 +166,8 @@ Studijní program:       & \programreal\\
   \Large\scshape   Ústí nad Labem \rok
 \end{center}
 
-\cleardoublepage
-\thispagestyle{empty}
-\pagecolor{yellow}
-{\Large Namísto žlutých stránek vložte digitálně podepsané zadání kvalifikační práce poskytnuté vedoucím katedry.\\\
-Zadání musí zaujímat právě dvě strany.
-}
+\includepdf[pages=-]{zadani.pdf}
 
-Zadání je nutno vložit jako PDF pomocí některého nástroje, který umožňuje editaci dokumentů (se zachováním
-elektronického podpisu).
-
-V Linuxe lze například použít příkaz \texttt{pdftk}.
-
-\clearpage
-\thispagestyle{empty}
-\afterpage{\nopagecolor}
-~
 \clearpage
 
 \thispagestyle{empty} 
