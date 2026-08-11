@@ -1,0 +1,25 @@
+    \begin{tabular}{lrrrrrr}
+      \toprule
+      Parametr & \textasciicircum{}RUT & \textasciicircum{}VIX & \textasciicircum{}XDA & \textasciicircum{}XDB & \textasciicircum{}XDE & \textasciicircum{}XDN \\
+      \midrule
+      Min. poměru $S/K$ & 0.574 & 0.101 & 0.919 & 0.953 & 0.938 & 0.785 \\
+      Medián poměru $S/K$ & 1.043 & 0.691 & 1.029 & 1.011 & 0.992 & 0.940 \\
+      Max. poměru $S/K$ & 3.020 & 2.744 & 1.340 & 1.137 & 1.075 & 1.020 \\
+      \midrule
+      Min. $\sigma p.a.$ & 0.193 & 1.142 & 0.081 & 0.066 & 0.063 & 0.086 \\
+      Medián $\sigma p.a.$ & 0.230 & 1.363 & 0.098 & 0.069 & 0.077 & 0.100 \\
+      Max. $\sigma p.a.$ & 0.231 & 1.383 & 0.102 & 0.072 & 0.078 & 0.100 \\
+      \midrule
+      Min. $q p.a.$ & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+      Medián $q p.a.$ & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+      Max. $q p.a.$ & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+      \midrule
+      Min. $r p.a.$ & 0.034 & 0.036 & 0.035 & 0.035 & 0.035 & 0.035 \\
+      Medián $r p.a.$ & 0.037 & 0.037 & 0.037 & 0.037 & 0.037 & 0.037 \\
+      Max. $r p.a.$ & 0.041 & 0.039 & 0.038 & 0.038 & 0.038 & 0.038 \\
+      \midrule
+      Min. $T p.a.$ & 0.003 & 0.005 & 0.060 & 0.060 & 0.060 & 0.060 \\
+      Medián $T p.a.$ & 0.090 & 0.219 & 0.482 & 0.318 & 0.148 & 0.148 \\
+      Max. $T p.a.$ & 2.890 & 0.658 & 0.896 & 0.816 & 0.808 & 0.896 \\
+      \bottomrule
+    \end{tabular}
